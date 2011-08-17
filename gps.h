@@ -76,7 +76,6 @@ static volatile uint8_t gpsTextPos = 0;
 static volatile uint8_t gpsTextPartStep = GPS_PART_FINISHED; // Try to start on a $
 static volatile uint8_t gpsTextType = GPS_TYPE_NONE;
 static volatile uint8_t gpsChecksum = 0;
-static volatile uint8_t gpsChecksum1 = 0;
 
 // Text data
 static volatile uint32_t gpsTime = 0;
@@ -281,7 +280,6 @@ static void parseGpsPart() {
 			case GPS_PART_CHECKSUM:
 				updateParts();
 				uint8_t val = parseHex();
-				gpsChecksum1 = val;
 				gpsChecksumValid = (val == gpsChecksum);
 				break;
 			}				
