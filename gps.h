@@ -83,11 +83,11 @@ static volatile int32_t gpsLat = 0;
 static volatile int32_t gpsLong = 0;
 static volatile uint8_t gpsFix = 0;
 static volatile uint8_t gpsSats = 0;
-static volatile uint16_t gpsAltitude = 0;
+static volatile int16_t gpsAltitude = 0;
 static volatile uint16_t gpsSpeed = 0;
 static volatile uint16_t gpsAngle = 0;
 static volatile uint32_t gpsDate = 0;
-static volatile uint16_t gpsChecksumValid = 0;
+static volatile uint8_t gpsChecksumValid = 0;
 
 // For debugging
 #ifdef GPS_PART_TEXT

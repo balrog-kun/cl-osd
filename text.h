@@ -68,45 +68,50 @@ static void drawText() {
 inline void printDebugInfo() {
 	// ---- TODO: Cleanup here! ----
 	
-  //sprintf(text[0], "%02d:%02d:%02d:%02d", hour, min, sec, tick);
-	//sprintf(text[1], "%02d:%02d:%02d %d.%02dV %d.%02dV %d%%", hour, min, sec, adc0High, adc0Low, adc1High, adc1Low, batt1);
+  //snprintf(text[0], TEXT_MAX_CHARS, "%02d:%02d:%02d:%02d", hour, min, sec, tick);
+	//snprintf(text[1], TEXT_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d%%", hour, min, sec, adc0High, adc0Low, adc1High, adc1Low, batt1);
 	if (gpsTextType != GPS_TYPE_GPGGA ) {
-		//sprintf(text[0], "%.32s", gpsFullText);
-		//sprintf(text[0], "Part (%d): %s", gpsTextPartLength, gpsTextPart); //part
-		//sprintf(text[1], "%s == %d", gpsTextPart, gpsTextType);
-		//sprintf(text[0], "%s == %06ld", gpsTextPart, gpsTime); //time
-		//sprintf(text[0], "%s == %ld", gpsTextPart, gpsLat); //Lat
-		//sprintf(text[0], "%s == %ld", gpsTextPart, gpsLong); //Long
-		//sprintf(text[0], "%s == %d", gpsTextPart, gpsFix); //fix?
-		//sprintf(text[0], "%s == %d", gpsTextPart, gpsSats); //sats
-		//sprintf(text[0], "%s == %d", gpsTextPart, gpsAltitude); //altitude
-		//sprintf(text[0], "(%s == %d)? => %d", gpsTextPart, gpsChecksum, gpsChecksumValid); //checksum
-		//sprintf(text[1], "%.32s", &gpsFullText[30]);		
+		//snprintf(text[0], TEXT_MAX_CHARS, "%.32s", gpsFullText);
+		//snprintf(text[0], TEXT_MAX_CHARS, "Part (%d): %s", gpsTextPartLength, gpsTextPart); //part
+		//snprintf(text[1], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsTextType);
+		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %06ld", gpsTextPart, gpsTime); //time
+		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLat); //Lat
+		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLong); //Long
+		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsFix); //fix?
+		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsSats); //sats
+		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsAltitude); //altitude
+		//snprintf(text[0], TEXT_MAX_CHARS, "(%s == %d)? => %d", gpsTextPart, gpsChecksum, gpsChecksumValid); //checksum
+		//snprintf(text[1], TEXT_MAX_CHARS, "%.32s", &gpsFullText[30]);		
 	}
-	//sprintf(text[1], "%dV %dV %dV", analogInputsRaw[ANALOG_IN_1], analogInputsRaw[ANALOG_IN_2], analogInputsRaw[ANALOG_IN_3]);
+	//snprintf(text[1], TEXT_MAX_CHARS, "%dV %dV %dV", analogInputsRaw[ANALOG_IN_1], analogInputsRaw[ANALOG_IN_2], analogInputsRaw[ANALOG_IN_3]);
+}
+
+static uint8_t calcBatteryLevel(uint8_t adcInput) {
+	uint16_t batteryLevel = ((analogInputs[adcInput].high*100) + analogInputs[adcInput].low);
+	if (batteryLevel > BATT_MIN_VOLTAGE_INT) {
+		batteryLevel -= BATT_MIN_VOLTAGE_INT;
+		batteryLevel *= 100;
+		batteryLevel /= BATT_MAX_VOLTAGE_INT - BATT_MIN_VOLTAGE_INT;
+	}
+	else {
+		batteryLevel = 0;
+	}
+	return batteryLevel;
 }
 
 static void updateText() {
-	uint16_t batt1 = ((analogInputs[ANALOG_IN_2].high*100) + analogInputs[ANALOG_IN_2].low);
-	if (batt1 > BATT_MIN_VOLTAGE_INT) {
-		batt1 -= BATT_MIN_VOLTAGE_INT;
-		batt1 *= 100;
-		batt1 /= BATT_MAX_VOLTAGE_INT - BATT_MIN_VOLTAGE_INT;
-	}
-	else {
-		batt1 = 0;
-	}
+	uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
 	
 	clearText();
 	//printDebugInfo();
-	sprintf(text[0], "%02d:%02d:%02d %d.%02dV %d.%02dV %d.%02dV %d%%", 
+	snprintf(text[0], TEXT_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d.%02dV %d%%", 
     hour, min, sec, 
     analogInputs[ANALOG_IN_1].high, analogInputs[ANALOG_IN_1].low, 
     analogInputs[ANALOG_IN_2].high, analogInputs[ANALOG_IN_2].low, 
     analogInputs[ANALOG_IN_3].high, analogInputs[ANALOG_IN_3].low, 
-    batt1);
-	sprintf(text[1], "GPS: %ld, %ld %dm %ds", gpsLat, gpsLong, gpsAltitude, gpsSats);	  
-	//sprintf(text[1], "GPS: %dkm/h %d deg %ld %s", gpsSpeed, gpsAngle, gpsDate, gpsChecksumValid ? "OK" : "BAD");
+    batterLevel);
+	snprintf(text[1], TEXT_MAX_CHARS, "GPS: %ld, %ld %dm %ds", gpsLat, gpsLong, gpsAltitude, gpsSats);	  
+	//snprintf(text[1], TEXT_MAX_CHARS, "GPS: %dkm/h %d deg %ld %s", gpsSpeed, gpsAngle, gpsDate, gpsChecksumValid ? "OK" : "BAD");
 }
 
 static void drawTextLine(uint8_t textNumber)
