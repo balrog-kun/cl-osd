@@ -28,10 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "time.h"
 #include "adc.h"
 #include "delay.h"
-
-#ifdef GPS_ENABLED
 #include "gps.h"
-#endif //GPS_ENABLED
 
 // Text vars
 static uint16_t const textLines[TEXT_LINES] = {TEXT_LINES_LIST};
@@ -108,7 +105,7 @@ static void updateText() {
     analogInputs[ANALOG_IN_2].high, analogInputs[ANALOG_IN_2].low, 
     analogInputs[ANALOG_IN_3].high, analogInputs[ANALOG_IN_3].low, 
     batt1);
-	sprintf(text[1], "GPS: %ld, %ld %dm %ds", gpsLat, gpsLong, gpsAltitude, gpsSats);
+	sprintf(text[1], "GPS: %ld, %ld %dm %ds", gpsLat, gpsLong, gpsAltitude, gpsSats);	  
 	//sprintf(text[1], "GPS: %dkm/h %d deg %ld %s", gpsSpeed, gpsAngle, gpsDate, gpsChecksumValid ? "OK" : "BAD");
 }
 
