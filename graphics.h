@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define GRAPHICS_H_
 
 #include "config.h"
+
+#ifdef GRAPICSENABLED
+
 #include "trigometry.h"
 #include "time.h"
 #include "delay.h"
@@ -31,20 +34,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Graphics vars
 
-static uint8_t pixelData[GRAPHICS_DATA_SIZE];
+static uint8_t pixelData[GRAPHICS_WIDTH][GRAPHICS_HEIGHT];
 
 // Functions
 
 static void clearGraphics() {
-	for (uint8_t i = 0; i < GRAPHICS_HEIGHT; ++i) {
-		for (uint8_t j = 0; j < GRAPHICS_WIDTH; ++j) {
-			pixelData[j + i*GRAPHICS_WIDTH] = 0x00;
+	for (uint8_t x = 0; x < GRAPHICS_WIDTH; ++x) {
+	  for (uint8_t y = 0; y < GRAPHICS_HEIGHT; ++y) {
+			pixelData[x][y] = 0x00;
 		}		
 	}
 }	
 
 inline uint8_t validPos(uint8_t x, uint8_t y) {
-	if (x < 0 || y < 0 || x >= GRAPHICS_WIDTH_REAL || y >= GRAPHICS_HEIGHT) {
+	if (x >= GRAPHICS_WIDTH_REAL || y >= GRAPHICS_HEIGHT) { //x < 0 || y < 0 || 
 		return 0;
 	}
 	return 1;	
@@ -54,9 +57,8 @@ static void setPixel(uint8_t x, uint8_t y, uint8_t state) {
 	if (!validPos(x, y)) {
 		return;
 	}
-	uint16_t bytePos = x/8 + y*GRAPHICS_WIDTH;
 	uint8_t bitPos = 7-(x%8);
-	uint8_t temp = pixelData[bytePos];
+	uint8_t temp = pixelData[x/8][y];
 	if (state == 0) {
 		temp &= ~(1<<bitPos);
 	}
@@ -66,7 +68,7 @@ static void setPixel(uint8_t x, uint8_t y, uint8_t state) {
 	else {
 		temp ^= (1<<bitPos);
 	}
-	pixelData[bytePos] = temp;
+	pixelData[x/8][y] = temp;
 }
 
 // Credit for this one goes to wikipedia! :-)
@@ -106,13 +108,13 @@ static void drawCircle(uint8_t x0, uint8_t y0, uint8_t radius) {
   }
 }
 
-static void swap(int* a, int* b) {
-	int temp = *a;
+static void swap(uint8_t* a, uint8_t* b) {
+	uint8_t temp = *a;
 	*a = *b;
 	*b = temp;
 }
 
-static void drawLine(int x0, int y0, int x1, int y1) {
+static void drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 	uint8_t steep = abs(y1 - y0) > abs(x1 - x0);
 	if (steep) {
 		swap(&x0, &y0);
@@ -122,18 +124,18 @@ static void drawLine(int x0, int y0, int x1, int y1) {
 		swap(&x0, &x1);
 		swap(&y0, &y1);
 	}		 
-	int deltax = x1 - x0;
-	int deltay = abs(y1 - y0);
-	int error = deltax / 2;
-	int ystep;
-	int y = y0;
+	int8_t deltax = x1 - x0;
+	int8_t deltay = abs(y1 - y0);
+	int8_t error = deltax / 2;
+	int8_t ystep;
+	int8_t y = y0;
 	if (y0 < y1) { 
 		ystep = 1; 
 	}
 	else {
 		ystep = -1;
 	}		
-	for (int x = x0; x <= x1; ++x) {
+	for (uint8_t x = x0; x <= x1; ++x) {
 		if (steep) {
 			setPixel(y, x, 1);
 		}
@@ -148,13 +150,20 @@ static void drawLine(int x0, int y0, int x1, int y1) {
 	}				 
 }
 
+//static int16_t a = 0; //DEBUG
+//static int16_t b = 0;
+
 static void updateGrapics() {
 	drawLine(0, 0, GRAPHICS_SIZE-1, 0);
 	drawLine(0, 0, 0, GRAPHICS_SIZE-1);
 	drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0);
 	drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0, GRAPHICS_SIZE-1);
 	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, GRAPHICS_SIZE*0.1);
-	uint16_t pos = (tick * 360) / 50;
+	//uint16_t pos = (timeTick * 360) / 50;
+	uint16_t pos = gpsBearingToHome;
+	if (pos == 0) {
+		++pos;
+	}
 	int16_t a = myCos(pos);
 	int16_t b = mySin(pos);
 	a = (a * (GRAPHICS_SIZE / 3)) / 100;
@@ -164,18 +173,20 @@ static void updateGrapics() {
 
 static void drawGrapicsLine()
 {
-  _delay_us(GRAPICS_OFFSET);
-  uint16_t currLine = (line - GRAPICS_LINE); // 2;
+  _delay_us(GRAPHICS_OFFSET);
+  uint16_t currLine = (line - GRAPHICS_LINE);
   for (uint8_t i = 0; i < GRAPHICS_WIDTH; ++i) {
+	  SPDR = pixelData[i][currLine];
 	  DDRB |= OUT1;
-	  SPDR = pixelData[currLine*GRAPHICS_WIDTH + i];
 	  DELAY_9_NOP();
 	  DELAY_9_NOP();
-	  DELAY_8_NOP();
+	  DELAY_5_NOP();
   }
-  DELAY_3_NOP();
-  SPDR = 0x00;
   DDRB &= ~OUT1;
+  //DELAY_1_NOP();
+  SPDR = 0x00;
 }
+
+#endif //GRAPICSENABLED  
 
 #endif /* GRAPHICS_H_ */

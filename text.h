@@ -23,22 +23,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include <util/delay.h>
 
 #include "config.h"
+
+#ifdef TEXT_ENABLED
+
 #include "xconvert.h"
 #include "oem6x8.h"
 #include "time.h"
 #include "adc.h"
 #include "delay.h"
 #include "gps.h"
+#include "trigometry.h"
 
 // Text vars
-static uint16_t const textLines[TEXT_LINES] = {TEXT_LINES_LIST};
-static char text[TEXT_LINES][TEXT_MAX_CHARS];
-static uint8_t textData[TEXT_LINES][TEXT_MAX_CHARS*TEXT_CHAR_HEIGHT];
+static uint16_t const textLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
+static char text[TEXT_LINES][TEXT_LINE_MAX_CHARS];
+static uint8_t textData[TEXT_LINES][TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
+static uint8_t textInverted[TEXT_LINES][TEXT_LINE_MAX_CHARS/8];
 
 // Functions
 static void clearText() {
 	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
-		for (uint8_t j = 0; j < TEXT_MAX_CHARS; ++j) {
+		for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
 			text[i][j] = 0;
 		}
 	}
@@ -46,31 +51,65 @@ static void clearText() {
 
 static void clearTextData() {
 	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
-		for (uint8_t j = 0; j < TEXT_MAX_CHARS*TEXT_CHAR_HEIGHT; ++j) {
+		for (uint16_t j = 0; j < TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT; ++j) {
 			textData[i][j] = 0;
 		}		
 	}
 }
 
+static void clearTextInverted() {
+	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
+	  for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS/8; ++j) {
+	    textInverted[i][j] = 0;
+	  }
+	}	  
+}
+
+static void setCharInverted(uint8_t line, uint8_t pos, uint8_t bitValue) {
+	uint8_t bytePos = pos/8;
+	uint8_t bitPos = pos - (bytePos*8);
+	if (bitValue == TEXT_INVERTED_OFF) {
+	  textInverted[line][bytePos] ^= ~(1<<bitPos);
+	}
+	else if (bitValue == TEXT_INVERTED_ON) {
+	  textInverted[line][bytePos] |= (1<<bitPos);
+	}
+	else { //TEXT_INVERTED_FLIP
+	  textInverted[line][bytePos] ^= (1<<bitPos);
+	}
+}
+
+static uint8_t charInverted(uint8_t line, uint8_t pos) {
+	uint8_t bytePos = pos/8;
+	uint8_t bitPos = pos - (bytePos*8);
+	if (textInverted[line][bytePos] & (1<<bitPos)) {
+		return 1;
+	}
+	return 0;
+}
+
 static void drawText() {
 	for (uint8_t k = 0; k < TEXT_LINES; ++k) {
 		for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
-			for (uint8_t j = 0; j < TEXT_MAX_CHARS; j++) {
+			for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; j++) {
 				uint16_t oem6x8Pos = (text[k][j]*TEXT_CHAR_HEIGHT) + i;
-				uint8_t bytePos = i*TEXT_MAX_CHARS + j;
+				uint8_t bytePos = i*TEXT_LINE_MAX_CHARS + j;
 				uint8_t val = pgm_read_byte(&(oem6x8[oem6x8Pos]));
+				if (charInverted(k, j)) {
+					val = ~val;
+				}
 				textData[k][bytePos] = val;
 			}			
 		}
 	}
 }
 
-inline void printDebugInfo() {
+static void printDebugInfo() {
 	// ---- TODO: Cleanup here! ----
 	
   //snprintf(text[0], TEXT_MAX_CHARS, "%02d:%02d:%02d:%02d", hour, min, sec, tick);
 	//snprintf(text[1], TEXT_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d%%", hour, min, sec, adc0High, adc0Low, adc1High, adc1Low, batt1);
-	if (gpsTextType != GPS_TYPE_GPGGA ) {
+	//if (gpsTextType != GPS_TYPE_GPGGA ) {
 		//snprintf(text[0], TEXT_MAX_CHARS, "%.32s", gpsFullText);
 		//snprintf(text[0], TEXT_MAX_CHARS, "Part (%d): %s", gpsTextPartLength, gpsTextPart); //part
 		//snprintf(text[1], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsTextType);
@@ -82,36 +121,51 @@ inline void printDebugInfo() {
 		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsAltitude); //altitude
 		//snprintf(text[0], TEXT_MAX_CHARS, "(%s == %d)? => %d", gpsTextPart, gpsChecksum, gpsChecksumValid); //checksum
 		//snprintf(text[1], TEXT_MAX_CHARS, "%.32s", &gpsFullText[30]);		
-	}
+	//}
 	//snprintf(text[1], TEXT_MAX_CHARS, "%dV %dV %dV", analogInputsRaw[ANALOG_IN_1], analogInputsRaw[ANALOG_IN_2], analogInputsRaw[ANALOG_IN_3]);
-}
-
-static uint8_t calcBatteryLevel(uint8_t adcInput) {
-	uint16_t batteryLevel = ((analogInputs[adcInput].high*100) + analogInputs[adcInput].low);
-	if (batteryLevel > BATT_MIN_VOLTAGE_INT) {
-		batteryLevel -= BATT_MIN_VOLTAGE_INT;
-		batteryLevel *= 100;
-		batteryLevel /= BATT_MAX_VOLTAGE_INT - BATT_MIN_VOLTAGE_INT;
-	}
-	else {
-		batteryLevel = 0;
-	}
-	return batteryLevel;
 }
 
 static void updateText() {
 	uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
+	uint8_t rssiLevel = calcBatteryLevel(ANALOG_IN_1);
 	
-	clearText();
+	/*if (timeSec % 2 == 0) {
+	  setCharInverted(TEXT_1_LINE, 0, TEXT_INVERTED_FLIP);
+	  setCharInverted(TEXT_1_LINE, 1, TEXT_INVERTED_FLIP);
+	}*/
+	
 	//printDebugInfo();
-	snprintf(text[0], TEXT_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d.%02dV %d%%", 
-    hour, min, sec, 
+
+	snprintf(text[0], TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d.%02dV %d%%", 
+    timeHour, timeMin, timeSec,
     analogInputs[ANALOG_IN_1].high, analogInputs[ANALOG_IN_1].low, 
     analogInputs[ANALOG_IN_2].high, analogInputs[ANALOG_IN_2].low, 
+#ifdef G_OSD
     analogInputs[ANALOG_IN_3].high, analogInputs[ANALOG_IN_3].low, 
-    batterLevel);
-	snprintf(text[1], TEXT_MAX_CHARS, "GPS: %ld, %ld %dm %ds", gpsLat, gpsLong, gpsAltitude, gpsSats);	  
-	//snprintf(text[1], TEXT_MAX_CHARS, "GPS: %dkm/h %d deg %ld %s", gpsSpeed, gpsAngle, gpsDate, gpsChecksumValid ? "OK" : "BAD");
+#else
+    0, 0,
+#endif
+    rssiLevel);
+
+#ifdef GPS_ENABLED
+
+	if (timeSec%6 < 2)	{
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS1: %ld, %ld %dm %ds", gpsLastData.pos.latitude, gpsLastData.pos.longitude, gpsLastData.pos.altitude, gpsLastData.sats);
+	}	  
+	else if (timeSec%6 < 4)	{
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS2: %lum, %udeg Home %s", gpsDistToHome, gpsBearingToHome, gpsHomePosSet ? "VALID" : "BAD");
+	} 
+	else {
+		char tmp[3];
+		if (gpsLastData.checksumValid) {
+		  strncpy(tmp, "FIX", 4);
+		}
+		else {
+			strncpy(tmp, "BAD", 4);
+		}
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS3: %dkm/h %d deg %ld %s", gpsLastData.speed, gpsLastData.angle, gpsLastData.date, tmp);
+	}
+#endif
 }
 
 static void drawTextLine(uint8_t textNumber)
@@ -119,8 +173,8 @@ static void drawTextLine(uint8_t textNumber)
 	_delay_us(4);
 	uint8_t currLine = (line - textLines[textNumber]) / 2;
 	DDRB |= OUT1;
-	for (uint8_t i = 0; i < TEXT_MAX_CHARS; ++i) {
-		SPDR = textData[textNumber][currLine*TEXT_MAX_CHARS + i];
+	for (uint8_t i = 0; i < TEXT_LINE_MAX_CHARS; ++i) {
+		SPDR = textData[textNumber][currLine*TEXT_LINE_MAX_CHARS + i];
 		DELAY_9_NOP();
 		DELAY_9_NOP();
 		DELAY_9_NOP();
@@ -129,5 +183,7 @@ static void drawTextLine(uint8_t textNumber)
 	SPDR = 0x00;
 	DDRB &= ~OUT1;
 }
+
+#endif // TEXT_ENABLED
 
 #endif /* TEXT_H_ */

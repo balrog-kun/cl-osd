@@ -22,28 +22,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "config.h"
 
 // Time vars
-static uint8_t tick = 0;
-static uint8_t sec = 0;
-static uint8_t min = 0;
-static uint8_t hour = 0;
+static volatile uint8_t timeTick = 0;
+static volatile uint8_t timeSec = 0;
+static volatile uint8_t timeMin = 0;
+static volatile uint8_t timeHour = 0;
+
+#ifdef TIME_ENABLED
 
 static void updateTime() {
-	++tick;
-	if (tick == 50) {
-		tick = 0;
-		sec++;
+	++timeTick;
+	if (timeTick >= 50) {
+		timeTick = 0;
+		timeSec++;
 	}
-	if (sec == 60) {
-		sec = 0;
-		min++;
+	if (timeSec >= 60) {
+		timeSec = 0;
+		timeMin++;
 	}
-	if (min == 60) {
-		min = 0;
-		hour++;
+	if (timeMin >= 60) {
+		timeMin = 0;
+		timeHour++;
 	}
-	if (hour == 99) {
-		hour = 0;
+	if (timeHour >= 99) {
+		timeHour = 0;
 	}
 }
+
+#endif //TIME_ENABLED
 
 #endif /* TIME_H_ */

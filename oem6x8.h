@@ -6,7 +6,7 @@
 // Credit for this goes to MegaPirateOSD and Syberian!
 // Some minor changes made to fit my code better.
 
-static const uint8_t oem6x8[] PROGMEM = { // 6x8 DOS character set
+static const uint8_t oem6x8[1024] PROGMEM = { // 6x8 DOS character set
 ________,
 ________,
 ________,

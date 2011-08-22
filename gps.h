@@ -19,9 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifndef GPS_H_
 #define GPS_H_
 
-#include "config.h"
 
 #include <string.h>
+
+#include "config.h"
+
+#ifdef GPS_ENABLED
 
 #define GPS_START_CHAR '$'
 #define GPS_SEPARATOR_CHAR ','
@@ -49,7 +52,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // GPRMC parts
 #define GPS_GPRMC_PART_OFFSET 100
 #define GPS_PART_GPRMC_TIME GPS_GPRMC_PART_OFFSET + 1
-#define GPS_PART_GPRMC_FIX GPS_GPRMC_PART_OFFSET + 2
+#define GPS_PART_GPRMC_STATUS GPS_GPRMC_PART_OFFSET + 2
 #define GPS_PART_GPRMC_LAT GPS_GPRMC_PART_OFFSET + 3
 #define GPS_PART_GPRMC_LAT_UNIT GPS_GPRMC_PART_OFFSET + 4
 #define GPS_PART_GPRMC_LONG GPS_GPRMC_PART_OFFSET + 5
@@ -67,41 +70,55 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Text parsing
 #ifdef GPS_FULL_TEXT
-static volatile char gpsFullText[GPS_FULL_LENGTH];
-static volatile uint16_t gpsFullTextPos = 0;
+static char gpsFullText[GPS_FULL_LENGTH];
+static uint16_t gpsFullTextPos = 0;
 #endif // GPS_FULL_TEXT
 
-static volatile char gpsText[GPS_MAX_CHARS];
-static volatile uint8_t gpsTextPos = 0;
-static volatile uint8_t gpsTextPartStep = GPS_PART_FINISHED; // Try to start on a $
-static volatile uint8_t gpsTextType = GPS_TYPE_NONE;
-static volatile uint8_t gpsChecksum = 0;
+static char gpsText[GPS_MAX_CHARS];
+static uint8_t gpsTextPos = 0;
+static uint8_t gpsTextPartStep = GPS_PART_FINISHED; // Try to start on a $
+static uint8_t gpsTextType = GPS_TYPE_NONE;
+static uint8_t gpsChecksum = 0;
 
-// Text data
-static volatile uint32_t gpsTime = 0;
-static volatile int32_t gpsLat = 0;
-static volatile int32_t gpsLong = 0;
-static volatile uint8_t gpsFix = 0;
-static volatile uint8_t gpsSats = 0;
-static volatile int16_t gpsAltitude = 0;
-static volatile uint16_t gpsSpeed = 0;
-static volatile uint16_t gpsAngle = 0;
-static volatile uint32_t gpsDate = 0;
-static volatile uint8_t gpsChecksumValid = 0;
+// GPS data
+typedef struct {
+	int32_t latitude;
+  int32_t longitude;
+  int16_t altitude;
+} TGpsPos;
+
+typedef struct {
+	TGpsPos pos;
+  uint32_t time;
+  uint8_t fix;
+  uint8_t sats;
+  uint16_t speed;
+  uint16_t angle;
+  uint32_t date;
+  uint8_t checksumValid;
+} TGpsData;
+
+static TGpsPos gpsHomePos = {};
+static uint8_t gpsHomePosSet = 0;
+static TGpsData gpsLastValidData = {};
+static uint8_t gpsValidData = 0;
+static TGpsData gpsLastData = {};
 
 // For debugging
 #ifdef GPS_PART_TEXT
-static volatile char gpsTextPart[GPS_MAX_CHARS];
-static volatile uint8_t gpsTextPartLength = 0;
+static char gpsTextPart[GPS_MAX_CHARS];
+static uint8_t gpsTextPartLength = 0;
 #endif //GPS_PART_TEXT
 
+/*
+// Old and unused
 static void setupGpsInterrupt() {
   // USART setup
 	UCSR0B = (1<<RXEN0) | (1<<RXCIE0); // Enable RX and RX interrupt
 	UCSR0B |= (1<<UCSZ02); // 8 bits
 	UBRR0H = (uint8_t)(GPS_UBRR>>8); // set baud
 	UBRR0L = (uint8_t)GPS_UBRR;
-}
+}*/
 
 static void setupGps() {
   // USART setup
@@ -140,7 +157,7 @@ static int32_t parseInt() {
 		++i;
 		neg = 1;
 	}
-	while (isDigit(gpsText[i]) && i <= GPS_MAX_CHARS) {
+	while (isDigit(gpsText[i]) && i < GPS_MAX_CHARS) {
 		decimal *= 10;
 		decimal += (gpsText[i]) - '0';
 		++i;		
@@ -157,7 +174,7 @@ static int32_t parseFloat() {
 		++i;
 		neg = 1;
 	}
-	for (; i <= GPS_MAX_CHARS; ++i) {
+	for (; i < GPS_MAX_CHARS; ++i) {
 		if (isDigit(gpsText[i])) {
 			val *= 10;
 			val += (gpsText[i]) - '0';
@@ -172,7 +189,7 @@ static int32_t parseFloat() {
 static uint8_t parseHex() {
 	uint8_t i = 0;
 	uint32_t val = 0;
-	while (gpsText[i] != 0 && i <= GPS_MAX_CHARS) {
+	while (gpsText[i] != 0 && i < GPS_MAX_CHARS) {
 		val *= 16;
 		if (gpsText[i] >= 'A' && gpsText[i] <= 'F') {
 			val += 10 + gpsText[i] - 'A';
@@ -213,47 +230,47 @@ static void parseGpsPart() {
 			case GPS_PART_GPGGA_TIME:
 			case GPS_PART_GPRMC_TIME:
 				//updateParts();
-				gpsTime = parseInt();
+				gpsLastData.time = parseInt();
 				break;
 			case GPS_PART_GPGGA_LAT:
 			case GPS_PART_GPRMC_LAT:
-				gpsLat = parseFloat();
+				gpsLastData.pos.latitude = parseFloat();
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_LAT_UNIT:
 			case GPS_PART_GPRMC_LAT_UNIT:
 				if (gpsText[0] == 'S') {
-					gpsLat = -gpsLat;
+					gpsLastData.pos.latitude = -gpsLastData.pos.latitude;
 				}
 				break;
 			case GPS_PART_GPGGA_LONG:
 			case GPS_PART_GPRMC_LONG:
-				gpsLong = parseFloat();
+				gpsLastData.pos.longitude = parseFloat();
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_LONG_UNIT:
 			case GPS_PART_GPRMC_LONG_UNIT:
 				if (gpsText[0] == 'W') {
-					gpsLat = -gpsLat;
+					gpsLastData.pos.longitude = -gpsLastData.pos.longitude;
 				}
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_FIX:
-				gpsFix = parseInt();
+				gpsLastData.fix = parseInt();
 				//updateParts();
 				break;
-			case GPS_PART_GPRMC_FIX:
-				gpsFix = (gpsText[0] == 'A');
+			case GPS_PART_GPRMC_STATUS:
+				// Status
 				break;
 			case GPS_PART_GPGGA_SATS:
-				gpsSats = parseInt();
+				gpsLastData.sats = parseInt();
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_DILUTION:
 				// Horizontal dilution of position
 				break;
 			case GPS_PART_GPGGA_ALTITUDE:
-				gpsAltitude = parseInt();
+				gpsLastData.pos.altitude = parseInt();
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_ALTITUDE_UNIT:
@@ -266,21 +283,21 @@ static void parseGpsPart() {
 				// Geoid unit
 				break;
 			case GPS_PART_GPRMC_SPEED:
-				gpsSpeed = parseInt(); // Only use int part
+				gpsLastData.speed = parseInt(); // Only use int part
 				// Convert to km/h. 1 knot = 1.852 km/h = 463/250
-				gpsSpeed *= 463; // Might need bigger var if you go really fast! :-)
-				gpsSpeed /= 250;
+				gpsLastData.speed *= 463; // Might need bigger var if you go really fast! :-)
+				gpsLastData.speed /= 250;
 				break;
 			case GPS_PART_GPRMC_ANGLE:
-				gpsAngle = parseInt(); // Only use int part
+				gpsLastData.angle = parseInt(); // Only use int part
 				break;
 			case GPS_PART_GPRMC_DATE:
-			  gpsDate = parseInt();
+			  gpsLastData.date = parseInt();
 			  break;
 			case GPS_PART_CHECKSUM:
 				updateParts();
 				uint8_t val = parseHex();
-				gpsChecksumValid = (val == gpsChecksum);
+				gpsLastData.checksumValid = (val == gpsChecksum);
 				break;
 			}				
 		}			
@@ -319,14 +336,23 @@ static void decodeGpsData(char data) {
 	case '\n':
 	  parseGpsPart();
 	  gpsTextPartStep = GPS_PART_FINISHED;
+	  if (gpsLastData.checksumValid != 0) {
+		  if (gpsHomePosSet == 0) {
+			  gpsHomePos = gpsLastData.pos;
+		  }
+			gpsLastValidData = gpsLastData;
+			gpsValidData = 1;
+	  }		  
 		return;
 		break;
 	default:
 		gpsText[gpsTextPos] = data;
 		if (gpsTextPartStep != GPS_PART_CHECKSUM) {
 		  gpsChecksum ^= data;
-		}		  
-		++gpsTextPos;
+		}
+		if (gpsTextPos < GPS_MAX_CHARS-1) {
+		  ++gpsTextPos;
+		}
 		break;
 	}
 	
@@ -337,5 +363,7 @@ static void decodeGpsData(char data) {
 	}
 #endif // FULLGPSTEXT
 }
+
+#endif //GPS_ENABLED
 
 #endif /* GPS_H_ */

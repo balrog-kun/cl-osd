@@ -19,25 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "config.h"
 #include "line.h"
 
-#ifdef GRAPICSENABLED
 #include "graphics.h"
-#endif // GRAPICSENABLED
-
-#ifdef TEXT_ENABLED
 #include "text.h"
-#endif //TEXTENABLED
-
-#ifdef TIME_ENABLED
 #include "time.h"
-#endif //TIMEENABLED
-
-#ifdef ADC_ENABLED
 #include "adc.h"
-#endif //ADCENABLED
-
-#ifdef GPS_ENABLED
 #include "gps.h"
-#endif //GPS_ENABLED
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -67,16 +53,28 @@ static void setup(void)
 }
 
 static void updateOnceEverySec() {
+#ifdef E_OSD
+  PORTD ^= LED;
+#endif
+	
 #ifdef GPS_ENABLED
-  if (gpsFix) {
+  if (gpsLastData.fix != 0) {
 		PORTD |= LED;
 	}
 	else {
 		PORTD ^= LED;
 	}
+	//calcHome(58244360, 16377910, 58357150, 16112030);
+	//calcHome(-23010000, -46010000, -23020000, -46010000);
+	if (gpsHomePosSet) {
+	  calcHome(gpsLastValidData.pos.latitude,
+	           gpsLastValidData.pos.longitude,
+			       gpsHomePos.latitude,
+				     gpsHomePos.longitude);
+	}					 
 #endif //GPS_ENABLED
   
-#ifdef ADC_ENABLED  
+#ifdef ADC_ENABLED 
   measureAnalog();
 #endif //ADCENABLED
 }
@@ -87,7 +85,7 @@ static void updateOnceEveryFrame() {
 		++keyTime;
 	}
 
-	if (tick == 0) {
+	if (timeTick == 0) {
     updateOnceEverySec();
 	}
 
@@ -96,7 +94,8 @@ static void updateOnceEveryFrame() {
 #endif //TIMEENABLED
 
 #ifdef TEXT_ENABLED
-	//clearText();
+	clearText();
+	clearTextInverted();
 	updateText();
 	drawText();
 #endif //TEXTENABLED
@@ -107,8 +106,10 @@ static void updateOnceEveryFrame() {
 #endif //GRAPICSENABLED  
 }
 
-int main(void)
-{
+void main(void) __attribute__ ((noreturn)); // Main never returns, saves a few bytes
+
+void main(void) {
+	//_delay_ms(1000);
 	setup();
   
 #ifdef TEXT_ENABLED
@@ -149,7 +150,7 @@ int main(void)
 
 		if (update == 1) {
 			update = 0;
-			updateOnceEveryFrame();
+			updateOnceEveryFrame();			  
 		}      
 	}
 }

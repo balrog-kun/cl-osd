@@ -38,6 +38,7 @@ static void setupLine() {
 	// SPI setup
 	SPDR = 0x00; // Clear spi reg or thrash will show on video
 	SPSR &= ~(1<<SPI2X); // Clear dual speed
+	//SPSR |= (1<<SPI2X); // Set dual speed
 	SPCR = (1<<SPE) | (1<<MSTR) | (1<<CPHA);
 }  
 
@@ -52,7 +53,7 @@ static void updateLine() {
 					drawTextLine(textNumber);
 #endif //TEXTENABLED			
 					break;
-				case LINE_TYPE_GRAPICS:
+				case LINE_TYPE_GRAPHICS:
 #ifdef GRAPICSENABLED
 					drawGrapicsLine();
 #endif //GRAPICSENABLED
@@ -62,16 +63,16 @@ static void updateLine() {
 		
 		// We save some time by pre-calculating next type.
 		line++;
-		if (line >= TEXT_1_LINE && line < (TEXT_1_LINE + TEXT_CHAR_HEIGHT * 2)) {
+		if (line >= TEXT_1_TRIG_LINE && line < (TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2)) {
 			lineType = LINE_TYPE_TEXT;
 			textNumber = 0;
 		}
-		else if (line >= TEXT_2_LINE && line < (TEXT_2_LINE + TEXT_CHAR_HEIGHT * 2)) {
+		else if (line >= TEXT_2_TRIG_LINE && line < (TEXT_2_TRIG_LINE + TEXT_CHAR_HEIGHT * 2)) {
 			lineType = LINE_TYPE_TEXT;
 			textNumber = 1;
 		}
-		else if (line >= GRAPICS_LINE && line < (GRAPICS_LINE + GRAPHICS_HEIGHT)) {
-			lineType = LINE_TYPE_GRAPICS;
+		else if (line >= GRAPHICS_LINE && line < (GRAPHICS_LINE + GRAPHICS_HEIGHT)) {
+			lineType = LINE_TYPE_GRAPHICS;
 		}
 		else if (line == LAST_LINE) {
 			// We want to start update as fast as possible so we don't use a type here.
@@ -83,8 +84,8 @@ static void updateLine() {
 		}
 	}
 	else { // V sync
-		if(line>200) {
-			line=0;
+		if(line > 200) {
+			line = 0;
 		}
 	}
 }

@@ -27,8 +27,15 @@ typedef struct {
   uint8_t high;
 } TAnalogValue;
 
-static TAnalogValue analogInputs[ANALOG_IN_NUMBER];
-static uint16_t analogInputsRaw[ANALOG_IN_NUMBER];
+static TAnalogValue analogInputs[ANALOG_IN_NUMBER] = {};
+static uint16_t analogInputsRaw[ANALOG_IN_NUMBER] = {};
+
+#ifndef ADC_ENABLED
+
+static uint8_t calcBatteryLevel(uint8_t adcInput) { DUMMY_FUNC }
+static uint8_t calcRssiLevel(uint8_t adcInput) { DUMMY_FUNC }
+
+#else
 
 static void setupAdc() {
   // ADC setup
@@ -60,6 +67,30 @@ static void measureAnalog() {
   }    
 }
 
+static uint8_t calcGenericLevel(uint8_t adcInput, uint16_t minLevel, uint16_t maxLevel) {
+	uint16_t level = ((analogInputs[adcInput].high * 100) + analogInputs[adcInput].low);
+	if (level > maxLevel) {
+		level = 100;
+	}		
+	else if (level > minLevel) {
+		level -= minLevel;
+		level *= 100;
+		level /= maxLevel - minLevel;
+	}
+	else {
+		level = 0;
+	}
+	return level;
+}
 
+static uint8_t calcBatteryLevel(uint8_t adcInput) {
+  return calcGenericLevel(adcInput, BATT_MIN_VOLTAGE_INT, BATT_MAX_VOLTAGE_INT);
+}
+
+static uint8_t calcRssiLevel(uint8_t adcInput) {
+  return calcGenericLevel(adcInput, RSSI_MIN_VOLTAGE_INT, RSSI_MAX_VOLTAGE_INT);
+}
+
+#endif //ADC_ENABLED 
 
 #endif /* ADC_H_ */

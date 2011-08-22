@@ -21,13 +21,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include <avr/io.h>
 
-// CPU speed
-#define F_CPU 24000000UL
+// ------------------ MAIN CONFIGS -----------------------
 
-// Select one of these depending on your board. 
-// Selecting the wrong type might damage the board.
+// Select one of these depending on your board (Wrong type might damage the board!)
 //#define E_OSD
 #define G_OSD
+
+// For debugging. (All combinations might not work) :-)
+#ifdef G_OSD
+#define GRAPICSENABLED // Not working right now?
+#endif
+#define TEXT_ENABLED
+#define TIME_ENABLED
+#define ADC_ENABLED
+#ifdef G_OSD
+#define GPS_ENABLED
+#endif //G_OSD
+
+// Battery
+#define CELL_LOW_VOLTAGE 3.8
+#define CELL_HIGH_VOLTAGE 4.2
+#define CELL_COUNT 3
+
+// RSSI convertion
+#define RSSI_MAX_VOLTAGE 4.7
+#define RSSI_MIN_VOLTAGE 1.2
+
+// ----------------- INTERNAL CONFIGS ------------------
 
 // Check sanity
 #ifdef E_OSD
@@ -62,22 +82,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define LTRIG (1<<PD2) //INT0
 #define SS (1<<PB2)
 
-// For debugging. (All combinations might not work) :-)
-#define GRAPICSENABLED
-#define TEXT_ENABLED
-#define TIME_ENABLED
-#define ADC_ENABLED
-#ifdef G_OSD
-#define GPS_ENABLED
-#endif //G_OSD
-
 // Text
-#define TEXT_MAX_CHARS 32
+#define TEXT_LINE_MAX_CHARS 32
 #define TEXT_CHAR_HEIGHT 8
-#define TEXT_1_LINE 50
-#define TEXT_2_LINE 265
+#define TEXT_1_TRIG_LINE 50
+#define TEXT_2_TRIG_LINE 265
 #define TEXT_LINES 2
-#define TEXT_LINES_LIST TEXT_1_LINE, TEXT_2_LINE
+#define TEXT_TRIG_LINES_LIST TEXT_1_TRIG_LINE, TEXT_2_TRIG_LINE
+#define TEXT_1_LINE 0
+#define TEXT_2_LINE 1
+#define TEXT_INVERTED_OFF 0
+#define TEXT_INVERTED_ON 1
+#define TEXT_INVERTED_FLIP 2
 
 // ADC
 #define ANALOG_IN_1 0
@@ -99,48 +115,62 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #endif //GOSD
 
 // Battery
-#define CELL_LOW_VOLTAGE 3.8
-#define CELL_HIGH_VOLTAGE 4.2
-#define CELL_COUNT 3
 #define BATT_MIN_VOLTAGE CELL_LOW_VOLTAGE*CELL_COUNT
 #define BATT_MAX_VOLTAGE CELL_HIGH_VOLTAGE*CELL_COUNT
 #define BATT_MIN_VOLTAGE_INT (uint16_t)(BATT_MIN_VOLTAGE*100)
 #define BATT_MAX_VOLTAGE_INT (uint16_t)(BATT_MAX_VOLTAGE*100)
 
+// RSSI convertion
+#define RSSI_MIN_VOLTAGE_INT (uint16_t)(RSSI_MIN_VOLTAGE*100)
+#define RSSI_MAX_VOLTAGE_INT (uint16_t)(RSSI_MAX_VOLTAGE*100)
+
 // Graphics
-#define GRAPHICS_SIZE 32
+#define GRAPHICS_SIZE 16
 #define GRAPHICS_WIDTH_REAL GRAPHICS_SIZE
 #define GRAPHICS_WIDTH (GRAPHICS_SIZE/8)
 #define GRAPHICS_HEIGHT GRAPHICS_SIZE
-#define GRAPHICS_DATA_SIZE GRAPHICS_WIDTH*GRAPHICS_HEIGHT
-#define GRAPICS_LINE 135
-#define GRAPICS_OFFSET 26
+//#define GRAPHICS_DATA_SIZE GRAPHICS_WIDTH*GRAPHICS_HEIGHT
+#define GRAPHICS_LINE 135
+#define GRAPHICS_OFFSET 26
 
 // Line triggering
 #define LAST_LINE 0
-#if TEXT_1_LINE + TEXT_CHAR_HEIGHT * 2 > LAST_LINE
+#if TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2 > LAST_LINE
 #undef LAST_LINE
-#define LAST_LINE TEXT_1_LINE + TEXT_CHAR_HEIGHT * 2
+#define LAST_LINE TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2
 #endif
-#if TEXT_2_LINE + TEXT_CHAR_HEIGHT * 2 > LAST_LINE
+#if TEXT_2_TRIG_LINE + TEXT_CHAR_HEIGHT * 2 > LAST_LINE
 #undef LAST_LINE
-#define LAST_LINE TEXT_2_LINE + TEXT_CHAR_HEIGHT * 2
+#define LAST_LINE TEXT_2_TRIG_LINE + TEXT_CHAR_HEIGHT * 2
 #endif
-#if GRAPICS_LINE + GRAPHICS_HEIGHT * 2 > LAST_LINE
+#if GRAPHICS_LINE + GRAPHICS_HEIGHT * 2 > LAST_LINE
 #undef LAST_LINE
-#define LAST_LINE GRAPICS_LINE + GRAPHICS_HEIGHT * 2
+#define LAST_LINE GRAPHICS_LINE + GRAPHICS_HEIGHT * 2
 #endif
 
 #define LINE_TYPE_UNKNOWN 0
 #define LINE_TYPE_TEXT 1
-#define LINE_TYPE_GRAPICS 2
+#define LINE_TYPE_GRAPHICS 2
+
+// CPU speed
+#define F_CPU 24000000UL
 
 // GPS
 #define GPS_BAUD 4800
 #define GPS_UBRR (F_CPU/16/GPS_BAUD-1)
 #define GPS_MAX_CHARS 15
 
+#define DUMMY_FUNC return 0;
+
 // Global vars
 static volatile uint16_t line = 0;
+
+// Debug vars!
+static volatile uint8_t u8 = 0;
+static volatile int8_t i8 = 0;
+static volatile uint16_t u16 = 0;
+static volatile int16_t i16 = 0;
+static volatile uint32_t u32 = 0;
+static volatile int32_t i32 = 0;
 
 #endif /* SETUP_H_ */
