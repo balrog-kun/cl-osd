@@ -24,12 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // ------------------ MAIN CONFIGS -----------------------
 
 // Select one of these depending on your board (Wrong type might damage the board!)
+// This can also be set using symbol in configuration.
 //#define E_OSD
-#define G_OSD
+//#define G_OSD
 
 // For debugging. (All combinations might not work) :-)
 #ifdef G_OSD
-//#define GRAPICSENABLED // Not working right now?
+#define GRAPICSENABLED
 #endif
 #define TEXT_ENABLED
 #define TIME_ENABLED
@@ -52,7 +53,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // Check sanity
 #ifdef E_OSD
 #ifdef G_OSD
-#error "Cannot use both e-osd and g-osd at the same time!"
+#error "Can't use multiple targets at the same time!"
+#endif
+#endif
+
+#ifndef E_OSD
+#ifndef G_OSD
+#error "Set atlest one target!"
 #endif
 #endif
 
@@ -120,7 +127,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define BATT_MIN_VOLTAGE_INT (uint16_t)(BATT_MIN_VOLTAGE*100)
 #define BATT_MAX_VOLTAGE_INT (uint16_t)(BATT_MAX_VOLTAGE*100)
 
-// RSSI convertion
+// RSSI conversion
 #define RSSI_MIN_VOLTAGE_INT (uint16_t)(RSSI_MIN_VOLTAGE*100)
 #define RSSI_MAX_VOLTAGE_INT (uint16_t)(RSSI_MAX_VOLTAGE*100)
 
