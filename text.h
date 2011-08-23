@@ -150,20 +150,27 @@ static void updateText() {
 #ifdef GPS_ENABLED
 
 	if (timeSec%6 < 2)	{
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS1: %ld, %ld %dm %ds", gpsLastData.pos.latitude, gpsLastData.pos.longitude, gpsLastData.pos.altitude, gpsLastData.sats);
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS1: %ld, %ld %d%s %ds", 
+	    gpsLastData.pos.latitude, 
+		  gpsLastData.pos.longitude, 
+		  gpsLastData.pos.altitude, 
+		  TEXT_LENGTH_UNIT,
+		  gpsLastData.sats);
 	}	  
 	else if (timeSec%6 < 4)	{
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS2: %lum, %udeg Home %s", gpsDistToHome, gpsBearingToHome, gpsHomePosSet ? "VALID" : "BAD");
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS2: %lu%s, %udeg Home %s", 
+	    gpsDistToHome,
+		  TEXT_LENGTH_UNIT,
+		  gpsBearingToHome, 
+		  gpsHomePosSet ? "VALID" : "BAD");
 	} 
 	else {
-		char tmp[3];
-		if (gpsLastData.checksumValid) {
-		  strncpy(tmp, "FIX", 4);
-		}
-		else {
-			strncpy(tmp, "BAD", 4);
-		}
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS3: %dkm/h %d deg %ld %s", gpsLastData.speed, gpsLastData.angle, gpsLastData.date, tmp);
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS3: %d%s %d deg %ld %s", 
+	    gpsLastData.speed,
+		  TEXT_SPEED_UNIT,
+		  gpsLastData.angle, 
+		  gpsLastData.date, 
+		  gpsLastData.checksumValid ? "FIX" : "BAD");
 	}
 #endif
 }

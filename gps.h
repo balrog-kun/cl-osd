@@ -205,6 +205,20 @@ static uint8_t parseHex() {
 	return val;
 }
 
+static void meterToFeet(int16_t* var) {
+	int32_t tmp = *var;
+	tmp *= 3281;
+	tmp /= 1000;
+	*var = tmp;
+}
+
+static void knotToMph(int16_t* var) {
+	int32_t tmp = *var;
+	tmp *= 1151;
+	tmp /= 1000;
+	*var = tmp;
+}
+
 static void updateParts() {
 #ifdef GPS_PART_TEXT
 	strncpy((char*)gpsTextPart, (char*)gpsText, GPS_MAX_CHARS);
@@ -271,10 +285,13 @@ static void parseGpsPart() {
 				break;
 			case GPS_PART_GPGGA_ALTITUDE:
 				gpsLastData.pos.altitude = parseInt();
+#ifdef IMPERIAL_SYSTEM
+        meterToFeet(gpsLastData.pos.altitude);
+#endif // IMPERIAL_SYSTEM
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_ALTITUDE_UNIT:
-				// Altitude unit
+				// Altitude unit TODO!
 				break;
 			case GPS_PART_GPGGA_GEOID_HEIGHT:
 				// If missing altitude wrong?
@@ -284,9 +301,13 @@ static void parseGpsPart() {
 				break;
 			case GPS_PART_GPRMC_SPEED:
 				gpsLastData.speed = parseInt(); // Only use int part
+#ifdef METRIC_SYSTEM
 				// Convert to km/h. 1 knot = 1.852 km/h = 463/250
 				gpsLastData.speed *= 463; // Might need bigger var if you go really fast! :-)
 				gpsLastData.speed /= 250;
+#else // IMPERIAL_SYSTEM
+        knotToMph(gpsLastData.speed);
+#endif // METRIC_SYSTEM
 				break;
 			case GPS_PART_GPRMC_ANGLE:
 				gpsLastData.angle = parseInt(); // Only use int part

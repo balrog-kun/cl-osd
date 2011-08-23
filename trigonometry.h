@@ -190,6 +190,10 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   }
   gpsDistToHome = gpsDistToHome * 309; // ate aqui em segundo * 100
   gpsDistToHome = gpsDistToHome / 1000; // metros, agora
+#ifdef IMPERIAL_SYSTEM  
+  gpsDistToHome *= 3281;
+	gpsDistToHome /= 1000;
+#endif	
 }
 
 #endif /* TRIGOMETRY_H_ */

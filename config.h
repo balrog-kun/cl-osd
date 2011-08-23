@@ -48,19 +48,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define RSSI_MAX_VOLTAGE 4.7
 #define RSSI_MIN_VOLTAGE 1.2
 
+#define IMPERIAL_SYSTEM
+//#define METRIC_SYSTEM
+
 // ----------------- INTERNAL CONFIGS ------------------
 
 // Check sanity
-#ifdef E_OSD
-#ifdef G_OSD
-#error "Can't use multiple targets at the same time!"
-#endif
+#if (defined(E_OSD) && defined(G_OSD)) || (!defined(E_OSD) && !defined(G_OSD))
+#error "Select one and only one target!"
 #endif
 
-#ifndef E_OSD
-#ifndef G_OSD
-#error "Set atlest one target!"
-#endif
+#if (defined(IMPERIAL_SYSTEM) && defined(METRIC_SYSTEM)) || (!defined(IMPERIAL_SYSTEM) && !defined(METRIC_SYSTEM))
+#error "Select one and only one system!"
 #endif
 
 // in / out
@@ -101,6 +100,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
 #define TEXT_INVERTED_FLIP 2
+
+#ifdef METRIC_SYSTEM
+#define TEXT_LENGTH_UNIT "m"
+#else // IMPERIAL_SYSTEM
+#define TEXT_LENGTH_UNIT "f"
+#endif
+
+#ifdef METRIC_SYSTEM
+#define TEXT_SPEED_UNIT "km/h"
+#else // IMPERIAL_SYSTEM
+#define TEXT_SPEED_UNIT "mph"
+#endif
 
 // ADC
 #define ANALOG_IN_1 0
