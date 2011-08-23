@@ -64,7 +64,7 @@ static void updateOnceEverySec() {
 	else {
 		PORTD ^= LED;
 	}
-	//calcHome(58244360, 16377910, 58357150, 16112030);
+	//calcHome(58244360, 15377910, 58357150, 16112030);
 	//calcHome(-23010000, -46010000, -23020000, -46010000);
 	if (gpsHomePosSet) {
 	  calcHome(gpsLastValidData.pos.latitude,

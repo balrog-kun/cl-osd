@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // For debugging. (All combinations might not work) :-)
 #ifdef G_OSD
-#define GRAPICSENABLED // Not working right now?
+//#define GRAPICSENABLED // Not working right now?
 #endif
 #define TEXT_ENABLED
 #define TIME_ENABLED
