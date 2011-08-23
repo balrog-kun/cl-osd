@@ -123,7 +123,7 @@
     <Compile Include="time.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="trigometry.h">
+    <Compile Include="trigonometry.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="xconvert.h">

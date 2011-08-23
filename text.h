@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "adc.h"
 #include "delay.h"
 #include "gps.h"
-#include "trigometry.h"
+#include "trigonometry.h"
 
 // Text vars
 static uint16_t const textLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
