@@ -110,16 +110,6 @@ static char gpsTextPart[GPS_MAX_CHARS];
 static uint8_t gpsTextPartLength = 0;
 #endif //GPS_PART_TEXT
 
-/*
-// Old and unused
-static void setupGpsInterrupt() {
-  // USART setup
-	UCSR0B = (1<<RXEN0) | (1<<RXCIE0); // Enable RX and RX interrupt
-	UCSR0B |= (1<<UCSZ02); // 8 bits
-	UBRR0H = (uint8_t)(GPS_UBRR>>8); // set baud
-	UBRR0L = (uint8_t)GPS_UBRR;
-}*/
-
 static void setupGps() {
   // USART setup
 	UCSR0B = (1<<RXEN0); // Enable RX
@@ -212,7 +202,7 @@ static void meterToFeet(int16_t* var) {
 	*var = tmp;
 }
 
-static void knotToMph(int16_t* var) {
+static void knotToMph(uint16_t* var) {
 	int32_t tmp = *var;
 	tmp *= 1151;
 	tmp /= 1000;
@@ -286,7 +276,7 @@ static void parseGpsPart() {
 			case GPS_PART_GPGGA_ALTITUDE:
 				gpsLastData.pos.altitude = parseInt();
 #ifdef IMPERIAL_SYSTEM
-        meterToFeet(gpsLastData.pos.altitude);
+        meterToFeet(&gpsLastData.pos.altitude);
 #endif // IMPERIAL_SYSTEM
 				//updateParts();
 				break;
@@ -306,7 +296,7 @@ static void parseGpsPart() {
 				gpsLastData.speed *= 463; // Might need bigger var if you go really fast! :-)
 				gpsLastData.speed /= 250;
 #else // IMPERIAL_SYSTEM
-        knotToMph(gpsLastData.speed);
+        knotToMph(&gpsLastData.speed);
 #endif // METRIC_SYSTEM
 				break;
 			case GPS_PART_GPRMC_ANGLE:
@@ -360,6 +350,7 @@ static void decodeGpsData(char data) {
 	  if (gpsLastData.checksumValid != 0) {
 		  if (gpsHomePosSet == 0) {
 			  gpsHomePos = gpsLastData.pos;
+			  gpsHomePosSet = 1;
 		  }
 			gpsLastValidData = gpsLastData;
 			gpsValidData = 1;

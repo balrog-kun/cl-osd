@@ -65,13 +65,14 @@ static void updateOnceEverySec() {
 		PORTD ^= LED;
 	}
 	//calcHome(58244360, 15377910, 58357150, 16112030);
+	//calcHome(58357150, 16112030, 58244360, 15377910);
 	//calcHome(-23010000, -46010000, -23020000, -46010000);
 	if (gpsHomePosSet) {
-	  calcHome(gpsLastValidData.pos.latitude,
-	           gpsLastValidData.pos.longitude,
-			       gpsHomePos.latitude,
-				     gpsHomePos.longitude);
-	}					 
+	  calcHome(gpsLastValidData.pos.latitude * 10,
+	           gpsLastValidData.pos.longitude * 10,
+			       gpsHomePos.latitude * 10,
+				     gpsHomePos.longitude * 10);
+	}			 
 #endif //GPS_ENABLED
   
 #ifdef ADC_ENABLED 
@@ -95,7 +96,7 @@ static void updateOnceEveryFrame() {
 
 #ifdef TEXT_ENABLED
 	clearText();
-	clearTextInverted();
+	//clearTextInverted();
 	updateText();
 	drawText();
 #endif //TEXTENABLED

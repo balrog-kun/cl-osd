@@ -48,8 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define RSSI_MAX_VOLTAGE 4.7
 #define RSSI_MIN_VOLTAGE 1.2
 
-#define IMPERIAL_SYSTEM
-//#define METRIC_SYSTEM
+//#define IMPERIAL_SYSTEM
+#define METRIC_SYSTEM
 
 // ----------------- INTERNAL CONFIGS ------------------
 
@@ -190,5 +190,6 @@ static volatile uint16_t u16 = 0;
 static volatile int16_t i16 = 0;
 static volatile uint32_t u32 = 0;
 static volatile int32_t i32 = 0;
+static volatile char c8 = 0;
 
 #endif /* SETUP_H_ */

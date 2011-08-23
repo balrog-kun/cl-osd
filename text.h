@@ -107,26 +107,26 @@ static void drawText() {
 static void printDebugInfo() {
 	// ---- TODO: Cleanup here! ----
 	
-  //snprintf(text[0], TEXT_MAX_CHARS, "%02d:%02d:%02d:%02d", hour, min, sec, tick);
-	//snprintf(text[1], TEXT_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d%%", hour, min, sec, adc0High, adc0Low, adc1High, adc1Low, batt1);
+  //snprintf(text[0], TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d:%02d", hour, min, sec, tick);
+	//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d%%", hour, min, sec, adc0High, adc0Low, adc1High, adc1Low, batt1);
 	//if (gpsTextType != GPS_TYPE_GPGGA ) {
-		//snprintf(text[0], TEXT_MAX_CHARS, "%.32s", gpsFullText);
-		//snprintf(text[0], TEXT_MAX_CHARS, "Part (%d): %s", gpsTextPartLength, gpsTextPart); //part
-		//snprintf(text[1], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsTextType);
-		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %06ld", gpsTextPart, gpsTime); //time
-		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLat); //Lat
-		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLong); //Long
-		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsFix); //fix?
-		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsSats); //sats
-		//snprintf(text[0], TEXT_MAX_CHARS, "%s == %d", gpsTextPart, gpsAltitude); //altitude
-		//snprintf(text[0], TEXT_MAX_CHARS, "(%s == %d)? => %d", gpsTextPart, gpsChecksum, gpsChecksumValid); //checksum
-		//snprintf(text[1], TEXT_MAX_CHARS, "%.32s", &gpsFullText[30]);		
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, " %s", gpsFullText);
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "Part (%d): %s", gpsTextPartLength, gpsTextPart); //part
+		//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsTextType);
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %06ld", gpsTextPart, gpsTime); //time
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLat); //Lat
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLong); //Long
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsFix); //fix?
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsSats); //sats
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsAltitude); //altitude
+		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "(%s == %d)? => %d", gpsTextPart, gpsChecksum, gpsChecksumValid); //checksum
+		//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%.32s", &gpsFullText[30]);		
 	//}
-	//snprintf(text[1], TEXT_MAX_CHARS, "%dV %dV %dV", analogInputsRaw[ANALOG_IN_1], analogInputsRaw[ANALOG_IN_2], analogInputsRaw[ANALOG_IN_3]);
+	//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%dV %dV %dV", analogInputsRaw[ANALOG_IN_1], analogInputsRaw[ANALOG_IN_2], analogInputsRaw[ANALOG_IN_3]);
 }
 
 static void updateText() {
-	uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
+	//uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
 	uint8_t rssiLevel = calcBatteryLevel(ANALOG_IN_1);
 	
 	/*if (timeSec % 2 == 0) {
@@ -162,7 +162,7 @@ static void updateText() {
 	    gpsDistToHome,
 		  TEXT_LENGTH_UNIT,
 		  gpsBearingToHome, 
-		  gpsHomePosSet ? "VALID" : "BAD");
+		  gpsHomePosSet ? "OK" : "KO");
 	} 
 	else {
 	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS3: %d%s %d deg %ld %s", 

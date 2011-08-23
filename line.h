@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include <util/delay.h>
 
 static volatile uint8_t update = 0;
-static volatile uint16_t textNumber = 0;
-static volatile uint16_t lineType = LINE_TYPE_UNKNOWN;
+static volatile uint8_t textNumber = 0;
+static volatile uint8_t lineType = LINE_TYPE_UNKNOWN;
 
 static void setupLine() {
   // Line trigger

@@ -154,16 +154,15 @@ static void drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 //static int16_t b = 0;
 
 static void updateGrapics() {
-	drawLine(0, 0, GRAPHICS_SIZE-1, 0);
-	drawLine(0, 0, 0, GRAPHICS_SIZE-1);
-	drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0);
-	drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0, GRAPHICS_SIZE-1);
-	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, GRAPHICS_SIZE*0.1);
+	//drawLine(0, 0, GRAPHICS_SIZE-1, 0);
+	//drawLine(0, 0, 0, GRAPHICS_SIZE-1);
+	//drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0);
+	//drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0, GRAPHICS_SIZE-1);
+	//drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, GRAPHICS_SIZE*0.1);
+	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1);
 	//uint16_t pos = (timeTick * 360) / 50;
-	uint16_t pos = gpsBearingToHome;
-	if (pos == 0) {
-		++pos;
-	}
+	uint16_t pos = gpsLastValidData.angle - gpsBearingToHome;
+	pos += 1; // TODO: fix zero value bad!
 	int16_t a = myCos(pos);
 	int16_t b = mySin(pos);
 	a = (a * (GRAPHICS_SIZE / 3)) / 100;
