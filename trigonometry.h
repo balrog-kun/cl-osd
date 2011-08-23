@@ -138,17 +138,15 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   deltaLong = deltaLong * c;   // corrige dla p/ lat da região
   deltaLong = deltaLong / 100; // cosseno volta * 100
 
-  int32_t div = 0;
+  int32_t div = 1;
   while (deltaLong >= 0xFFFF || deltaLat >= 0xFFFF) {
 	  deltaLong /= 2;
 	  deltaLat /= 2;
-	  div += 2;
+	  div *= 2;
   }
     
 	gpsDistToHome = calcSqrt((deltaLong * deltaLong) + (deltaLat * deltaLat));
-	if (div) {
-		gpsDistToHome *= div;
-	}
+	gpsDistToHome *= div;
 
   gpsBearingToHome = 0;
   if (gpsDistToHome > 0) { // sobre home -> só erros; home continua 0
