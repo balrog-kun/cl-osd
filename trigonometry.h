@@ -27,12 +27,12 @@ static int32_t gpsDistToHome = 0; // Distance to home in meters
 static uint16_t gpsBearingToHome = 0; // Direction to home
 
 // Created using excel with: "=SIN(A1*PI()/180 )*100"
-const static int8_t sinData[90] PROGMEM = {
+const static int8_t sinData[91] PROGMEM = {
   0, 2, 3, 5, 7, 9, 10, 12, 14, 16, 17, 19, 21, 22, 24, 26, 28, 29, 31, 33,
   34, 36, 37, 39, 41, 42, 44, 45, 47, 48, 50, 52, 53, 54, 56, 57, 59, 60, 62,
   63, 64, 66, 67, 68, 69, 71, 72, 73, 74, 75, 77, 78, 79, 80, 81, 82, 83, 84,
   85, 86, 87, 87, 88, 89, 90, 91, 91, 92, 93, 93, 94, 95, 95, 96, 96, 97, 97,
-  97, 98, 98, 98, 99, 99, 99, 99, 100, 100, 100, 100, 100};
+  97, 98, 98, 98, 99, 99, 99, 99, 100, 100, 100, 100, 100, 100};
   
 //static uint16_t pos = 0;
 static int8_t mySin(uint16_t angle) {
@@ -99,6 +99,11 @@ static uint32_t calcSqrt(uint32_t input)
   return nv;
 }
 
+// abs seems to only support 16 bits so I had to make my own.
+static int32_t abs32(int32_t a) {
+	return (a > 0) ? a : -a;
+}
+
 // TODO: Some translations left
 static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t homeLong) {
   // calculates bearing and distance to reference point
@@ -120,7 +125,7 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
 
 
   // cosseno de lat recicla p/ seno de home
-  int32_t c;
+  int8_t c;
   // Delta lat & lon
   int32_t deltaLat; 
   int32_t deltaLong;
@@ -139,38 +144,37 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   deltaLong = deltaLong / 100; // cosseno volta * 100
 
   uint8_t mult = 1;
-  while ((deltaLong >= 0 && deltaLong >= 0xFFFF) 
-         || (deltaLat >= 0 && deltaLat >= 0xFFFF)
-         || (deltaLong < 0 && (-deltaLong) >= 0xFFFF) 
-		     || (deltaLat < 0 && (-deltaLat) >= 0xFFFF)) {
-	  deltaLong /= 2;
-	  deltaLat /= 2;
-	  mult *= 2;
+  while ((abs32(deltaLong) >= 0xFFFF) 
+         || (abs32(deltaLat) >= 0xFFFF)) {
+	  deltaLong >>= 1;
+	  deltaLat >>= 1;
+	  mult <<= 1;
   }
     
 	gpsDistToHome = calcSqrt((deltaLong * deltaLong) + (deltaLat * deltaLat));
 	gpsDistToHome *= mult;
 
   gpsBearingToHome = 0;
-  if (gpsDistToHome > 0) { // sobre home -> só erros; home continua 0
-    if (abs(deltaLong) >= abs(deltaLat)) { // angulo é baixo, seno é melhor
-      c = (abs(deltaLat) * 100) / gpsDistToHome; // calcula seno -> dist > 0
+  if (gpsDistToHome > 0) { // over home -> do not compute; home forced to 0
+    if (abs32(deltaLong) >= abs32(deltaLat)) { // low angle, sine is better
+      c = (abs32(deltaLat) * 100) / gpsDistToHome; // computes sine -> dist > 0
       while((mySin(gpsBearingToHome) <= c) && (gpsBearingToHome < 90)) {
         ++gpsBearingToHome;
       }
     } 
-	  else { // angulo é alto, cosseno é melhor
-      c = (abs(deltaLong) * 100) / gpsDistToHome; // calcula cosseno
+	  else { // high angle, cosine is better
+      c = (abs32(deltaLong) * 100) / gpsDistToHome; // computes cosine
+	    gpsBearingToHome = 45;
       while((mySin(gpsBearingToHome) <= c) && (gpsBearingToHome < 90)) {
         ++gpsBearingToHome;
       }
       gpsBearingToHome = 90 - gpsBearingToHome;
     }
     if (deltaLat == 0) {
-      if (deltaLong >= 0) { // home = leste
+      if (deltaLong >= 0) { // home = East
         gpsBearingToHome = 90; 
       } 
-	    else { // home = oeste
+	    else { // home = West
         gpsBearingToHome = 270;
       }
     } 

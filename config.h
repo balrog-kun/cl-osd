@@ -102,15 +102,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_INVERTED_FLIP 2
 
 #ifdef METRIC_SYSTEM
-#define TEXT_LENGTH_UNIT "m"
+#define TEXT_LENGTH_UNIT "M"
 #else // IMPERIAL_SYSTEM
-#define TEXT_LENGTH_UNIT "f"
+#define TEXT_LENGTH_UNIT "F"
 #endif
 
 #ifdef METRIC_SYSTEM
-#define TEXT_SPEED_UNIT "km/h"
+#define TEXT_SPEED_UNIT "KM/H"
 #else // IMPERIAL_SYSTEM
-#define TEXT_SPEED_UNIT "mph"
+#define TEXT_SPEED_UNIT "MPH"
 #endif
 
 // ADC

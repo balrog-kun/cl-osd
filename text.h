@@ -88,16 +88,25 @@ static uint8_t charInverted(uint8_t line, uint8_t pos) {
 	return 0;
 }
 
+inline uint8_t getCharData(charPos) {
+	if (charPos >= CHAR_ARRAY_OFFSET && charPos < CHAR_ARRAY_MAX) {
+	  return eeprom_read_byte(&(oem6x8[charPos - CHAR_ARRAY_OFFSET]));
+	}	
+	else {
+		return 0x00;
+	}	  
+}
+
 static void drawText() {
 	for (uint8_t k = 0; k < TEXT_LINES; ++k) {
 		for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
 			for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; j++) {
-				uint16_t oem6x8Pos = (text[k][j]*TEXT_CHAR_HEIGHT) + i;
-				uint8_t bytePos = i*TEXT_LINE_MAX_CHARS + j;
-				uint8_t val = pgm_read_byte(&(oem6x8[oem6x8Pos]));
+				uint16_t charPos = (text[k][j]*TEXT_CHAR_HEIGHT) + i;
+				uint8_t val = getCharData(charPos);
 				if (charInverted(k, j)) {
 					val = ~val;
 				}
+				uint8_t bytePos = i*TEXT_LINE_MAX_CHARS + j;
 				textData[k][bytePos] = val;
 			}			
 		}
@@ -150,7 +159,7 @@ static void updateText() {
 #ifdef GPS_ENABLED
 
 	if (timeSec%6 < 2)	{
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS1: %ld, %ld %d%s %ds", 
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS1: %ld, %ld %d%s %dS", 
 	    gpsLastData.pos.latitude, 
 		  gpsLastData.pos.longitude, 
 		  gpsLastData.pos.altitude, 
@@ -158,14 +167,14 @@ static void updateText() {
 		  gpsLastData.sats);
 	}	  
 	else if (timeSec%6 < 4)	{
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS2: %lu%s, %udeg Home %s", 
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS2: %lu%s, %uDEG HOME %s", 
 	    gpsDistToHome,
 		  TEXT_LENGTH_UNIT,
 		  gpsBearingToHome, 
 		  gpsHomePosSet ? "OK" : "KO");
 	} 
 	else {
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS3: %d%s %d deg %ld %s", 
+	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS3: %d%s %d DEG %ld %s", 
 	    gpsLastData.speed,
 		  TEXT_SPEED_UNIT,
 		  gpsLastData.angle, 

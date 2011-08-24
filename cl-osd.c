@@ -54,7 +54,7 @@ static void setup(void)
 
 static void updateOnceEverySec() {
 #ifdef E_OSD
-  PORTD ^= LED;
+  PORTD |= LED;
 #endif
 	
 #ifdef GPS_ENABLED

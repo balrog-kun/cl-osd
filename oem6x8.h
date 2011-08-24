@@ -1,13 +1,20 @@
 #ifndef OEM6X8_H_
 #define OEM6X8_H_
 
-#include <avr/pgmspace.h>
+#include <avr/eeprom.h> 
 
 // Credit for this goes to MegaPirateOSD and Syberian!
 // Some minor changes made to fit my code better.
 
-static const uint8_t oem6x8[1024] PROGMEM = { // 6x8 DOS character set
-________,
+#define CHAR_ARRAY_OFFSET 256
+#define CHAR_ARRAY_LENGTH 472
+#define CHAR_ARRAY_MAX (CHAR_ARRAY_OFFSET + CHAR_ARRAY_LENGTH)
+
+#define CHAR_OFFSET CHAR_ARRAY_OFFSET/8
+#define CHAR_MAX CHAR_ARRAY_MAX/8
+
+static const uint8_t oem6x8[CHAR_ARRAY_LENGTH] EEMEM = { // 6x8 DOS character set
+/*________,
 ________,
 ________,
 ________,
@@ -262,7 +269,7 @@ __XXX___,
 ___X____,
 ___X____,
 ________,
-________,
+________,*/
 ________,
 ________,
 ________,
@@ -735,7 +742,7 @@ _X______,
 _X______,
 _XXXX___,
 ________,
-__XXX___,
+/*__XXX___,
 __X_____,
 __X_____,
 __X_____,
@@ -1030,7 +1037,7 @@ _X___X__,
 _X___X__,
 _XXXXX__,
 ________,
-________
+________*/
 };
 
 #endif //OEM6X8_H_
