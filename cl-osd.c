@@ -72,7 +72,7 @@ static void updateOnceEverySec() {
 	           gpsLastValidData.pos.longitude * 10,
 			       gpsHomePos.latitude * 10,
 				     gpsHomePos.longitude * 10);
-	}			 
+	}	 
 #endif //GPS_ENABLED
   
 #ifdef ADC_ENABLED 
@@ -96,9 +96,13 @@ static void updateOnceEveryFrame() {
 
 #ifdef TEXT_ENABLED
 	clearText();
-	//clearTextInverted();
-	updateText();
-	drawText();
+#ifdef TEXT_INVERTED_ENABLED
+	clearTextInverted();
+#endif // TEXT_INVERTED_ENABLED
+  for (uint8_t i = 0; i < TEXT_LINES; ++i) {
+	  updateText(i);
+	  drawText(i);
+  }	  
 #endif //TEXTENABLED
 
 #ifdef GRAPICSENABLED
@@ -114,7 +118,7 @@ void main(void) {
 	setup();
   
 #ifdef TEXT_ENABLED
-	drawText();
+	clearText();
 #endif //TEXTENABLED
 
 #ifdef GRAPICSENABLED

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "config.h"
 
 #ifdef GPS_ENABLED
+#include "trigonometry.h"
 
 #define GPS_START_CHAR '$'
 #define GPS_SEPARATOR_CHAR ','

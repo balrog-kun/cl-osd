@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #ifdef GRAPICSENABLED
 
-#include "trigonometry.h"
 #include "time.h"
 #include "delay.h"
 
@@ -160,7 +159,11 @@ static void updateGrapics() {
 	//drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0, GRAPHICS_SIZE-1);
 	//drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, GRAPHICS_SIZE*0.1);
 	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1);
+#ifdef GPS_ENABLED
 	uint16_t pos = gpsLastValidData.angle - gpsBearingToHome;
+#else
+  uint16_t pos = 0;
+#endif
 	int16_t a = myCos(pos);
 	int16_t b = mySin(pos);
 	a = (a * (GRAPHICS_SIZE / 3)) / 100;

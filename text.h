@@ -32,20 +32,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "adc.h"
 #include "delay.h"
 #include "gps.h"
-#include "trigonometry.h"
 
 // Text vars
 static uint16_t const textLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
-static char text[TEXT_LINES][TEXT_LINE_MAX_CHARS];
+static char text[TEXT_LINE_MAX_CHARS];
 static uint8_t textData[TEXT_LINES][TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
+#ifdef TEXT_INVERTED_ENABLED
 static uint8_t textInverted[TEXT_LINES][TEXT_LINE_MAX_CHARS/8];
+#endif // TEXT_INVERTED_ENABLED
 
 // Functions
 static void clearText() {
-	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
-		for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
-			text[i][j] = 0;
-		}
+	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
+		text[j] = 0;
 	}
 }
 
@@ -57,6 +56,7 @@ static void clearTextData() {
 	}
 }
 
+#ifdef TEXT_INVERTED_ENABLED
 static void clearTextInverted() {
 	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
 	  for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS/8; ++j) {
@@ -87,8 +87,9 @@ static uint8_t charInverted(uint8_t line, uint8_t pos) {
 	}
 	return 0;
 }
+#endif // TEXT_INVERTED_ENABLED
 
-inline uint8_t getCharData(charPos) {
+static uint8_t getCharData(uint16_t charPos) {
 	if (charPos >= CHAR_ARRAY_OFFSET && charPos < CHAR_ARRAY_MAX) {
 	  return eeprom_read_byte(&(oem6x8[charPos - CHAR_ARRAY_OFFSET]));
 	}	
@@ -97,19 +98,19 @@ inline uint8_t getCharData(charPos) {
 	}	  
 }
 
-static void drawText() {
-	for (uint8_t k = 0; k < TEXT_LINES; ++k) {
-		for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
-			for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; j++) {
-				uint16_t charPos = (text[k][j]*TEXT_CHAR_HEIGHT) + i;
-				uint8_t val = getCharData(charPos);
-				if (charInverted(k, j)) {
-					val = ~val;
-				}
-				uint8_t bytePos = i*TEXT_LINE_MAX_CHARS + j;
-				textData[k][bytePos] = val;
-			}			
-		}
+static void drawText(uint8_t textId) {
+	for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
+		for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; j++) {
+			uint16_t charPos = (text[j]*TEXT_CHAR_HEIGHT) + i;
+			uint8_t val = getCharData(charPos);
+#ifdef TEXT_INVERTED_ENABLED
+			if (charInverted(textId, j)) {
+				val = ~val;
+			}
+#endif // TEXT_INVERTED_ENABLED
+			uint8_t bytePos = i*TEXT_LINE_MAX_CHARS + j;
+			textData[textId][bytePos] = val;
+		}			
 	}
 }
 
@@ -134,54 +135,59 @@ static void printDebugInfo() {
 	//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%dV %dV %dV", analogInputsRaw[ANALOG_IN_1], analogInputsRaw[ANALOG_IN_2], analogInputsRaw[ANALOG_IN_3]);
 }
 
-static void updateText() {
-	//uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
-	uint8_t rssiLevel = calcBatteryLevel(ANALOG_IN_1);
-	
-	/*if (timeSec % 2 == 0) {
-	  setCharInverted(TEXT_1_LINE, 0, TEXT_INVERTED_FLIP);
-	  setCharInverted(TEXT_1_LINE, 1, TEXT_INVERTED_FLIP);
-	}*/
-	
-	//printDebugInfo();
+static void updateText(uint8_t textId) {
+  //printDebugInfo();
 
-	snprintf(text[0], TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d.%02dV %d%%", 
-    timeHour, timeMin, timeSec,
-    analogInputs[ANALOG_IN_1].high, analogInputs[ANALOG_IN_1].low, 
-    analogInputs[ANALOG_IN_2].high, analogInputs[ANALOG_IN_2].low, 
+  if (textId == 0) {
+	  uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
+	  uint8_t rssiLevel = calcBatteryLevel(ANALOG_IN_1);
+	
+#ifdef TEXT_INVERTED_ENABLED
+	  if (timeSec % 2 == 0) {
+	    setCharInverted(0, 0, TEXT_INVERTED_FLIP);
+	    setCharInverted(0, 1, TEXT_INVERTED_FLIP);
+	  }
+#endif // TEXT_INVERTED_ENABLED
+
+	  snprintf(text, TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d.%02dV %d%%", 
+      timeHour, timeMin, timeSec,
+      analogInputs[ANALOG_IN_1].high, analogInputs[ANALOG_IN_1].low, 
+      analogInputs[ANALOG_IN_2].high, analogInputs[ANALOG_IN_2].low, 
 #ifdef G_OSD
-    analogInputs[ANALOG_IN_3].high, analogInputs[ANALOG_IN_3].low, 
+      analogInputs[ANALOG_IN_3].high, analogInputs[ANALOG_IN_3].low, 
 #else
-    0, 0,
+      0, 0,
 #endif
-    rssiLevel);
-
+      rssiLevel);
+  }
+  else if(textId == 1) {
 #ifdef GPS_ENABLED
 
-	if (timeSec%6 < 2)	{
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS1: %ld, %ld %d%s %dS", 
-	    gpsLastData.pos.latitude, 
-		  gpsLastData.pos.longitude, 
-		  gpsLastData.pos.altitude, 
-		  TEXT_LENGTH_UNIT,
-		  gpsLastData.sats);
-	}	  
-	else if (timeSec%6 < 4)	{
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS2: %lu%s, %uDEG HOME %s", 
-	    gpsDistToHome,
-		  TEXT_LENGTH_UNIT,
-		  gpsBearingToHome, 
-		  gpsHomePosSet ? "OK" : "KO");
-	} 
-	else {
-	  snprintf(text[1], TEXT_LINE_MAX_CHARS, "GPS3: %d%s %d DEG %ld %s", 
-	    gpsLastData.speed,
-		  TEXT_SPEED_UNIT,
-		  gpsLastData.angle, 
-		  gpsLastData.date, 
-		  gpsLastData.checksumValid ? "FIX" : "BAD");
-	}
+	  if (timeSec%6 < 2)	{
+	    snprintf(text, TEXT_LINE_MAX_CHARS, "GPS1: %ld, %ld %d%s %dS", 
+	      gpsLastData.pos.latitude, 
+		    gpsLastData.pos.longitude, 
+		    gpsLastData.pos.altitude, 
+		    TEXT_LENGTH_UNIT,
+		    gpsLastData.sats);
+	  }	  
+	  else if (timeSec%6 < 4)	{
+	    snprintf(text, TEXT_LINE_MAX_CHARS, "GPS2: %lu%s, %uDEG HOME %s", 
+	      gpsDistToHome,
+		    TEXT_LENGTH_UNIT,
+		    gpsBearingToHome, 
+		    gpsHomePosSet ? "OK" : "KO");
+	  } 
+	  else {
+	    snprintf(text, TEXT_LINE_MAX_CHARS, "GPS3: %d%s %d DEG %ld %s", 
+	      gpsLastData.speed,
+		    TEXT_SPEED_UNIT,
+		    gpsLastData.angle, 
+		    gpsLastData.date, 
+		    gpsLastData.checksumValid ? "FIX" : "BAD");
+	  }
 #endif
+	}  
 }
 
 static void drawTextLine(uint8_t textNumber)

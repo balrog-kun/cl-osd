@@ -38,6 +38,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifdef G_OSD
 #define GPS_ENABLED
 #endif //G_OSD
+#ifdef TEXT_ENABLED
+//#define TEXT_INVERTED_ENABLED
+#endif //TEXT_ENABLED
 
 // Battery
 #define CELL_LOW_VOLTAGE 3.8
@@ -91,12 +94,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // Text
 #define TEXT_LINE_MAX_CHARS 32
 #define TEXT_CHAR_HEIGHT 8
-#define TEXT_1_TRIG_LINE 50
-#define TEXT_2_TRIG_LINE 265
 #define TEXT_LINES 2
-#define TEXT_TRIG_LINES_LIST TEXT_1_TRIG_LINE, TEXT_2_TRIG_LINE
-#define TEXT_1_LINE 0
-#define TEXT_2_LINE 1
+#define TEXT_TRIG_LINES_LIST 50, 256
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
 #define TEXT_INVERTED_FLIP 2

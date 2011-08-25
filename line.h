@@ -62,25 +62,22 @@ static void updateLine() {
 		}
 		
 		// We save some time by pre-calculating next type.
+		lineType = LINE_TYPE_UNKNOWN; // Default case
 		line++;
-		if (line >= TEXT_1_TRIG_LINE && line < (TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2)) {
-			lineType = LINE_TYPE_TEXT;
-			textNumber = 0;
-		}
-		else if (line >= TEXT_2_TRIG_LINE && line < (TEXT_2_TRIG_LINE + TEXT_CHAR_HEIGHT * 2)) {
-			lineType = LINE_TYPE_TEXT;
-			textNumber = 1;
+		if (line == LAST_LINE) {
+			// We want to start update as fast as possible so we don't use a type here.
+			update = 1;
 		}
 		else if (line >= GRAPHICS_LINE && line < (GRAPHICS_LINE + GRAPHICS_HEIGHT)) {
 			lineType = LINE_TYPE_GRAPHICS;
 		}
-		else if (line == LAST_LINE) {
-			// We want to start update as fast as possible so we don't use a type here.
-			lineType = LINE_TYPE_UNKNOWN;
-			update = 1;
-		}
 		else {
-			lineType = LINE_TYPE_UNKNOWN;
+			for (uint8_t i = 0; i < TEXT_LINES; ++i) {
+		    if (line >= textLines[i] && line < (textLines[i] + TEXT_CHAR_HEIGHT * 2)) {
+			    lineType = LINE_TYPE_TEXT;
+			    textNumber = i;
+		    }
+			}			
 		}
 	}
 	else { // V sync
