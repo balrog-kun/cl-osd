@@ -175,7 +175,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // GPS
 #define GPS_BAUD 4800
 #define GPS_UBRR (F_CPU/16/GPS_BAUD-1)
-#define GPS_MAX_CHARS 15
+#define GPS_MAX_CHARS 11
 
 #define DUMMY_FUNC return 0;
 

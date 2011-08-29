@@ -213,6 +213,7 @@ static void knotToMph(uint16_t* var) {
 static void updateParts() {
 #ifdef GPS_PART_TEXT
 	strncpy((char*)gpsTextPart, (char*)gpsText, GPS_MAX_CHARS);
+	gpsTextPartLength = strlen((const char*)gpsText);
 #endif //GPS_PART_TEXT
 }
 

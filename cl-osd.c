@@ -95,11 +95,11 @@ static void updateOnceEveryFrame() {
 #endif //TIMEENABLED
 
 #ifdef TEXT_ENABLED
-	clearText();
 #ifdef TEXT_INVERTED_ENABLED
 	clearTextInverted();
 #endif // TEXT_INVERTED_ENABLED
   for (uint8_t i = 0; i < TEXT_LINES; ++i) {
+	  clearText();
 	  updateText(i);
 	  drawText(i);
   }	  

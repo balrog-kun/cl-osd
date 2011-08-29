@@ -28,7 +28,7 @@ typedef struct {
 } TAnalogValue;
 
 static TAnalogValue analogInputs[ANALOG_IN_NUMBER] = {};
-static uint16_t analogInputsRaw[ANALOG_IN_NUMBER] = {};
+//static uint16_t analogInputsRaw[ANALOG_IN_NUMBER] = {};
 
 #ifndef ADC_ENABLED
 
@@ -56,7 +56,7 @@ static void measureAnalog() {
 	  while ((ADCSRA & (1<<ADIF)) == 0); // Wait to finish
 	  ADCSRA |= (1<<ADIF);
 	  temp = ADCW;
-    analogInputsRaw[i] = temp;
+    //analogInputsRaw[i] = temp;
 	  temp = (temp * 5 * 62) / 10;
 	  adcHigh = temp / 1024;
 	  temp -= (uint16_t)(adcHigh) * 1024;
