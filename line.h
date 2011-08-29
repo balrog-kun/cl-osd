@@ -37,8 +37,11 @@ static void setupLine() {
 
 	// SPI setup
 	SPDR = 0x00; // Clear spi reg or thrash will show on video
+#ifdef TEXT_SMALL_ENABLED
+	SPSR |= (1<<SPI2X); // Set dual speed
+#else
 	SPSR &= ~(1<<SPI2X); // Clear dual speed
-	//SPSR |= (1<<SPI2X); // Set dual speed
+#endif //TEXT_SMALL_ENABLED
 	SPCR = (1<<SPE) | (1<<MSTR) | (1<<CPHA);
 }  
 
@@ -73,7 +76,7 @@ static void updateLine() {
 		}
 		else {
 			for (uint8_t i = 0; i < TEXT_LINES; ++i) {
-		    if (line >= textLines[i] && line < (textLines[i] + TEXT_CHAR_HEIGHT * 2)) {
+		    if (line >= textLines[i] && line < (textLines[i] + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
 			    lineType = LINE_TYPE_TEXT;
 			    textNumber = i;
 		    }

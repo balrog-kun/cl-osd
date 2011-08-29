@@ -108,26 +108,10 @@ static void drawText(uint8_t textId) {
 				val = ~val;
 			}
 #endif // TEXT_INVERTED_ENABLED
-			uint8_t bytePos = i*TEXT_LINE_MAX_CHARS + j;
+			uint16_t bytePos = i*TEXT_LINE_MAX_CHARS + j;
 			textData[textId][bytePos] = val;
 		}			
 	}
-}
-
-static uint8_t printTimePart(uint8_t pos, uint8_t part) {
-	if (part < 10) {
-		text[pos++] = '0';
-	}		
-  itoa(part, &text[pos++], 10);
-  return pos;
-}
-
-static void printTime(uint8_t pos) {
-	pos = printTimePart(pos, timeHour);
-	text[pos++] = ':';
-	pos = printTimePart(pos, timeMin);
-	text[pos++] = ':';
-	pos = printTimePart(pos, timeSec);
 }
 
 static void myReverse(char s[], uint8_t size) {
@@ -164,7 +148,7 @@ static void myItoa(int32_t n, char s[])
 static uint8_t printText(uint8_t pos, char* str) {
 	uint8_t length = strlen(str);
 	if (pos + length >= TEXT_LINE_MAX_CHARS) {
-    length = TEXT_LINE_MAX_CHARS - 1;
+    length = TEXT_LINE_MAX_CHARS;
 	}
 	strncpy(&text[pos], str, length);
 	return length+pos;
@@ -186,11 +170,25 @@ static uint8_t printNumber(uint8_t pos, int32_t number) {
 
 static uint8_t printNumberWithUnit(uint8_t pos, int32_t number, char* unit) {
 	pos = printNumber(pos, number);
-	pos = printText(pos, unit);
-	return pos;
+	return printText(pos, unit);
 }
 
-static void printAdc(uint8_t pos, const uint8_t adcInput) {
+static uint8_t printTime(uint8_t pos) {
+	if (timeHour < 10) {
+		text[pos++] = '0';
+	}
+	pos = printNumberWithUnit(pos, timeHour, ":");
+	if (timeMin < 10) {
+		text[pos++] = '0';
+	}	
+	pos = printNumberWithUnit(pos, timeMin, ":");
+	if (timeSec < 10) {
+		text[pos++] = '0';
+	}	
+	return printNumber(pos, timeSec);
+}
+
+static uint8_t printAdc(uint8_t pos, const uint8_t adcInput) {
 	uint8_t low = analogInputs[adcInput].low;
 	uint8_t high = analogInputs[adcInput].high;
 	pos = printNumber(pos, high);
@@ -198,23 +196,17 @@ static void printAdc(uint8_t pos, const uint8_t adcInput) {
 	if(low < 10) {
 		text[pos++] = '0';
 	}
-	pos = printNumber(pos, low);		
-	text[pos++] = 'V';
+	return printNumberWithUnit(pos, low, "V");		
 }
 
-static void printProcent(uint8_t pos, const uint8_t val) {
-	pos = printNumber(pos, val);
-	text[pos] = '%';
-}
-
-static void printRssiLevel(uint8_t pos, const uint8_t adcInput) {
+static uint8_t printRssiLevel(uint8_t pos, const uint8_t adcInput) {
 	uint8_t rssiLevel = calcRssiLevel(ANALOG_IN_1);
-	printProcent(pos, rssiLevel);
+	return printNumberWithUnit(pos, rssiLevel, "%");
 }
 
-static void printBatterLevel(uint8_t pos, const uint8_t adcInput) {
+static uint8_t printBatterLevel(uint8_t pos, const uint8_t adcInput) {
 	uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
-	printProcent(pos, batterLevel);
+	return printNumberWithUnit(pos, batterLevel, "%");
 }
 
 static void printDebugInfo() {
@@ -240,21 +232,21 @@ static void printDebugInfo() {
 
 static void updateText(uint8_t textId) {
   //printDebugInfo();
+  uint8_t pos = 0;
 
   if (textId == 0) {
-	  printTime(0);
-	  printAdc(9, ANALOG_IN_1);
-	  printAdc(16, ANALOG_IN_2);
+	  pos = printTime(pos);
+	  pos = printAdc(pos+1, ANALOG_IN_1);
+	  pos = printAdc(pos+1, ANALOG_IN_2);
 #ifdef G_OSD	  
-	  //printAdc(23, ANALOG_IN_3);
-	  printRssiLevel(23, ANALOG_IN_3);
+	  //pos = printAdc(pos+1, ANALOG_IN_3);
+	  pos = printRssiLevel(pos+1, ANALOG_IN_3);
 #endif
 	  
   }
   else if(textId == 1) {
 #ifdef GPS_ENABLED
 	  if (timeSec%6 < 2)	{
-		  uint8_t pos = 0;
 		  pos = printText(pos, "GPS1:");
 		  pos = printNumber(pos+1, gpsLastData.pos.latitude);
 		  pos = printNumber(pos+1, gpsLastData.pos.longitude);
@@ -263,14 +255,12 @@ static void updateText(uint8_t textId) {
 		  pos = printText(pos, "S");
 	  }
 	  else if (timeSec%6 < 4)	{
-		  uint8_t pos = 0;
 		  pos = printText(pos, "GPS2:");
 		  pos = printNumberWithUnit(pos+1, gpsDistToHome, TEXT_LENGTH_UNIT);
 		  pos = printNumberWithUnit(pos+1, gpsBearingToHome, "DEG");
 		  pos = printText(pos+1, gpsHomePosSet ? "HOME" : "");
 		} 
 	  else {
-		  uint8_t pos = 0;
 		  pos = printText(pos, "GPS2:");
 		  pos = printNumberWithUnit(pos+1, gpsLastData.speed, TEXT_SPEED_UNIT);
 		  pos = printNumberWithUnit(pos+1, gpsLastData.angle, "DEG");
@@ -284,13 +274,16 @@ static void updateText(uint8_t textId) {
 static void drawTextLine(uint8_t textNumber)
 {
 	_delay_us(4);
-	uint8_t currLine = (line - textLines[textNumber]) / 2;
+	uint8_t currLine = (line - textLines[textNumber]) / TEXT_SIZE_MULT;
 	DDRB |= OUT1;
 	for (uint8_t i = 0; i < TEXT_LINE_MAX_CHARS; ++i) {
 		SPDR = textData[textNumber][currLine*TEXT_LINE_MAX_CHARS + i];
 		DELAY_9_NOP();
+		DELAY_3_NOP();
+#ifndef TEXT_SMALL_ENABLED
+		DELAY_6_NOP();
 		DELAY_9_NOP();
-		DELAY_9_NOP();
+#endif //TEXT_SMALL_ENABLED	
 	}
 	DELAY_4_NOP();
 	SPDR = 0x00;

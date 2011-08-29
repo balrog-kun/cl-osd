@@ -173,6 +173,9 @@ static void updateGrapics() {
 
 static void drawGrapicsLine()
 {
+#ifdef TEXT_SMALL_ENABLED
+	SPSR &= ~(1<<SPI2X); // Set normal speed
+#endif
   _delay_us(GRAPHICS_OFFSET);
   uint16_t currLine = (line - GRAPHICS_LINE);
   for (uint8_t i = 0; i < GRAPHICS_WIDTH; ++i) {
@@ -185,6 +188,9 @@ static void drawGrapicsLine()
   DDRB &= ~OUT1;
   //DELAY_1_NOP();
   SPDR = 0x00;
+#ifdef TEXT_SMALL_ENABLED
+	SPSR |= (1<<SPI2X); // Set dual speed
+#endif
 }
 
 #endif //GRAPICSENABLED  
