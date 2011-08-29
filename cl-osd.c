@@ -64,9 +64,16 @@ static void updateOnceEverySec() {
 	else {
 		PORTD ^= LED;
 	}
-	//calcHome(58244360, 15377910, 58357150, 16112030);
-	//calcHome(58357150, 16112030, 58244360, 15377910);
-	//calcHome(-23010000, -46010000, -23020000, -46010000);
+	//distanceHome(58390633, 15589633, 58395500, 15592767);
+	//distanceHome(5823.4380, 1535.3780, 5823.7300, gpsHomePosSet);
+	/*calcHome(58234380, 15353780, 58237300, 15355660); //572m 19 deg
+	calcHome(58244360, 15377910, 58357150, 16112030); //38633m 57 deg
+	calcHome(58357150, 16112030, 58244360, 15377910); //38633m 237 deg
+	calcHome(-23010000, -46010000, -23020000, -46010000); // 1853m 180 deg
+	calcHome(-23020000, -46010000, -23020000, -46020000); // 1706m	270 deg
+	calcHome(-23020000, -46020000, -23020000, -46010000); // 1706m	90 deg
+	calcHome(-23020000, -46010000, -23010000, -46010000); // 1853m	360 deg*/
+  
 	if (gpsHomePosSet) {
 	  calcHome(gpsLastValidData.pos.latitude * 10,
 	           gpsLastValidData.pos.longitude * 10,

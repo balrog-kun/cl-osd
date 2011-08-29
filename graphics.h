@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include "time.h"
 #include "delay.h"
+#include "gps.h"
+#include "home.h"
 
 #include <avr/pgmspace.h>
 #include <stdio.h>
@@ -160,7 +162,7 @@ static void updateGrapics() {
 	//drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, GRAPHICS_SIZE*0.1);
 	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1);
 #ifdef GPS_ENABLED
-	uint16_t pos = gpsLastValidData.angle - gpsBearingToHome;
+	uint16_t pos = gpsLastValidData.angle - gpsHomeBearing;
 #else
   uint16_t pos = 0;
 #endif

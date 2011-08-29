@@ -122,6 +122,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_SPEED_UNIT "MPH"
 #endif
 
+// TODO: Work more on this...
+// Text data types
+#define DATA_TYPE_NONE 0
+#define DATA_TYPE_VOLT 1
+#define DATA_TYPE_RSSI 2
+#define DATA_TYPE_BATTERY 3
+#define DATA_TYPE_TIME 4
+#define DATA_TYPE_GPS_TIME 5
+#define DATA_TYPE_GPS_DATE 6
+#define DATA_TYPE_GPS_LAT 7
+#define DATA_TYPE_GPS_LONG 8
+#define DATA_TYPE_GPS_SATS 9
+#define DATA_TYPE_GPS_FIX 10
+#define DATA_TYPE_GPS_ANGLE 11
+#define DATA_TYPE_GPS_SPEED 12
+#define DATA_TYPE_HOME_DISTANCE 13
+#define DATA_TYPE_HOME_BEARING 14
+
+// Text placement
+#define TEXT_PLACEMENT {DATA_TYPE_TIME, 0, 0}, {DATA_TYPE_VOLT, 0, 10}, {DATA_TYPE_VOLT, 1, 17}
+
 // ADC
 #define ANALOG_IN_1 0
 #define ANALOG_IN_2 1

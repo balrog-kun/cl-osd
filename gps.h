@@ -23,9 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include <string.h>
 
 #include "config.h"
+#include "gpsutils.h"
 
 #ifdef GPS_ENABLED
-#include "trigonometry.h"
 
 #define GPS_START_CHAR '$'
 #define GPS_SEPARATOR_CHAR ','
@@ -133,85 +133,6 @@ static void clearFullGpsText() {
 }
 #endif // GPS_FULL_TEXT
 
-inline uint8_t isDigit(char c) {
-	if (c >= '0' && c <= '9') {
-		return 1;
-	}
-	return 0;
-}
-
-static int32_t parseInt() {
-	uint8_t i = 0;
-	uint32_t decimal = 0;
-	uint8_t neg = 0;
-	if (gpsText[0] == '-') {
-		++i;
-		neg = 1;
-	}
-	while (isDigit(gpsText[i]) && i < GPS_MAX_CHARS) {
-		decimal *= 10;
-		decimal += (gpsText[i]) - '0';
-		++i;		
-	}
-	return decimal * (neg ? -1 : 1);
-}
-
-static int32_t parseFloat() {
-	
-	uint32_t val = 0;
-	uint8_t neg = 0;
-	uint8_t i = 0;
-	if (gpsText[0] == '-') {
-		++i;
-		neg = 1;
-	}
-	for (; i < GPS_MAX_CHARS; ++i) {
-		if (isDigit(gpsText[i])) {
-			val *= 10;
-			val += (gpsText[i]) - '0';
-		}
-		else if (gpsText[i] != '.') {
-			break;
-		}			
-	}
-	return val * (neg ? -1 : 1);
-}
-
-static uint8_t parseHex() {
-	uint8_t i = 0;
-	uint32_t val = 0;
-	while (gpsText[i] != 0 && i < GPS_MAX_CHARS) {
-		val *= 16;
-		if (gpsText[i] >= 'A' && gpsText[i] <= 'F') {
-			val += 10 + gpsText[i] - 'A';
-		}
-		else if (gpsText[i] >= 'a' && gpsText[i] <= 'f') {
-			val += 10 + gpsText[i] - 'a';
-		}
-		else if (gpsText[i] >= '0' && gpsText[i] <= '9') {
-			val += gpsText[i] - '0';
-		}
-		++i;		
-	}
-	return val;
-}
-
-#ifndef METRIC_SYSTEM
-static void meterToFeet(int16_t* var) {
-	int32_t tmp = *var;
-	tmp *= 3281;
-	tmp /= 1000;
-	*var = tmp;
-}
-
-static void knotToMph(uint16_t* var) {
-	int32_t tmp = *var;
-	tmp *= 1151;
-	tmp /= 1000;
-	*var = tmp;
-}
-#endif //METRIC_SYSTEM
-
 static void updateParts() {
 #ifdef GPS_PART_TEXT
 	strncpy((char*)gpsTextPart, (char*)gpsText, GPS_MAX_CHARS);
@@ -237,12 +158,12 @@ static void parseGpsPart() {
 			switch (gpsTextPartStep) {
 			case GPS_PART_GPGGA_TIME:
 			case GPS_PART_GPRMC_TIME:
+				gpsLastData.time = parseInt(gpsText, GPS_MAX_CHARS);
 				//updateParts();
-				gpsLastData.time = parseInt();
 				break;
 			case GPS_PART_GPGGA_LAT:
 			case GPS_PART_GPRMC_LAT:
-				gpsLastData.pos.latitude = parseFloat();
+				gpsLastData.pos.latitude = parseFloat(gpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_LAT_UNIT:
@@ -253,7 +174,7 @@ static void parseGpsPart() {
 				break;
 			case GPS_PART_GPGGA_LONG:
 			case GPS_PART_GPRMC_LONG:
-				gpsLastData.pos.longitude = parseFloat();
+				gpsLastData.pos.longitude = parseFloat(gpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_LONG_UNIT:
@@ -264,21 +185,21 @@ static void parseGpsPart() {
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_FIX:
-				gpsLastData.fix = parseInt();
+				gpsLastData.fix = parseInt(gpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPRMC_STATUS:
 				// Status
 				break;
 			case GPS_PART_GPGGA_SATS:
-				gpsLastData.sats = parseInt();
+				gpsLastData.sats = parseInt(gpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_DILUTION:
 				// Horizontal dilution of position
 				break;
 			case GPS_PART_GPGGA_ALTITUDE:
-				gpsLastData.pos.altitude = parseInt();
+				gpsLastData.pos.altitude = parseInt(gpsText, GPS_MAX_CHARS);
 #ifdef IMPERIAL_SYSTEM
         meterToFeet(&gpsLastData.pos.altitude);
 #endif // IMPERIAL_SYSTEM
@@ -294,7 +215,7 @@ static void parseGpsPart() {
 				// Geoid unit
 				break;
 			case GPS_PART_GPRMC_SPEED:
-				gpsLastData.speed = parseInt(); // Only use int part
+				gpsLastData.speed = parseInt(gpsText, GPS_MAX_CHARS); // Only use int part
 #ifdef METRIC_SYSTEM
 				// Convert to km/h. 1 knot = 1.852 km/h = 463/250
 				gpsLastData.speed *= 463; // Might need bigger var if you go really fast! :-)
@@ -304,15 +225,17 @@ static void parseGpsPart() {
 #endif // METRIC_SYSTEM
 				break;
 			case GPS_PART_GPRMC_ANGLE:
-				gpsLastData.angle = parseInt(); // Only use int part
+				gpsLastData.angle = parseInt(gpsText, GPS_MAX_CHARS); // Only use int part
 				break;
 			case GPS_PART_GPRMC_DATE:
-			  gpsLastData.date = parseInt();
+			  gpsLastData.date = parseInt(gpsText, GPS_MAX_CHARS);
 			  break;
 			case GPS_PART_CHECKSUM:
-				updateParts();
-				uint8_t val = parseHex();
+				//updateParts();
+				{
+				uint8_t val = parseHex(gpsText, GPS_MAX_CHARS);
 				gpsLastData.checksumValid = (val == gpsChecksum);
+				}				
 				break;
 			}				
 		}			

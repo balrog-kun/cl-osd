@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "adc.h"
 #include "delay.h"
 #include "gps.h"
+#include "home.h"
 
 // Text vars
 static uint16_t const textLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
@@ -112,37 +113,6 @@ static void drawText(uint8_t textId) {
 			textData[textId][bytePos] = val;
 		}			
 	}
-}
-
-static void myReverse(char s[], uint8_t size) {
-  uint8_t i;
-  char c;
-  size -= 1;
-  for (i = 0; i < size; i++) {
-    c = s[i];
-    s[i] = s[size - i];
-    s[size - i] = c;
-  }
-}
-
-static void myItoa(int32_t n, char s[])
-{
-  int8_t i;
-  int8_t sign = 0;
- 
-  if (n < 0) {  
-	  sign = -1; /* record sign */
-    n = -n;          /* make n positive */
-  }	
-  i = 0;
-  do {       /* generate digits in reverse order */
-    s[i++] = n % 10 + '0';   /* get next digit */
-  } while ((n /= 10) > 0);     /* delete it */
-  if (sign < 0) {
-    s[i++] = '-';
-  }	
-  s[i] = '\0';
-  myReverse(s, i);
 }
 
 static uint8_t printText(uint8_t pos, char* str) {
@@ -256,8 +226,8 @@ static void updateText(uint8_t textId) {
 	  }
 	  else if (timeSec%6 < 4)	{
 		  pos = printText(pos, "GPS2:");
-		  pos = printNumberWithUnit(pos+1, gpsDistToHome, TEXT_LENGTH_UNIT);
-		  pos = printNumberWithUnit(pos+1, gpsBearingToHome, "DEG");
+		  pos = printNumberWithUnit(pos+1, gpsHomeDistance, TEXT_LENGTH_UNIT);
+		  pos = printNumberWithUnit(pos+1, gpsHomeBearing, "DEG");
 		  pos = printText(pos+1, gpsHomePosSet ? "HOME" : "");
 		} 
 	  else {
