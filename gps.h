@@ -196,6 +196,7 @@ static uint8_t parseHex() {
 	return val;
 }
 
+#ifndef METRIC_SYSTEM
 static void meterToFeet(int16_t* var) {
 	int32_t tmp = *var;
 	tmp *= 3281;
@@ -209,6 +210,7 @@ static void knotToMph(uint16_t* var) {
 	tmp /= 1000;
 	*var = tmp;
 }
+#endif //METRIC_SYSTEM
 
 static void updateParts() {
 #ifdef GPS_PART_TEXT

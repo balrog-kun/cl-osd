@@ -114,6 +114,109 @@ static void drawText(uint8_t textId) {
 	}
 }
 
+static uint8_t printTimePart(uint8_t pos, uint8_t part) {
+	if (part < 10) {
+		text[pos++] = '0';
+	}		
+  itoa(part, &text[pos++], 10);
+  return pos;
+}
+
+static void printTime(uint8_t pos) {
+	pos = printTimePart(pos, timeHour);
+	text[pos++] = ':';
+	pos = printTimePart(pos, timeMin);
+	text[pos++] = ':';
+	pos = printTimePart(pos, timeSec);
+}
+
+static void myReverse(char s[], uint8_t size) {
+  uint8_t i;
+  char c;
+  size -= 1;
+  for (i = 0; i < size; i++) {
+    c = s[i];
+    s[i] = s[size - i];
+    s[size - i] = c;
+  }
+}
+
+static void myItoa(int32_t n, char s[])
+{
+  int8_t i;
+  int8_t sign = 0;
+ 
+  if (n < 0) {  
+	  sign = -1; /* record sign */
+    n = -n;          /* make n positive */
+  }	
+  i = 0;
+  do {       /* generate digits in reverse order */
+    s[i++] = n % 10 + '0';   /* get next digit */
+  } while ((n /= 10) > 0);     /* delete it */
+  if (sign < 0) {
+    s[i++] = '-';
+  }	
+  s[i] = '\0';
+  myReverse(s, i);
+}
+
+static uint8_t printText(uint8_t pos, char* str) {
+	uint8_t length = strlen(str);
+	if (pos + length >= TEXT_LINE_MAX_CHARS) {
+    length = TEXT_LINE_MAX_CHARS - 1;
+	}
+	strncpy(&text[pos], str, length);
+	return length+pos;
+}
+
+static uint8_t printNumber(uint8_t pos, int32_t number) {
+	uint8_t length = 1;
+	int32_t tmp = number;
+	while (tmp > 9) {
+		tmp /= 10;
+		++length;
+	}
+	if (pos + length >= TEXT_LINE_MAX_CHARS) {
+    return TEXT_LINE_MAX_CHARS;
+	}	
+	myItoa(number, &text[pos]);
+	return pos+length;
+}
+
+static uint8_t printNumberWithUnit(uint8_t pos, int32_t number, char* unit) {
+	pos = printNumber(pos, number);
+	pos = printText(pos, unit);
+	return pos;
+}
+
+static void printAdc(uint8_t pos, const uint8_t adcInput) {
+	uint8_t low = analogInputs[adcInput].low;
+	uint8_t high = analogInputs[adcInput].high;
+	pos = printNumber(pos, high);
+	text[pos++] = '.';
+	if(low < 10) {
+		text[pos++] = '0';
+	}
+	pos = printNumber(pos, low);		
+	text[pos++] = 'V';
+}
+
+static void printProcent(uint8_t pos, const uint8_t val) {
+	pos = printNumber(pos, val);
+	text[pos] = '%';
+}
+
+static void printRssiLevel(uint8_t pos, const uint8_t adcInput) {
+	uint8_t rssiLevel = calcRssiLevel(ANALOG_IN_1);
+	printProcent(pos, rssiLevel);
+}
+
+static void printBatterLevel(uint8_t pos, const uint8_t adcInput) {
+	uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
+	printProcent(pos, batterLevel);
+}
+
 static void printDebugInfo() {
 	// ---- TODO: Cleanup here! ----
 	
@@ -139,55 +242,43 @@ static void updateText(uint8_t textId) {
   //printDebugInfo();
 
   if (textId == 0) {
-	  uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
-	  uint8_t rssiLevel = calcBatteryLevel(ANALOG_IN_1);
-	
-#ifdef TEXT_INVERTED_ENABLED
-	  if (timeSec % 2 == 0) {
-	    setCharInverted(0, 0, TEXT_INVERTED_FLIP);
-	    setCharInverted(0, 1, TEXT_INVERTED_FLIP);
-	  }
-#endif // TEXT_INVERTED_ENABLED
-
-	  snprintf(text, TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d.%02dV %d%%", 
-      timeHour, timeMin, timeSec,
-      analogInputs[ANALOG_IN_1].high, analogInputs[ANALOG_IN_1].low, 
-      analogInputs[ANALOG_IN_2].high, analogInputs[ANALOG_IN_2].low, 
-#ifdef G_OSD
-      analogInputs[ANALOG_IN_3].high, analogInputs[ANALOG_IN_3].low, 
-#else
-      0, 0,
+	  printTime(0);
+	  printAdc(9, ANALOG_IN_1);
+	  printAdc(16, ANALOG_IN_2);
+#ifdef G_OSD	  
+	  //printAdc(23, ANALOG_IN_3);
+	  printRssiLevel(23, ANALOG_IN_3);
 #endif
-      rssiLevel);
+	  
   }
   else if(textId == 1) {
 #ifdef GPS_ENABLED
-
 	  if (timeSec%6 < 2)	{
-	    snprintf(text, TEXT_LINE_MAX_CHARS, "GPS1: %ld, %ld %d%s %dS", 
-	      gpsLastData.pos.latitude, 
-		    gpsLastData.pos.longitude, 
-		    gpsLastData.pos.altitude, 
-		    TEXT_LENGTH_UNIT,
-		    gpsLastData.sats);
-	  }	  
+		  uint8_t pos = 0;
+		  pos = printText(pos, "GPS1:");
+		  pos = printNumber(pos+1, gpsLastData.pos.latitude);
+		  pos = printNumber(pos+1, gpsLastData.pos.longitude);
+		  pos = printNumberWithUnit(pos+1, gpsLastData.pos.altitude, TEXT_LENGTH_UNIT);
+		  pos = printNumber(pos+1, gpsLastData.sats);
+		  pos = printText(pos, "S");
+	  }
 	  else if (timeSec%6 < 4)	{
-	    snprintf(text, TEXT_LINE_MAX_CHARS, "GPS2: %lu%s, %uDEG HOME %s", 
-	      gpsDistToHome,
-		    TEXT_LENGTH_UNIT,
-		    gpsBearingToHome, 
-		    gpsHomePosSet ? "OK" : "KO");
-	  } 
+		  uint8_t pos = 0;
+		  pos = printText(pos, "GPS2:");
+		  pos = printNumberWithUnit(pos+1, gpsDistToHome, TEXT_LENGTH_UNIT);
+		  pos = printNumberWithUnit(pos+1, gpsBearingToHome, "DEG");
+		  pos = printText(pos+1, gpsHomePosSet ? "HOME" : "");
+		} 
 	  else {
-	    snprintf(text, TEXT_LINE_MAX_CHARS, "GPS3: %d%s %d DEG %ld %s", 
-	      gpsLastData.speed,
-		    TEXT_SPEED_UNIT,
-		    gpsLastData.angle, 
-		    gpsLastData.date, 
-		    gpsLastData.checksumValid ? "FIX" : "BAD");
+		  uint8_t pos = 0;
+		  pos = printText(pos, "GPS2:");
+		  pos = printNumberWithUnit(pos+1, gpsLastData.speed, TEXT_SPEED_UNIT);
+		  pos = printNumberWithUnit(pos+1, gpsLastData.angle, "DEG");
+		  pos = printNumber(pos+1, gpsLastData.date);
+		  pos = printText(pos+1, gpsLastData.checksumValid ? "FIX" : "BAD");
 	  }
 #endif
-	}  
+	}
 }
 
 static void drawTextLine(uint8_t textNumber)
