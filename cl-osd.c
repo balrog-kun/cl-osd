@@ -64,8 +64,10 @@ static void updateOnceEverySec() {
 	else {
 		PORTD ^= LED;
 	}
+	
 	//distanceHome(58390633, 15589633, 58395500, 15592767);
 	//distanceHome(5823.4380, 1535.3780, 5823.7300, gpsHomePosSet);
+	
 	/*calcHome(58234380, 15353780, 58237300, 15355660); //572m 19 deg
 	calcHome(58244360, 15377910, 58357150, 16112030); //38633m 57 deg
 	calcHome(58357150, 16112030, 58244360, 15377910); //38633m 237 deg
@@ -79,7 +81,7 @@ static void updateOnceEverySec() {
 	           gpsLastValidData.pos.longitude * 10,
 			       gpsHomePos.latitude * 10,
 				     gpsHomePos.longitude * 10);
-	}	 
+	}
 #endif //GPS_ENABLED
   
 #ifdef ADC_ENABLED 

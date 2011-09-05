@@ -65,11 +65,11 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   uint8_t mult = 1;
   while ((absi32(deltaLong) >= 0xFFFF) 
          || (absi32(deltaLat) >= 0xFFFF)) {
-	  deltaLong >>= 1;
-	  deltaLat >>= 1;
-	  mult <<= 1;
+	  deltaLong /= 2;
+	  deltaLat /= 2;
+	  mult *= 2;
   }
-    
+  
 	gpsHomeDistance = calcSqrt((deltaLong * deltaLong) + (deltaLat * deltaLat));
 	gpsHomeDistance *= mult;
 

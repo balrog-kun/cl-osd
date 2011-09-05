@@ -33,12 +33,17 @@ static int32_t wgs84ToSec100(int32_t wgs84) {
   
   uint8_t hour = wgs84 / 1000000; //Get hour part
   uint8_t min = (wgs84 - (hour * 1000000)) / 10000; //Get minute part
-  int16_t minDecimal = (wgs84 % 10000); //Get minute decimal part
+  uint32_t minDecimal = wgs84 % 10000; //Get minute decimal part
   
   int32_t sec100 = 0;
-  sec100 += hour * 60; // Add hour part
-  sec100 = (sec100 + min) * 60; // Add minute part
-  sec100 = sec100 * 100 + (minDecimal * 60) / 100; // Add minute decimal part
+  sec100 += hour; // Add hour part
+  sec100 *= 60;
+  sec100 += min; // Add minute part
+  sec100 *= 60;
+  sec100 *= 100;
+  minDecimal *= 60;
+  minDecimal /= 100;
+  sec100 += minDecimal; // Add minute decimal part
   
   if (mult == -1) {
     return -sec100;

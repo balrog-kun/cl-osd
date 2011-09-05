@@ -188,7 +188,7 @@ static void drawGrapicsLine()
 	  DELAY_5_NOP();
   }
   DDRB &= ~OUT1;
-  //DELAY_1_NOP();
+  DELAY_1_NOP();
   SPDR = 0x00;
 #ifdef TEXT_SMALL_ENABLED
 	SPSR |= (1<<SPI2X); // Set dual speed
