@@ -36,24 +36,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Text vars
 static uint16_t const textLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
-static char text[TEXT_LINE_MAX_CHARS];
-static uint8_t textData[TEXT_LINES][TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
+static char text[TEXT_LINES][TEXT_LINE_MAX_CHARS];
+static uint8_t textPixmap[TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
 #ifdef TEXT_INVERTED_ENABLED
 static uint8_t textInverted[TEXT_LINES][TEXT_LINE_MAX_CHARS/8];
 #endif // TEXT_INVERTED_ENABLED
 
 // Functions
 static void clearText() {
-	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
-		text[j] = 0;
+	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
+	  for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
+		  text[i][j] = 0;
+	  }		  
 	}
 }
 
-static void clearTextData() {
-	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
-		for (uint16_t j = 0; j < TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT; ++j) {
-			textData[i][j] = 0;
-		}		
+static void clearTextPixmap() {
+	for (uint16_t j = 0; j < TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT; ++j) {
+		textPixmap[j] = 0;
 	}
 }
 
@@ -99,32 +99,42 @@ static uint8_t getCharData(uint16_t charPos) {
 	}	  
 }
 
-static void drawText(uint8_t textId) {
-	for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
-		for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; j++) {
-			uint16_t charPos = (text[j]*TEXT_CHAR_HEIGHT) + i;
-			uint8_t val = getCharData(charPos);
+static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
+	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; j++) {
+		uint8_t val;
+		if (text[textId][j] == ' ' || text[textId][j] == 0) {
+			val = 0;
+		}
+		else {			
+		  uint16_t charPos = (text[textId][j] * TEXT_CHAR_HEIGHT) + line;
+		  val = getCharData(charPos);
 #ifdef TEXT_INVERTED_ENABLED
-			if (charInverted(textId, j)) {
-				val = ~val;
-			}
+		  if (charInverted(textId, j)) {
+		    val = ~val;
+		  }
 #endif // TEXT_INVERTED_ENABLED
-			uint16_t bytePos = i*TEXT_LINE_MAX_CHARS + j;
-			textData[textId][bytePos] = val;
-		}			
+		}
+		uint16_t bytePos = line*TEXT_LINE_MAX_CHARS + j; 
+		textPixmap[bytePos] = val;			
 	}
 }
 
-static uint8_t printText(uint8_t pos, char* str) {
+static void updateTextPixmap(uint8_t textId) {
+	for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
+	  updateTextPixmapLine(textId, i);
+	}
+}
+
+static uint8_t printText(uint8_t textId, uint8_t pos, char* str) {
 	uint8_t length = strlen(str);
 	if (pos + length >= TEXT_LINE_MAX_CHARS) {
     length = TEXT_LINE_MAX_CHARS;
 	}
-	strncpy(&text[pos], str, length);
+	strncpy(&text[textId][pos], str, length);
 	return length+pos;
 }
 
-static uint8_t printNumber(uint8_t pos, int32_t number) {
+static uint8_t printNumber(uint8_t textId, uint8_t pos, int32_t number) {
 	uint8_t length = 1;
 	int32_t tmp = number;
 	while (tmp > 9) {
@@ -134,49 +144,49 @@ static uint8_t printNumber(uint8_t pos, int32_t number) {
 	if (pos + length >= TEXT_LINE_MAX_CHARS) {
     return TEXT_LINE_MAX_CHARS;
 	}	
-	myItoa(number, &text[pos]);
+	myItoa(number, &text[textId][pos]);
 	return pos+length;
 }
 
-static uint8_t printNumberWithUnit(uint8_t pos, int32_t number, char* unit) {
-	pos = printNumber(pos, number);
-	return printText(pos, unit);
+static uint8_t printNumberWithUnit(uint8_t textId, uint8_t pos, int32_t number, char* unit) {
+	pos = printNumber(textId, pos, number);
+	return printText(textId, pos, unit);
 }
 
-static uint8_t printTime(uint8_t pos) {
+static uint8_t printTime(uint8_t textId, uint8_t pos) {
 	if (timeHour < 10) {
-		text[pos++] = '0';
+		text[textId][pos++] = '0';
 	}
-	pos = printNumberWithUnit(pos, timeHour, ":");
+	pos = printNumberWithUnit(textId, pos, timeHour, ":");
 	if (timeMin < 10) {
-		text[pos++] = '0';
+		text[textId][pos++] = '0';
 	}	
-	pos = printNumberWithUnit(pos, timeMin, ":");
+	pos = printNumberWithUnit(textId, pos, timeMin, ":");
 	if (timeSec < 10) {
-		text[pos++] = '0';
+		text[textId][pos++] = '0';
 	}	
-	return printNumber(pos, timeSec);
+	return printNumber(textId, pos, timeSec);
 }
 
-static uint8_t printAdc(uint8_t pos, const uint8_t adcInput) {
+static uint8_t printAdc(uint8_t textId, uint8_t pos, const uint8_t adcInput) {
 	uint8_t low = analogInputs[adcInput].low;
 	uint8_t high = analogInputs[adcInput].high;
-	pos = printNumber(pos, high);
-	text[pos++] = '.';
+	pos = printNumber(textId, pos, high);
+	text[textId][pos++] = '.';
 	if(low < 10) {
-		text[pos++] = '0';
+		text[textId][pos++] = '0';
 	}
-	return printNumberWithUnit(pos, low, "V");		
+	return printNumberWithUnit(textId, pos, low, "V");		
 }
 
-static uint8_t printRssiLevel(uint8_t pos, const uint8_t adcInput) {
+static uint8_t printRssiLevel(uint8_t textId, uint8_t pos, const uint8_t adcInput) {
 	uint8_t rssiLevel = calcRssiLevel(ANALOG_IN_1);
-	return printNumberWithUnit(pos, rssiLevel, "%");
+	return printNumberWithUnit(textId, pos, rssiLevel, "%");
 }
 
-static uint8_t printBatterLevel(uint8_t pos, const uint8_t adcInput) {
+static uint8_t printBatterLevel(uint8_t textId, uint8_t pos, const uint8_t adcInput) {
 	uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
-	return printNumberWithUnit(pos, batterLevel, "%");
+	return printNumberWithUnit(textId, pos, batterLevel, "%");
 }
 
 static void printDebugInfo() {
@@ -205,57 +215,64 @@ static void updateText(uint8_t textId) {
   uint8_t pos = 0;
 
   if (textId == 0) {
-	  pos = printTime(pos);
-	  pos = printAdc(pos+1, ANALOG_IN_1);
-	  pos = printAdc(pos+1, ANALOG_IN_2);
+	  pos = printTime(textId, pos);
+	  
+	  pos = printAdc(textId, pos+1, ANALOG_IN_1);
+	  pos = printAdc(textId, pos+1, ANALOG_IN_2);
 #ifdef G_OSD	  
 	  //pos = printAdc(pos+1, ANALOG_IN_3);
-	  pos = printRssiLevel(pos+1, ANALOG_IN_3);
-#endif
-	  
+	  pos = printRssiLevel(textId, pos+1, ANALOG_IN_3);
+#endif	  
   }
-  else if(textId == 1) {
+  else if (textId == 1) {
 #ifdef GPS_ENABLED
-	  if (timeSec%6 < 2)	{
-		  pos = printText(pos, "GPS1:");
-		  pos = printNumber(pos+1, gpsLastData.pos.latitude);
-		  pos = printNumber(pos+1, gpsLastData.pos.longitude);
-		  pos = printNumberWithUnit(pos+1, gpsLastData.pos.altitude, TEXT_LENGTH_UNIT);
-		  pos = printNumber(pos+1, gpsLastData.sats);
-		  pos = printText(pos, "S");
-	  }
-	  else if (timeSec%6 < 4)	{
-		  pos = printText(pos, "GPS2:");
-		  pos = printNumberWithUnit(pos+1, gpsHomeDistance, TEXT_LENGTH_UNIT);
-		  pos = printNumberWithUnit(pos+1, gpsHomeBearing, "DEG");
-		  pos = printText(pos+1, gpsHomePosSet ? "HOME" : "");
-		} 
-	  else {
-		  pos = printText(pos, "GPS2:");
-		  pos = printNumberWithUnit(pos+1, gpsLastData.speed, TEXT_SPEED_UNIT);
-		  pos = printNumberWithUnit(pos+1, gpsLastData.angle, "DEG");
-		  pos = printNumber(pos+1, gpsLastData.date);
-		  pos = printText(pos+1, gpsLastData.checksumValid ? "FIX" : "BAD");
-	  }
-#endif
+		
+		pos = printText(textId, pos, gpsHomePosSet ? "H-SET" : "");
+		pos = printNumberWithUnit(textId, pos+1, gpsHomeDistance, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(textId, pos+1, gpsHomeBearing, "DEG");
+#endif //GPS_ENABLED
+	}
+	else if (textId == 2) {
+#ifdef GPS_ENABLED		
+		pos = printNumber(textId, pos, gpsLastData.pos.latitude);
+		pos = printNumber(textId, TEXT_LINE_MAX_CHARS-1-7, gpsLastData.pos.longitude);
+#endif //GPS_ENABLED
+	}
+	else if (textId == 3) {
+#ifdef GPS_ENABLED
+		pos = printNumberWithUnit(textId, pos, gpsLastData.sats, "S");
+		pos = printText(textId, pos+1, gpsLastData.checksumValid ? "FIX" : "BAD");
+		pos = printNumberWithUnit(textId, pos+1, gpsLastData.pos.altitude, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(textId, pos+1, gpsLastData.speed, TEXT_SPEED_UNIT);
+		pos = printNumberWithUnit(textId, pos+1, gpsLastData.angle, "DEG");
+#endif //GPS_ENABLED
+	}
+	else {		
+		pos = printText(textId, pos, "T:");
+		pos = printText(textId, TEXT_LINE_MAX_CHARS-1-4, "V:");
+		pos = printNumber(textId, pos+1, textId + 1);
 	}
 }
 
-static void drawTextLine(uint8_t textNumber)
+static void drawTextLine(uint8_t textId)
 {
-	_delay_us(4);
-	uint8_t currLine = (line - textLines[textNumber]) / TEXT_SIZE_MULT;
-	DDRB |= OUT1;
+	_delay_us(3);
+	uint8_t currLine = (line - textLines[textId]) / TEXT_SIZE_MULT;
 	for (uint8_t i = 0; i < TEXT_LINE_MAX_CHARS; ++i) {
-		SPDR = textData[textNumber][currLine*TEXT_LINE_MAX_CHARS + i];
-		DELAY_9_NOP();
-		DELAY_3_NOP();
+		if (text[textId][i] != ' ' && text[textId][i] != 0) {
+			DDRB |= OUT1;
+		}
+		else {
+			DDRB &= ~OUT1;
+		}
+		SPDR = textPixmap[(uint16_t)(currLine)*TEXT_LINE_MAX_CHARS + i];
+		DELAY_4_NOP();
 #ifndef TEXT_SMALL_ENABLED
 		DELAY_6_NOP();
 		DELAY_9_NOP();
 #endif //TEXT_SMALL_ENABLED	
 	}
-	DELAY_4_NOP();
+	DELAY_10_NOP();
 	SPDR = 0x00;
 	DDRB &= ~OUT1;
 }

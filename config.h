@@ -94,13 +94,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Text
 #ifndef TEXT_SMALL_ENABLED
-#define TEXT_LINE_MAX_CHARS 32
+#define TEXT_LINE_MAX_CHARS 33
 #else
-#define TEXT_LINE_MAX_CHARS 40
+#define TEXT_LINE_MAX_CHARS 58
 #endif //TEXT_SMALL_ENABLED
 #define TEXT_CHAR_HEIGHT 8
-#define TEXT_LINES 2
-#define TEXT_TRIG_LINES_LIST 50, 256
+/*#define TEXT_LINES 9
+#define START 43
+#define DIFF 29
+#define TEXT_TRIG_LINES_LIST START, START+(DIFF*1), START+(DIFF*2), START+(DIFF*3), START+(DIFF*4), START+(DIFF*5), START+(DIFF*6), START+(DIFF*7), START+(DIFF*8)*/
+#define TEXT_LINES 4
+#define TEXT_TRIG_LINES_LIST 50, 50+27, 230, 230+24
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
 #define TEXT_INVERTED_FLIP 2
@@ -173,7 +177,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define RSSI_MAX_VOLTAGE_INT (uint16_t)(RSSI_MAX_VOLTAGE*100)
 
 // Graphics
-#define GRAPHICS_SIZE 16
+#define GRAPHICS_SIZE 32 // Multiple of 8
 #define GRAPHICS_WIDTH_REAL GRAPHICS_SIZE
 #define GRAPHICS_WIDTH (GRAPHICS_SIZE/8)
 #define GRAPHICS_HEIGHT GRAPHICS_SIZE
@@ -182,8 +186,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define GRAPHICS_OFFSET 26
 
 // Line triggering
-#define LAST_LINE 0
-#if TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2 > LAST_LINE
+#define MAX(a, b)  (((a) > (b)) ? (a) : (b))
+#define LAST_LINE 1 //MAX(textLines[TEXT_LINES-1] + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT, GRAPHICS_LINE + GRAPHICS_HEIGHT * 2)
+/*#if TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2 > LAST_LINE
 #undef LAST_LINE
 #define LAST_LINE TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2
 #endif
@@ -194,7 +199,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #if GRAPHICS_LINE + GRAPHICS_HEIGHT * 2 > LAST_LINE
 #undef LAST_LINE
 #define LAST_LINE GRAPHICS_LINE + GRAPHICS_HEIGHT * 2
-#endif
+#endif*/
 
 #define LINE_TYPE_UNKNOWN 0
 #define LINE_TYPE_TEXT 1

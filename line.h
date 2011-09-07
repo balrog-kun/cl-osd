@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include <util/delay.h>
 
 static volatile uint8_t update = 0;
-static volatile uint8_t textNumber = 0;
+static volatile uint8_t activeTextId = 0;
+static volatile uint8_t activeTextLine = 0;
 static volatile uint8_t lineType = LINE_TYPE_UNKNOWN;
 
 static void setupLine() {
@@ -43,6 +44,8 @@ static void setupLine() {
 	SPSR &= ~(1<<SPI2X); // Clear dual speed
 #endif //TEXT_SMALL_ENABLED
 	SPCR = (1<<SPE) | (1<<MSTR) | (1<<CPHA);
+	
+	activeTextLine = textLines[activeTextId];
 }  
 
 static void updateLine() {
@@ -53,7 +56,7 @@ static void updateLine() {
 			switch(lineType) {
 				case LINE_TYPE_TEXT:
 #ifdef TEXT_ENABLED				
-					drawTextLine(textNumber);
+					drawTextLine(activeTextId);
 #endif //TEXTENABLED			
 					break;
 				case LINE_TYPE_GRAPHICS:
@@ -64,24 +67,28 @@ static void updateLine() {
 			}
 		}
 		
-		// We save some time by pre-calculating next type.
+		// We save some time in beginning of line by pre-calculating next type.
 		lineType = LINE_TYPE_UNKNOWN; // Default case
 		line++;
 		if (line == LAST_LINE) {
-			// We want to start update as fast as possible so we don't use a type here.
 			update = 1;
+			return;
 		}
+	
+		if (line >= activeTextLine && line < (activeTextLine + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
+	    lineType = LINE_TYPE_TEXT;
+		}
+		else if (line == (activeTextLine + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
+		  update = 2;
+			activeTextId = (activeTextId+1) % TEXT_LINES;
+			activeTextLine = textLines[activeTextId];
+			return;
+		}
+		#ifdef GRAPICSENABLED		
 		else if (line >= GRAPHICS_LINE && line < (GRAPHICS_LINE + GRAPHICS_HEIGHT)) {
 			lineType = LINE_TYPE_GRAPHICS;
 		}
-		else {
-			for (uint8_t i = 0; i < TEXT_LINES; ++i) {
-		    if (line >= textLines[i] && line < (textLines[i] + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
-			    lineType = LINE_TYPE_TEXT;
-			    textNumber = i;
-		    }
-			}			
-		}
+    #endif //GRAPICSENABLED
 	}
 	else { // V sync
 		if(line > 200) {

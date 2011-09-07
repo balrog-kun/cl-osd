@@ -65,8 +65,9 @@ static void updateOnceEverySec() {
 		PORTD ^= LED;
 	}
 	
-	//distanceHome(58390633, 15589633, 58395500, 15592767);
-	//distanceHome(5823.4380, 1535.3780, 5823.7300, gpsHomePosSet);
+	// center around 58234380, 15353780
+	//calcHome(58234380, 15353780, 672175560, 153537800); // 0 deg 1000m
+	
 	
 	/*calcHome(58234380, 15353780, 58237300, 15355660); //572m 19 deg
 	calcHome(58244360, 15377910, 58357150, 16112030); //38633m 57 deg
@@ -104,15 +105,11 @@ static void updateOnceEveryFrame() {
 #endif //TIMEENABLED
 
 #ifdef TEXT_ENABLED
-#ifdef TEXT_INVERTED_ENABLED
-	clearTextInverted();
-#endif // TEXT_INVERTED_ENABLED
+  clearText();
   for (uint8_t i = 0; i < TEXT_LINES; ++i) {
-	  clearText();
 	  updateText(i);
-	  drawText(i);
-  }	  
-#endif //TEXTENABLED
+  }
+#endif //TEXT_ENABLED
 
 #ifdef GRAPICSENABLED
 	clearGraphics();
@@ -162,10 +159,23 @@ void main(void) {
 		update = 1;
 #endif // DEBUG
 
-		if (update == 1) {
+#ifdef TEXT_ENABLED
+    if (update == 2) {
+		  update = 0;
+#ifdef TEXT_INVERTED_ENABLED
+	    clearTextInverted();
+#endif //TEXT_INVERTED_ENABLED
+	    updateTextPixmap(activeTextId);
+	  }
+	  else if (update == 1) {
+#else
+    if (update == 1) {
+#endif //TEXTENABLED
 			update = 0;
-			updateOnceEveryFrame();			  
-		}      
+			//DDRB |= OUT1;
+			updateOnceEveryFrame();
+			//DDRB &= ~OUT1;
+		}
 	}
 }
 

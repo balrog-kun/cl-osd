@@ -133,12 +133,12 @@ static void clearFullGpsText() {
 }
 #endif // GPS_FULL_TEXT
 
-static void updateParts() {
 #ifdef GPS_PART_TEXT
+static void updateParts() {
 	strncpy((char*)gpsTextPart, (char*)gpsText, GPS_MAX_CHARS);
 	gpsTextPartLength = strlen((const char*)gpsText);
-#endif //GPS_PART_TEXT
 }
+#endif //GPS_PART_TEXT
 
 static void parseGpsPart() {
 	if (gpsTextType == GPS_TYPE_NONE) {
