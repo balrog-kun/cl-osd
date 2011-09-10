@@ -48,7 +48,7 @@ static void clearGraphics() {
 }	
 
 inline uint8_t validPos(uint8_t x, uint8_t y) {
-	if (x >= GRAPHICS_WIDTH_REAL || y >= GRAPHICS_HEIGHT) { //x < 0 || y < 0 || 
+	if (x >= GRAPHICS_WIDTH_REAL || y >= GRAPHICS_HEIGHT) {
 		return 0;
 	}
 	return 1;	
@@ -151,33 +151,27 @@ static void drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 	}				 
 }
 
-//static int16_t a = 0; //DEBUG
-//static int16_t b = 0;
-
 static void updateGrapics() {
-	//drawLine(0, 0, GRAPHICS_SIZE-1, 0);
-	//drawLine(0, 0, 0, GRAPHICS_SIZE-1);
-	//drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0);
-	//drawLine(GRAPHICS_SIZE-1, GRAPHICS_SIZE-1, 0, GRAPHICS_SIZE-1);
-	//drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, GRAPHICS_SIZE*0.1);
 	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1);
 #ifdef GPS_ENABLED
 	uint16_t pos = gpsLastValidData.angle - gpsHomeBearing;
-#else
-  uint16_t pos = 0;
-#endif
 	int16_t a = myCos(pos);
 	int16_t b = mySin(pos);
 	a = (a * (GRAPHICS_SIZE / 3)) / 100;
 	b = (b * (GRAPHICS_SIZE / 3)) / 100;
+	if (gpsHomeDistance < 10) {
+	  a = 0;
+	  b = 0;	
+	}		
 	drawLine((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1 + b, (GRAPHICS_SIZE/2)-1 - a);
+#endif //GPS_ENABLED
 }
 
 static void drawGrapicsLine()
 {
 #ifdef TEXT_SMALL_ENABLED
 	SPSR &= ~(1<<SPI2X); // Set normal speed
-#endif
+#endif //TEXT_SMALL_ENABLED
   _delay_us(GRAPHICS_OFFSET);
   uint16_t currLine = (line - GRAPHICS_LINE);
   for (uint8_t i = 0; i < GRAPHICS_WIDTH; ++i) {
@@ -192,7 +186,7 @@ static void drawGrapicsLine()
   SPDR = 0x00;
 #ifdef TEXT_SMALL_ENABLED
 	SPSR |= (1<<SPI2X); // Set dual speed
-#endif
+#endif //TEXT_SMALL_ENABLED
 }
 
 #endif //GRAPICSENABLED  

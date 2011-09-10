@@ -83,7 +83,6 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
     } 
 	  else { // high angle, cosine is better
       c = (absi32(deltaLong) * 100) / gpsHomeDistance; // computes cosine
-	    //gpsHomeBearing = 45;
       while((mySin(gpsHomeBearing) <= c) && (gpsHomeBearing < 90)) {
         ++gpsHomeBearing;
       }
@@ -119,7 +118,7 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
 #ifdef IMPERIAL_SYSTEM  
   gpsHomeDistance *= 3281;
 	gpsHomeDistance /= 1000;
-#endif	
+#endif //IMPERIAL_SYSTEM
 }
 
 #endif /* HOME_H_ */

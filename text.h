@@ -189,47 +189,27 @@ static uint8_t printBatterLevel(uint8_t textId, uint8_t pos, const uint8_t adcIn
 	return printNumberWithUnit(textId, pos, batterLevel, "%");
 }
 
-static void printDebugInfo() {
-	// ---- TODO: Cleanup here! ----
-	
-  //snprintf(text[0], TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d:%02d", hour, min, sec, tick);
-	//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d%%", hour, min, sec, adc0High, adc0Low, adc1High, adc1Low, batt1);
-	//if (gpsTextType != GPS_TYPE_GPGGA ) {
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, " %s", gpsFullText);
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "Part (%d): %s", gpsTextPartLength, gpsTextPart); //part
-		//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsTextType);
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %06ld", gpsTextPart, gpsTime); //time
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLat); //Lat
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLong); //Long
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsFix); //fix?
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsSats); //sats
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsAltitude); //altitude
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "(%s == %d)? => %d", gpsTextPart, gpsChecksum, gpsChecksumValid); //checksum
-		//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%.32s", &gpsFullText[30]);		
-	//}
-	//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%dV %dV %dV", analogInputsRaw[ANALOG_IN_1], analogInputsRaw[ANALOG_IN_2], analogInputsRaw[ANALOG_IN_3]);
-}
-
 static void updateText(uint8_t textId) {
-  //printDebugInfo();
+  //testPrintDebugInfo();
   uint8_t pos = 0;
 
   if (textId == 0) {
 	  pos = printTime(textId, pos);
 	  
 	  pos = printAdc(textId, pos+1, ANALOG_IN_1);
-	  pos = printAdc(textId, pos+1, ANALOG_IN_2);
-#ifdef G_OSD	  
-	  //pos = printAdc(pos+1, ANALOG_IN_3);
+	  
+#if ANALOG_IN_NUMBER == 2
+    pos = printRssiLevel(textId, pos+1, ANALOG_IN_2);
+#else // ANALOG_IN_NUMBER == 3
+    pos = printAdc(textId, pos+1, ANALOG_IN_2);
 	  pos = printRssiLevel(textId, pos+1, ANALOG_IN_3);
-#endif	  
+#endif //ANALOG_IN_NUMBER == 2
   }
   else if (textId == 1) {
 #ifdef GPS_ENABLED
-		
-		pos = printText(textId, pos, gpsHomePosSet ? "H-SET" : "");
-		pos = printNumberWithUnit(textId, pos+1, gpsHomeDistance, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(textId, pos, gpsHomeDistance, TEXT_LENGTH_UNIT);
 		pos = printNumberWithUnit(textId, pos+1, gpsHomeBearing, "DEG");
+		pos = printText(textId, pos+1, gpsHomePosSet ? "H-SET" : "");
 #endif //GPS_ENABLED
 	}
 	else if (textId == 2) {

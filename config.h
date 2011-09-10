@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // For debugging. (All combinations might not work) :-)
 #ifdef G_OSD
 #define GRAPICSENABLED
-#endif
+#endif //G_OSD
 #define TEXT_ENABLED
 #define TIME_ENABLED
 #define ADC_ENABLED
@@ -52,8 +52,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define RSSI_MAX_VOLTAGE 4.7
 #define RSSI_MIN_VOLTAGE 1.2
 
+// Unit system
 //#define IMPERIAL_SYSTEM
 #define METRIC_SYSTEM
+
+// Home set (Use at least one of the first two)
+//#define HOME_SET_AT_FIRST_FIX
+#define HOME_AUTO_SET
+#define HOME_SET_WITH_BUTTON
 
 // ----------------- INTERNAL CONFIGS ------------------
 
@@ -63,7 +69,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #endif
 
 #if (defined(IMPERIAL_SYSTEM) && defined(METRIC_SYSTEM)) || (!defined(IMPERIAL_SYSTEM) && !defined(METRIC_SYSTEM))
-#error "Select one and only one system!"
+#error "Select one and only one unit system!"
 #endif
 
 // in / out
@@ -104,7 +110,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define DIFF 29
 #define TEXT_TRIG_LINES_LIST START, START+(DIFF*1), START+(DIFF*2), START+(DIFF*3), START+(DIFF*4), START+(DIFF*5), START+(DIFF*6), START+(DIFF*7), START+(DIFF*8)*/
 #define TEXT_LINES 4
-#define TEXT_TRIG_LINES_LIST 50, 50+27, 230, 230+24
+#define TEXT_TRIG_LINES_LIST 51, 51+25, 230, 230+25
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
 #define TEXT_INVERTED_FLIP 2
@@ -112,40 +118,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_SIZE_MULT 2
 #else
 #define TEXT_SIZE_MULT 1
-#endif
+#endif //TEXT_SMALL_ENABLED
 
 #ifdef METRIC_SYSTEM
 #define TEXT_LENGTH_UNIT "M"
-#else // IMPERIAL_SYSTEM
+#else
 #define TEXT_LENGTH_UNIT "F"
-#endif
+#endif //METRIC_SYSTEM
 
 #ifdef METRIC_SYSTEM
 #define TEXT_SPEED_UNIT "KM/H"
-#else // IMPERIAL_SYSTEM
+#else 
 #define TEXT_SPEED_UNIT "MPH"
-#endif
-
-// TODO: Work more on this...
-// Text data types
-#define DATA_TYPE_NONE 0
-#define DATA_TYPE_VOLT 1
-#define DATA_TYPE_RSSI 2
-#define DATA_TYPE_BATTERY 3
-#define DATA_TYPE_TIME 4
-#define DATA_TYPE_GPS_TIME 5
-#define DATA_TYPE_GPS_DATE 6
-#define DATA_TYPE_GPS_LAT 7
-#define DATA_TYPE_GPS_LONG 8
-#define DATA_TYPE_GPS_SATS 9
-#define DATA_TYPE_GPS_FIX 10
-#define DATA_TYPE_GPS_ANGLE 11
-#define DATA_TYPE_GPS_SPEED 12
-#define DATA_TYPE_HOME_DISTANCE 13
-#define DATA_TYPE_HOME_BEARING 14
-
-// Text placement
-#define TEXT_PLACEMENT {DATA_TYPE_TIME, 0, 0}, {DATA_TYPE_VOLT, 0, 10}, {DATA_TYPE_VOLT, 1, 17}
+#endif //METRIC_SYSTEM
 
 // ADC
 #define ANALOG_IN_1 0
@@ -177,29 +162,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define RSSI_MAX_VOLTAGE_INT (uint16_t)(RSSI_MAX_VOLTAGE*100)
 
 // Graphics
-#define GRAPHICS_SIZE 32 // Multiple of 8
+#define GRAPHICS_SIZE 24 // Multiple of 8
 #define GRAPHICS_WIDTH_REAL GRAPHICS_SIZE
 #define GRAPHICS_WIDTH (GRAPHICS_SIZE/8)
 #define GRAPHICS_HEIGHT GRAPHICS_SIZE
-//#define GRAPHICS_DATA_SIZE GRAPHICS_WIDTH*GRAPHICS_HEIGHT
 #define GRAPHICS_LINE 135
 #define GRAPHICS_OFFSET 26
 
 // Line triggering
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
-#define LAST_LINE 1 //MAX(textLines[TEXT_LINES-1] + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT, GRAPHICS_LINE + GRAPHICS_HEIGHT * 2)
-/*#if TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2 > LAST_LINE
-#undef LAST_LINE
-#define LAST_LINE TEXT_1_TRIG_LINE + TEXT_CHAR_HEIGHT * 2
-#endif
-#if TEXT_2_TRIG_LINE + TEXT_CHAR_HEIGHT * 2 > LAST_LINE
-#undef LAST_LINE
-#define LAST_LINE TEXT_2_TRIG_LINE + TEXT_CHAR_HEIGHT * 2
-#endif
-#if GRAPHICS_LINE + GRAPHICS_HEIGHT * 2 > LAST_LINE
-#undef LAST_LINE
-#define LAST_LINE GRAPHICS_LINE + GRAPHICS_HEIGHT * 2
-#endif*/
+#define LAST_LINE 230+25+16+2
 
 #define LINE_TYPE_UNKNOWN 0
 #define LINE_TYPE_TEXT 1
@@ -215,6 +187,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #define DUMMY_FUNC return 0;
 
+// TODO: Work more on this...
+// Text layout
+#define DATA_TYPE_NONE 0
+#define DATA_TYPE_VOLT 1
+#define DATA_TYPE_RSSI 2
+#define DATA_TYPE_BATTERY 3
+#define DATA_TYPE_TIME 4
+#define DATA_TYPE_GPS_TIME 5
+#define DATA_TYPE_GPS_DATE 6
+#define DATA_TYPE_GPS_LAT 7
+#define DATA_TYPE_GPS_LONG 8
+#define DATA_TYPE_GPS_SATS 9
+#define DATA_TYPE_GPS_FIX 10
+#define DATA_TYPE_GPS_ANGLE 11
+#define DATA_TYPE_GPS_SPEED 12
+#define DATA_TYPE_HOME_DISTANCE 13
+#define DATA_TYPE_HOME_BEARING 14
+
+// Text placement
+#define LINE(a) a
+#define NO_INDEX 0
+#define AUTO_ADJUST -1
+#define TEXT_PLACEMENT { \
+{{DATA_TYPE_TIME, LINE(0), NO_INDEX, AUTO_ADJUST}, \
+ {DATA_TYPE_VOLT, LINE(0), ANALOG_IN_1, AUTO_ADJUST}, \
+ {DATA_TYPE_VOLT, LINE(0), ANALOG_IN_2, AUTO_ADJUST}, \
+ {DATA_TYPE_RSSI, LINE(0), ANALOG_IN_3, AUTO_ADJUST}}, \
+{{DATA_TYPE_GPS_SPEED, LINE(1), NO_INDEX, AUTO_ADJUST}, \ 
+ {DATA_TYPE_GPS_ANGLE, LINE(1), NO_INDEX, AUTO_ADJUST}}, \
+{{DATA_TYPE_GPS_LAT, LINE(1), NO_INDEX, AUTO_ADJUST}, \
+ {DATA_TYPE_GPS_LONG, LINE(1), NO_INDEX, TEXT_LINE_MAX_CHARS-1-7}}}
+	
+
 // Global vars
 static volatile uint16_t line = 0;
 
@@ -227,6 +232,6 @@ static volatile int16_t i16 = 0;
 static volatile uint32_t u32 = 0;
 static volatile int32_t i32 = 0;
 static volatile char c8 = 0;
-#endif
+#endif //DEBUG
 
 #endif /* SETUP_H_ */

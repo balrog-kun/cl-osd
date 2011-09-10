@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "adc.h"
 #include "gps.h"
 
+#ifdef DEBUG
+#include "test.h"
+#endif //DEBUG
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -53,11 +57,9 @@ static void setup(void)
 }
 
 static void updateOnceEverySec() {
-#ifdef E_OSD
+#ifndef GPS_ENABLED
   PORTD |= LED;
-#endif
-	
-#ifdef GPS_ENABLED
+#else //GPS_ENABLED
   if (gpsLastData.fix != 0) {
 		PORTD |= LED;
 	}
@@ -65,17 +67,9 @@ static void updateOnceEverySec() {
 		PORTD ^= LED;
 	}
 	
-	// center around 58234380, 15353780
-	//calcHome(58234380, 15353780, 672175560, 153537800); // 0 deg 1000m
-	
-	
-	/*calcHome(58234380, 15353780, 58237300, 15355660); //572m 19 deg
-	calcHome(58244360, 15377910, 58357150, 16112030); //38633m 57 deg
-	calcHome(58357150, 16112030, 58244360, 15377910); //38633m 237 deg
-	calcHome(-23010000, -46010000, -23020000, -46010000); // 1853m 180 deg
-	calcHome(-23020000, -46010000, -23020000, -46020000); // 1706m	270 deg
-	calcHome(-23020000, -46020000, -23020000, -46010000); // 1706m	90 deg
-	calcHome(-23020000, -46010000, -23010000, -46010000); // 1853m	360 deg*/
+#ifdef DEBUG
+  testCalcHome();
+#endif // DEBUG
   
 	if (gpsHomePosSet) {
 	  calcHome(gpsLastValidData.pos.latitude * 10,
@@ -133,7 +127,7 @@ void main(void) {
 
 	while(1) {
     
-#ifdef GPS_ENABLED    
+#ifdef GPS_ENABLED
     if(UCSR0A & (1<<RXC0)) {
       decodeGpsData(UDR0);
     }
@@ -144,6 +138,13 @@ void main(void) {
 			keyPressed = 1;
 			if(keyTime > 10) {
 				PORTD |= LED; // long press!
+#ifdef GPS_ENABLED
+#ifdef HOME_SET_WITH_BUTTON
+      if (gpsLastData.checksumValid != 0 && gpsHomePosSet == 0) {
+				setHomePos();
+			}
+#endif //HOME_SET_WITH_BUTTON
+#endif //GPS_ENABLED
 			}
 		}
 		else {
@@ -157,7 +158,7 @@ void main(void) {
 
 #ifdef DEBUG
 		update = 1;
-#endif // DEBUG
+#endif //DEBUG
 
 #ifdef TEXT_ENABLED
     if (update == 2) {

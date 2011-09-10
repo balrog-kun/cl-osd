@@ -242,6 +242,11 @@ static void parseGpsPart() {
 	}
 }
 
+static void setHomePos() {
+	gpsHomePos = gpsLastData.pos;
+	gpsHomePosSet = 1;
+}
+
 static void decodeGpsData(char data) {
 	if (gpsTextPartStep == GPS_PART_FINISHED && data != '$') {
 		return;
@@ -276,9 +281,16 @@ static void decodeGpsData(char data) {
 	  gpsTextPartStep = GPS_PART_FINISHED;
 	  if (gpsLastData.checksumValid != 0) {
 		  if (gpsHomePosSet == 0) {
-			  gpsHomePos = gpsLastData.pos;
-			  gpsHomePosSet = 1;
+#ifdef HOME_SET_AT_FIRST_FIX
+			  setHomePos();
+#endif //HOME_FIRST_FIX
+#ifdef HOME_AUTO_SET
+        if (gpsLastData.speed >= 10) {
+			    setHomePos();
+		    }
+#endif //HOME_AUTO_SET
 		  }
+
 			gpsLastValidData = gpsLastData;
 			gpsValidData = 1;
 	  }		  

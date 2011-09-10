@@ -1,0 +1,24 @@
+People who have contributed to cl-osd:
+____________________________________________
+
+Tjerk Slaghek
+Anders Petersson
+William Nachefski
+Mark Illum
+Armando Luis Maria Bianchi
+Jerrod Johnson
+
+
+Programmers:
+____________________________________________
+
+Carl Ljungström
+Ernani Reis
+
+
+Special thanks to:
+____________________________________________
+
+Emilie T
+
+
