@@ -27,21 +27,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // This can also be set using symbol in configuration.
 //#define E_OSD
 //#define G_OSD
+//#define E_OSD_GPS //Non supported! Note: Also enable E_OSD!
 
 // For debugging. (All combinations might not work) :-)
-#ifdef G_OSD
+#if defined(G_OSD) || defined(E_OSD_GPS)
+#define GPS_ENABLED
+#endif //defined(G_OSD) || defined(E_OSD_GPS)
+#ifdef GPS_ENABLED
 #define GRAPICSENABLED
-#endif //G_OSD
+#endif //GPS_ENABLED
 #define TEXT_ENABLED
 #define TIME_ENABLED
 #define ADC_ENABLED
-#ifdef G_OSD
-#define GPS_ENABLED
-#endif //G_OSD
 #ifdef TEXT_ENABLED
 //#define TEXT_INVERTED_ENABLED
-#endif //TEXT_ENABLED
 //#define TEXT_SMALL_ENABLED
+#endif //TEXT_ENABLED
 
 // Battery
 #define CELL_LOW_VOLTAGE 3.8
@@ -64,6 +65,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // ----------------- INTERNAL CONFIGS ------------------
 
 // Check sanity
+#if (defined(E_OSD_GPS) && !defined(E_OSD)) 
+#error "Make sure to define E_OSD as well when using E_OSD_GPS"
+#endif
+
 #if (defined(E_OSD) && defined(G_OSD)) || (!defined(E_OSD) && !defined(G_OSD))
 #error "Select one and only one target!"
 #endif
@@ -110,7 +115,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define DIFF 29
 #define TEXT_TRIG_LINES_LIST START, START+(DIFF*1), START+(DIFF*2), START+(DIFF*3), START+(DIFF*4), START+(DIFF*5), START+(DIFF*6), START+(DIFF*7), START+(DIFF*8)*/
 #define TEXT_LINES 4
-#define TEXT_TRIG_LINES_LIST 51, 51+25, 230, 230+25
+#define TEXT_TRIG_LINES_LIST 51, 51+25, 240, 240+25
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
 #define TEXT_INVERTED_FLIP 2
@@ -166,12 +171,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define GRAPHICS_WIDTH_REAL GRAPHICS_SIZE
 #define GRAPHICS_WIDTH (GRAPHICS_SIZE/8)
 #define GRAPHICS_HEIGHT GRAPHICS_SIZE
-#define GRAPHICS_LINE 135
-#define GRAPHICS_OFFSET 26
+#define GRAPHICS_LINE 105
+#define GRAPHICS_OFFSET 48
 
 // Line triggering
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
-#define LAST_LINE 230+25+16+2
+#define LAST_LINE 100 //240+25+16+2
 
 #define LINE_TYPE_UNKNOWN 0
 #define LINE_TYPE_TEXT 1

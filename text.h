@@ -125,7 +125,7 @@ static void updateTextPixmap(uint8_t textId) {
 	}
 }
 
-static uint8_t printText(uint8_t textId, uint8_t pos, char* str) {
+static uint8_t printText(uint8_t textId, uint8_t pos, const char* str) {
 	uint8_t length = strlen(str);
 	if (pos + length >= TEXT_LINE_MAX_CHARS) {
     length = TEXT_LINE_MAX_CHARS;
@@ -148,7 +148,7 @@ static uint8_t printNumber(uint8_t textId, uint8_t pos, int32_t number) {
 	return pos+length;
 }
 
-static uint8_t printNumberWithUnit(uint8_t textId, uint8_t pos, int32_t number, char* unit) {
+static uint8_t printNumberWithUnit(uint8_t textId, uint8_t pos, int32_t number, const char* unit) {
 	pos = printNumber(textId, pos, number);
 	return printText(textId, pos, unit);
 }
@@ -189,6 +189,24 @@ static uint8_t printBatterLevel(uint8_t textId, uint8_t pos, const uint8_t adcIn
 	return printNumberWithUnit(textId, pos, batterLevel, "%");
 }
 
+static uint8_t printGpsNumber(uint8_t textId, uint8_t pos, int32_t number, uint8_t numberLat) {
+	uint8_t hour = number / 100000;
+	uint8_t min = (number - (hour * 100000)) / 1000; //Get minute part
+  uint32_t minDecimal = number % 1000; //Get minute decimal part
+  
+  const char* str;
+  if (numberLat) {
+	  str = number > 0 ? "N" : "S";
+  }
+  else {
+	  str = number > 0 ? "E" : "W";
+  }
+  
+  pos = printNumberWithUnit(textId, pos, hour, ":");
+  pos = printNumberWithUnit(textId, pos, min, ".");
+  return printNumberWithUnit(textId, pos, minDecimal, str);
+}
+
 static void updateText(uint8_t textId) {
   //testPrintDebugInfo();
   uint8_t pos = 0;
@@ -213,9 +231,9 @@ static void updateText(uint8_t textId) {
 #endif //GPS_ENABLED
 	}
 	else if (textId == 2) {
-#ifdef GPS_ENABLED		
-		pos = printNumber(textId, pos, gpsLastData.pos.latitude);
-		pos = printNumber(textId, TEXT_LINE_MAX_CHARS-1-7, gpsLastData.pos.longitude);
+#ifdef GPS_ENABLED
+		pos = printGpsNumber(textId, pos, gpsLastData.pos.latitude, 1);
+		pos = printGpsNumber(textId, TEXT_LINE_MAX_CHARS-1-10, gpsLastData.pos.longitude, 0);
 #endif //GPS_ENABLED
 	}
 	else if (textId == 3) {
@@ -237,7 +255,7 @@ static void updateText(uint8_t textId) {
 static void drawTextLine(uint8_t textId)
 {
 	_delay_us(3);
-	uint8_t currLine = (line - textLines[textId]) / TEXT_SIZE_MULT;
+	uint8_t currLine = ((uint16_t)(line) - textLines[textId]) / TEXT_SIZE_MULT;
 	for (uint8_t i = 0; i < TEXT_LINE_MAX_CHARS; ++i) {
 		if (text[textId][i] != ' ' && text[textId][i] != 0) {
 			DDRB |= OUT1;

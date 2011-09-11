@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 static volatile uint8_t update = 0;
 static volatile uint8_t activeTextId = 0;
-static volatile uint8_t activeTextLine = 0;
+static volatile uint16_t activeTextLine = 0;
 static volatile uint8_t lineType = LINE_TYPE_UNKNOWN;
 
 static void setupLine() {
