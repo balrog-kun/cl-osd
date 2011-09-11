@@ -140,7 +140,7 @@ void main(void) {
 				PORTD |= LED; // long press!
 #ifdef GPS_ENABLED
 #ifdef HOME_SET_WITH_BUTTON
-      if (gpsLastData.checksumValid != 0 && gpsHomePosSet == 0) {
+      if (gpsLastData.checksumValid != 0) {
 				setHomePos();
 			}
 #endif //HOME_SET_WITH_BUTTON

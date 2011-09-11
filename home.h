@@ -62,6 +62,7 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   deltaLong = deltaLong * c;   // corrige dla p/ lat da região
   deltaLong = deltaLong / 100; // cosseno volta * 100
 
+  // Make sure we don't go over uin32_t when doing sqr of deltaLong & deltaLat
   uint8_t mult = 1;
   while ((absi32(deltaLong) >= 0xFFFF) 
          || (absi32(deltaLat) >= 0xFFFF)) {
@@ -70,8 +71,20 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
 	  mult *= 2;
   }
   
-	gpsHomeDistance = calcSqrt((deltaLong * deltaLong) + (deltaLat * deltaLat));
-	gpsHomeDistance *= mult;
+  uint32_t a = (deltaLong * deltaLong);
+  uint32_t b = (deltaLat * deltaLat);
+
+  // Make sure that the squared deltas don't go over uin32_t when adding them together.
+  // This should only activate at long distances!
+  uint8_t mult2 = 1;
+  while ((a >> 24) + (b >> 24) > 0xFF) {
+    a /= 4;
+    b /= 4;
+    mult2 *= 2;
+  }
+  
+  gpsHomeDistance = calcSqrt(a + b);
+  gpsHomeDistance *= mult2;
 
   gpsHomeBearing = 0;
   if (gpsHomeDistance > 0) { // over home -> do not compute; home forced to 0
@@ -115,6 +128,7 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   }
   gpsHomeDistance = gpsHomeDistance * 309; // ate aqui em segundo * 100
   gpsHomeDistance = gpsHomeDistance / 1000; // metros, agora
+  gpsHomeDistance *= mult;
 #ifdef IMPERIAL_SYSTEM  
   gpsHomeDistance *= 3281;
 	gpsHomeDistance /= 1000;
