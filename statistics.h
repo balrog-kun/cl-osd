@@ -15,43 +15,12 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 
+#ifndef STATISTICS_H_
+#define STATISTICS_H_
 
-#ifndef TIME_H_
-#define TIME_H_
+static volatile uint16_t statDistTraveled = 0; // TODO!
+static volatile uint16_t statMaxSpeed = 0;
+static volatile uint16_t statMaxAltitude = 0;
+static volatile uint16_t statMaxDistance = 0;
 
-#include "config.h"
-
-typedef struct {
-  uint8_t sec;
-  uint8_t min;
-  uint8_t hour;
-} TTime;
-
-// Time vars
-static volatile uint8_t timeTick = 0;
-static volatile TTime time = {};
-
-#ifdef TIME_ENABLED
-
-static void updateTime() {
-	++timeTick;
-	if (timeTick >= 50) {
-		timeTick = 0;
-		time.sec++;
-	}
-	if (time.sec >= 60) {
-		time.sec = 0;
-		time.min++;
-	}
-	if (time.min >= 60) {
-		time.min = 0;
-		time.hour++;
-	}
-	if (time.hour >= 99) {
-		time.hour = 0;
-	}
-}
-
-#endif //TIME_ENABLED
-
-#endif /* TIME_H_ */
+#endif /* STATISTICS_H_ */

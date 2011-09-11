@@ -154,12 +154,12 @@ static void drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 static void updateGrapics() {
 	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1);
 #ifdef GPS_ENABLED
-	uint16_t pos = gpsLastValidData.angle - gpsHomeBearing;
+	uint16_t pos = homeBearing - gpsLastValidData.angle;
 	int16_t a = myCos(pos);
 	int16_t b = mySin(pos);
 	a = (a * (GRAPHICS_SIZE / 3)) / 100;
 	b = (b * (GRAPHICS_SIZE / 3)) / 100;
-	if (gpsHomeDistance < 10) {
+	if (homeDistance < 10) {
 	  a = 0;
 	  b = 0;	
 	}		

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include "config.h"
 #include "gpsutils.h"
+#include "statistics.h"
 
 #ifdef GPS_ENABLED
 
@@ -104,6 +105,7 @@ static uint8_t gpsHomePosSet = 0;
 static TGpsData gpsLastValidData = {};
 static uint8_t gpsValidData = 0;
 static TGpsData gpsLastData = {};
+static TTime lastFix = {};
 
 // For debugging
 #ifdef GPS_PART_TEXT
@@ -247,6 +249,33 @@ static void setHomePos() {
 	gpsHomePosSet = 1;
 }
 
+static void finishGpsDecoding() {
+	if (gpsLastData.checksumValid != 0) {
+		gpsLastValidData = gpsLastData;
+		gpsValidData = 1;
+		lastFix = time;
+
+		if (gpsHomePosSet == 0) {
+#ifdef HOME_SET_AT_FIRST_FIX
+			setHomePos();
+#endif //HOME_FIRST_FIX
+#ifdef HOME_AUTO_SET
+      if (gpsLastValidData.speed >= 10) {
+			  setHomePos();
+		  }
+#endif //HOME_AUTO_SET
+		}
+		else {
+			if (gpsLastValidData.speed > statMaxSpeed) {
+          statMaxSpeed = gpsLastValidData.speed;
+			}
+			if (gpsLastValidData.pos.altitude > statMaxAltitude) {
+          statMaxAltitude = gpsLastValidData.pos.altitude;
+			}
+		}
+	}		  
+}
+
 static void decodeGpsData(char data) {
 	if (gpsTextPartStep == GPS_PART_FINISHED && data != '$') {
 		return;
@@ -279,21 +308,7 @@ static void decodeGpsData(char data) {
 	case '\n':
 	  parseGpsPart();
 	  gpsTextPartStep = GPS_PART_FINISHED;
-	  if (gpsLastData.checksumValid != 0) {
-		  if (gpsHomePosSet == 0) {
-#ifdef HOME_SET_AT_FIRST_FIX
-			  setHomePos();
-#endif //HOME_FIRST_FIX
-#ifdef HOME_AUTO_SET
-        if (gpsLastData.speed >= 10) {
-			    setHomePos();
-		    }
-#endif //HOME_AUTO_SET
-		  }
-
-			gpsLastValidData = gpsLastData;
-			gpsValidData = 1;
-	  }		  
+	  finishGpsDecoding();
 		return;
 		break;
 	default:

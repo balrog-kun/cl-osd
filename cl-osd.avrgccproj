@@ -191,6 +191,9 @@
     <Compile Include="config.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="statistics.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="test.h">
       <SubType>compile</SubType>
     </Compile>

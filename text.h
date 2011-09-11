@@ -154,18 +154,18 @@ static uint8_t printNumberWithUnit(uint8_t textId, uint8_t pos, int32_t number, 
 }
 
 static uint8_t printTime(uint8_t textId, uint8_t pos) {
-	if (timeHour < 10) {
+	if (time.hour < 10) {
 		text[textId][pos++] = '0';
 	}
-	pos = printNumberWithUnit(textId, pos, timeHour, ":");
-	if (timeMin < 10) {
+	pos = printNumberWithUnit(textId, pos, time.hour, ":");
+	if (time.min < 10) {
 		text[textId][pos++] = '0';
 	}	
-	pos = printNumberWithUnit(textId, pos, timeMin, ":");
-	if (timeSec < 10) {
+	pos = printNumberWithUnit(textId, pos, time.min, ":");
+	if (time.sec < 10) {
 		text[textId][pos++] = '0';
 	}	
-	return printNumber(textId, pos, timeSec);
+	return printNumber(textId, pos, time.sec);
 }
 
 static uint8_t printAdc(uint8_t textId, uint8_t pos, const uint8_t adcInput) {
@@ -207,8 +207,8 @@ static void updateText(uint8_t textId) {
   }
   else if (textId == 1) {
 #ifdef GPS_ENABLED
-		pos = printNumberWithUnit(textId, pos, gpsHomeDistance, TEXT_LENGTH_UNIT);
-		pos = printNumberWithUnit(textId, pos+1, gpsHomeBearing, "DEG");
+		pos = printNumberWithUnit(textId, pos, homeDistance, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(textId, pos+1, homeBearing, "DEG");
 		pos = printText(textId, pos+1, gpsHomePosSet ? "H-SET" : "");
 #endif //GPS_ENABLED
 	}

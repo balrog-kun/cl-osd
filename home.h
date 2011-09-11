@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include "gpsutils.h"
 
-static int32_t gpsHomeDistance = 0; // Distance to home in meters
-static uint16_t gpsHomeBearing = 0; // Direction to home
+static int32_t homeDistance = 0; // Distance to home in meters
+static uint16_t homeBearing = 0; // Direction to home
 
 // TODO: Some translations left
 static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t homeLong) {
@@ -48,6 +48,8 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   // Delta lat & lon
   int32_t deltaLat; 
   int32_t deltaLong;
+  uint32_t distance;
+  uint16_t bearing;
       
   c = myCos(absi32(homeLat + currLat) / 2000000); // c ~ cos(lat) -> long to fix the delta
 
@@ -60,7 +62,7 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   deltaLat = homeLatSec100 - currLatSec100; // delta long ainda com erro (Delta still long with error?)
 
   deltaLong = deltaLong * c;   // corrige dla p/ lat da região
-  deltaLong = deltaLong / 100; // cosseno volta * 100
+  deltaLong = deltaLong / 100; // cosine is 0-100 so divide with 100
 
   // Make sure we don't go over uin32_t when doing sqr of deltaLong & deltaLat
   uint8_t mult = 1;
@@ -83,56 +85,62 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
     mult2 *= 2;
   }
   
-  gpsHomeDistance = calcSqrt(a + b);
-  gpsHomeDistance *= mult2;
+  distance = calcSqrt(a + b);
+  distance *= mult2;
 
-  gpsHomeBearing = 0;
-  if (gpsHomeDistance > 0) { // over home -> do not compute; home forced to 0
+  bearing = 0;
+  if (distance > 0) { // Over home -> do not compute; Home forced to 0
     if (absi32(deltaLong) >= absi32(deltaLat)) { // low angle, sine is better
-      c = (absi32(deltaLat) * 100) / gpsHomeDistance; // computes sine -> dist > 0
-      while((mySin(gpsHomeBearing) <= c) && (gpsHomeBearing < 90)) {
-        ++gpsHomeBearing;
+      c = (absi32(deltaLat) * 100) / distance; // computes sine -> dist > 0
+      while((mySin(bearing) <= c) && (bearing < 90)) {
+        ++bearing;
       }
     } 
 	  else { // high angle, cosine is better
-      c = (absi32(deltaLong) * 100) / gpsHomeDistance; // computes cosine
-      while((mySin(gpsHomeBearing) <= c) && (gpsHomeBearing < 90)) {
-        ++gpsHomeBearing;
+      c = (absi32(deltaLong) * 100) / distance; // Computes cosine
+      while((mySin(bearing) <= c) && (bearing < 90)) {
+        ++bearing;
       }
-      gpsHomeBearing = 90 - gpsHomeBearing;
+      bearing = 90 - bearing;
     }
     if (deltaLat == 0) {
-      if (deltaLong >= 0) { // home = East
-        gpsHomeBearing = 90; 
+      if (deltaLong >= 0) { // Home = East
+        bearing = 90; 
       } 
-	    else { // home = West
-        gpsHomeBearing = 270;
+	    else { // Home = West
+        bearing = 270;
       }
     } 
     else if (deltaLat > 0) {
       if (deltaLong >= 0) { // NE quadrant
-        gpsHomeBearing = 90 - gpsHomeBearing; // home positivo
+        bearing = 90 - bearing;
       } 
 	    else { // NW quadrant
-        gpsHomeBearing = 270 + gpsHomeBearing;
+        bearing = 270 + bearing;
       }
     } 
 	  else {
       if (deltaLong >= 0) { // SE quadrant
-        gpsHomeBearing = 90 + gpsHomeBearing;
+        bearing = 90 + bearing;
       } 
 	    else { // SW quadrant
-        gpsHomeBearing = 270 - gpsHomeBearing;
+        bearing = 270 - bearing;
       }
     }
   }
-  gpsHomeDistance = gpsHomeDistance * 309; // ate aqui em segundo * 100
-  gpsHomeDistance = gpsHomeDistance / 1000; // metros, agora
-  gpsHomeDistance *= mult;
+  distance = distance * 309; // ate aqui em segundo * 100
+  distance = distance / 1000; // metros, agora
+  distance *= mult;
 #ifdef IMPERIAL_SYSTEM  
-  gpsHomeDistance *= 3281;
-	gpsHomeDistance /= 1000;
+  distance *= 3281;
+	distance /= 1000;
 #endif //IMPERIAL_SYSTEM
+  homeDistance = distance;
+  homeBearing = bearing;
+  
+  if (homeDistance > statMaxDistance) {
+    statMaxDistance = homeDistance;
+  }
 }
 
 #endif /* HOME_H_ */

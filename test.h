@@ -18,7 +18,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifndef TEST_H_
 #define TEST_H_
 
-static testCalcHome() {
+static void testCalcHome() {
+	
+#if 1
 	// center around 58234380, 15353780. 1000m out
 	calcHome(58234380, 15353780, 58239767, 15353780); // 0 deg
 	calcHome(58234380, 15353780, 58239442, 15357289); // 20 deg 
@@ -29,7 +31,9 @@ static testCalcHome() {
 	calcHome(58234380, 15353780, 58229318, 15350272); //200
 	calcHome(58234380, 15353780, 58236222, 15344139); //290
 	calcHome(58234380, 15353780, 58239685, 15351998); //350
+#endif
 	
+#if 1
 	// center around -23010000, -46010000. 500m out
 	calcHome(-23010000, -46010000, -23007291, -46010000); // 0 deg
 	calcHome(-23010000, -46010000, -23007454, -46008999); // 20 deg 
@@ -40,7 +44,9 @@ static testCalcHome() {
 	calcHome(-23010000, -46010000, -23012546, -46011001); //200
 	calcHome(-23010000, -46010000, -23009073, -46012750); //290
 	calcHome(-23010000, -46010000, -23007332, -46010508); //350
+#endif
 	
+#if 1
 	// center around 46399970, -97259920, 150m out
 	calcHome(46399970, -97259920, 46400780, -97259920); // 0 deg
 	calcHome(46399970, -97259920, 46400731, -97259518); // 20 deg
@@ -51,7 +57,9 @@ static testCalcHome() {
 	calcHome(46399970, -97259920, 46399209, -97260322); // 200 deg
 	calcHome(46399970, -97259920, 46400247, -97261025); // 290 deg
 	calcHome(46399970, -97259920, 46400767, -97260124); // 350 deg
-	
+#endif
+
+#if 1
 	// center around 58234380, 15353780. 45 deg out
 	calcHome(58234380, 15353780, 58234418, 15353853); // 10m
 	calcHome(58234380, 15353780, 58234570, 15354143); // 50m
@@ -67,9 +75,9 @@ static testCalcHome() {
 	calcHome(58234380, 15353780, 58329389, 15535946); // 25km
 	calcHome(58234380, 15353780, 58423961, 16119758); // 50km
 	calcHome(58234380, 15353780, 59011769, 16492394); // 100km
-	
-	return;
-	
+#endif
+
+#if 0
 	calcHome(58234380, 15353780, 58237300, 15355660); //572m 19 deg (!)
 	calcHome(58244360, 15377910, 58357150, 16112030); //38633m 57 deg
 	calcHome(58357150, 16112030, 58244360, 15377910); //38633m 237 deg
@@ -77,28 +85,7 @@ static testCalcHome() {
 	calcHome(-23020000, -46010000, -23020000, -46020000); // 1706m	270 deg
 	calcHome(-23020000, -46020000, -23020000, -46010000); // 1706m	90 deg
 	calcHome(-23020000, -46010000, -23010000, -46010000); // 1853m	360 deg
+#endif
 }
-
-static void testPrintDebugInfo() {
-	// ---- TODO: Cleanup here! ----
-	
-  //snprintf(text[0], TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d:%02d", hour, min, sec, tick);
-	//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%02d:%02d:%02d %d.%02dV %d.%02dV %d%%", hour, min, sec, adc0High, adc0Low, adc1High, adc1Low, batt1);
-	//if (gpsTextType != GPS_TYPE_GPGGA ) {
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, " %s", gpsFullText);
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "Part (%d): %s", gpsTextPartLength, gpsTextPart); //part
-		//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsTextType);
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %06ld", gpsTextPart, gpsTime); //time
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLat); //Lat
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %ld", gpsTextPart, gpsLong); //Long
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsFix); //fix?
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsSats); //sats
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "%s == %d", gpsTextPart, gpsAltitude); //altitude
-		//snprintf(text[0], TEXT_LINE_MAX_CHARS, "(%s == %d)? => %d", gpsTextPart, gpsChecksum, gpsChecksumValid); //checksum
-		//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%.32s", &gpsFullText[30]);		
-	//}
-	//snprintf(text[1], TEXT_LINE_MAX_CHARS, "%dV %dV %dV", analogInputsRaw[ANALOG_IN_1], analogInputsRaw[ANALOG_IN_2], analogInputsRaw[ANALOG_IN_3]);
-}
-
 
 #endif /* TEST_H_ */
