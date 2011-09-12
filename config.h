@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //#define G_OSD
 //#define E_OSD_GPS //Non supported! Note: Also enable E_OSD!
 
-// For debugging. (All combinations might not work) :-)
+// Feature setup. (All combinations might not work) :-)
 #if defined(G_OSD) || defined(E_OSD_GPS)
 #define GPS_ENABLED
 #endif //defined(G_OSD) || defined(E_OSD_GPS)
@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_ENABLED
 #define TIME_ENABLED
 #define ADC_ENABLED
+
 #ifdef TEXT_ENABLED
 //#define TEXT_INVERTED_ENABLED
 //#define TEXT_SMALL_ENABLED
@@ -58,9 +59,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define METRIC_SYSTEM
 
 // Home set (Use at least one of the first two)
-//#define HOME_SET_AT_FIRST_FIX
+//#define HOME_SET_AT_FIX
 #define HOME_AUTO_SET
 #define HOME_SET_WITH_BUTTON
+
+#define HOME_SET_FIX_COUNT 10
+#define HOME_FIX_MIN_SPEED 10 
 
 // ----------------- INTERNAL CONFIGS ------------------
 

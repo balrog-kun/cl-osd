@@ -100,7 +100,7 @@ static uint8_t getCharData(uint16_t charPos) {
 }
 
 static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
-	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; j++) {
+	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
 		uint8_t val;
 		if (text[textId][j] == ' ' || text[textId][j] == 0) {
 			val = 0;
@@ -190,9 +190,9 @@ static uint8_t printBatterLevel(uint8_t textId, uint8_t pos, const uint8_t adcIn
 }
 
 static uint8_t printGpsNumber(uint8_t textId, uint8_t pos, int32_t number, uint8_t numberLat) {
-	uint8_t hour = number / 100000;
-	uint8_t min = (number - (hour * 100000)) / 1000; //Get minute part
-  uint32_t minDecimal = number % 1000; //Get minute decimal part
+	uint8_t hour = number / 1000000;
+	uint8_t min = (number - (hour * 1000000)) / 10000; //Get minute part
+  uint32_t minDecimal = number % 10000; //Get minute decimal part
   
   const char* str;
   if (numberLat) {
@@ -232,17 +232,17 @@ static void updateText(uint8_t textId) {
 	}
 	else if (textId == 2) {
 #ifdef GPS_ENABLED
-		pos = printGpsNumber(textId, pos, gpsLastData.pos.latitude, 1);
-		pos = printGpsNumber(textId, TEXT_LINE_MAX_CHARS-1-10, gpsLastData.pos.longitude, 0);
+		pos = printGpsNumber(textId, pos, gpsLastValidData.pos.latitude, 1);
+		pos = printGpsNumber(textId, TEXT_LINE_MAX_CHARS-1-10, gpsLastValidData.pos.longitude, 0);
 #endif //GPS_ENABLED
 	}
 	else if (textId == 3) {
 #ifdef GPS_ENABLED
-		pos = printNumberWithUnit(textId, pos, gpsLastData.sats, "S");
-		pos = printText(textId, pos+1, gpsLastData.checksumValid ? "FIX" : "BAD");
-		pos = printNumberWithUnit(textId, pos+1, gpsLastData.pos.altitude, TEXT_LENGTH_UNIT);
-		pos = printNumberWithUnit(textId, pos+1, gpsLastData.speed, TEXT_SPEED_UNIT);
-		pos = printNumberWithUnit(textId, pos+1, gpsLastData.angle, "DEG");
+		pos = printNumberWithUnit(textId, pos, gpsLastValidData.pos.altitude, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.speed, TEXT_SPEED_UNIT);
+		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.angle, "DEG");
+		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.sats, "S");
+		pos = printText(textId, pos+1, gpsLastValidData.fix ? "FIX" : "BAD");
 #endif //GPS_ENABLED
 	}
 	else {		

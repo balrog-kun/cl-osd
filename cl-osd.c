@@ -72,10 +72,10 @@ static void updateOnceEverySec() {
 #endif // DEBUG
   
 	if (gpsHomePosSet) {
-	  calcHome(gpsLastValidData.pos.latitude * 10,
-	           gpsLastValidData.pos.longitude * 10,
-			       gpsHomePos.latitude * 10,
-				     gpsHomePos.longitude * 10);
+	  calcHome(gpsLastValidData.pos.latitude,
+	           gpsLastValidData.pos.longitude,
+			       gpsHomePos.latitude,
+				     gpsHomePos.longitude);
 	}
 #endif //GPS_ENABLED
   

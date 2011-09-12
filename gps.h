@@ -106,6 +106,9 @@ static TGpsData gpsLastValidData = {};
 static uint8_t gpsValidData = 0;
 static TGpsData gpsLastData = {};
 static TTime lastFix = {};
+#ifdef HOME_SET_AT_FIX
+static uint8_t fixCount = 0;
+#endif //HOME_SET_AT_FIX
 
 // For debugging
 #ifdef GPS_PART_TEXT
@@ -256,11 +259,16 @@ static void finishGpsDecoding() {
 		lastFix = time;
 
 		if (gpsHomePosSet == 0) {
-#ifdef HOME_SET_AT_FIRST_FIX
-			setHomePos();
+#ifdef HOME_SET_AT_FIX
+      if (fixCount >= HOME_SET_FIX_COUNT) {
+			  setHomePos();
+	    }
+		  else {
+			  ++fixCount;
+		  }
 #endif //HOME_FIRST_FIX
 #ifdef HOME_AUTO_SET
-      if (gpsLastValidData.speed >= 10) {
+      if (gpsLastValidData.speed >= HOME_FIX_MIN_SPEED) {
 			  setHomePos();
 		  }
 #endif //HOME_AUTO_SET
