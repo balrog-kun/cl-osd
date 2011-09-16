@@ -18,9 +18,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifndef STATISTICS_H_
 #define STATISTICS_H_
 
+#ifdef STATISTICS_ENABLED
 static volatile uint16_t statDistTraveled = 0; // TODO!
 static volatile uint16_t statMaxSpeed = 0;
 static volatile uint16_t statMaxAltitude = 0;
 static volatile uint16_t statMaxDistance = 0;
+#endif //STATISTICS_ENABLED
 
 #endif /* STATISTICS_H_ */

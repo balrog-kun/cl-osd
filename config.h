@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_ENABLED
 #define TIME_ENABLED
 #define ADC_ENABLED
+//#define STATISTICS_ENABLED
 
 #ifdef TEXT_ENABLED
 //#define TEXT_INVERTED_ENABLED
@@ -142,22 +143,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #endif //METRIC_SYSTEM
 
 // ADC
-#define ANALOG_IN_1 0
-#define ANALOG_IN_2 1
-#define ANALOG_IN_3 2
+#define ANALOG_IN_1 0 // Voltage 1
+#define ANALOG_IN_2 1 // Voltage 2
+#define ANALOG_IN_3 2 // RSSI
+#define ANALOG_IN_4 3 // No input, just a pot.
 
-#ifdef E_OSD
 #define ADC_OFFSET 0
-#endif // EOSD
-#ifdef G_OSD
-#define ADC_OFFSET 1
-#endif //GOSD
 
 #ifdef E_OSD
 #define ANALOG_IN_NUMBER 2
 #endif // EOSD
 #ifdef G_OSD
-#define ANALOG_IN_NUMBER 3
+#define ANALOG_IN_NUMBER 4
 #endif //GOSD
 
 // Battery
@@ -195,6 +192,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define GPS_MAX_CHARS 11
 
 #define DUMMY_FUNC return 0;
+#define NULL 0
 
 // TODO: Work more on this...
 // Text layout

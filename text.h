@@ -227,7 +227,7 @@ static void updateText(uint8_t textId) {
 #ifdef GPS_ENABLED
 		pos = printNumberWithUnit(textId, pos, homeDistance, TEXT_LENGTH_UNIT);
 		pos = printNumberWithUnit(textId, pos+1, homeBearing, "DEG");
-		pos = printText(textId, pos+1, gpsHomePosSet ? "H-SET" : "");
+		pos = printText(textId, pos+1, homePosSet ? "H-SET" : "");
 #endif //GPS_ENABLED
 	}
 	else if (textId == 2) {
@@ -238,7 +238,7 @@ static void updateText(uint8_t textId) {
 	}
 	else if (textId == 3) {
 #ifdef GPS_ENABLED
-		pos = printNumberWithUnit(textId, pos, gpsLastValidData.pos.altitude, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(textId, pos, gpsLastValidData.pos.altitude - homePos.altitude, TEXT_LENGTH_UNIT);
 		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.speed, TEXT_SPEED_UNIT);
 		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.angle, "DEG");
 		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.sats, "S");

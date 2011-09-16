@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include "config.h"
 
+#define ADC_ENABLE_RAW
+
 // adc vars
 typedef struct {
   uint8_t low;
@@ -28,7 +30,9 @@ typedef struct {
 } TAnalogValue;
 
 static TAnalogValue analogInputs[ANALOG_IN_NUMBER] = {};
-//static uint16_t analogInputsRaw[ANALOG_IN_NUMBER] = {};
+#ifdef ADC_ENABLE_RAW
+static uint16_t analogInputsRaw[ANALOG_IN_NUMBER] = {};
+#endif //ADC_ENABLE_RAW
 
 #ifndef ADC_ENABLED
 
@@ -40,8 +44,8 @@ static uint8_t calcRssiLevel(uint8_t adcInput) { DUMMY_FUNC }
 static void setupAdc() {
   // ADC setup
 	DIDR0 = 0x00;
-	ADMUX |= (1<<REFS0) | (1<<MUX0); // Ref is AVCC & mux is set to adc1
-	ADCSRA |= (1<<ADEN) | (1<<ADATE) | (1<<ADPS2) | (1<<ADPS1); // | (1<<ADPS0); 
+	ADMUX |= (1<<REFS0); // Ref is AVCC
+	ADCSRA |= (1<<ADPS2) | (1<<ADPS1); // | (1<<ADPS0); 
 	ADCSRB = 0; // Free running
 }
 
@@ -50,13 +54,17 @@ static void measureAnalog() {
 	uint8_t adcLow = 0; 
   uint8_t adcHigh = 0;
   for (uint8_t i = 0; i < ANALOG_IN_NUMBER; ++i) {
-	  ADMUX &= 0xF0;
-    ADMUX |= (i + ADC_OFFSET);	
-	  ADCSRA |= (1<<ADSC); // start measure
+	  ADMUX &= 0xF0; // Clear mux
+    ADMUX |= (i + ADC_OFFSET);	 //Setup adc mux
+	  ADCSRA |= (1<<ADEN) | (1<<ADATE); // ADC enable & ADC auto trigger enable
+	  ADCSRA |= (1<<ADSC); // Start measure
 	  while ((ADCSRA & (1<<ADIF)) == 0); // Wait to finish
-	  ADCSRA |= (1<<ADIF);
+	  ADCSRA |= (1<<ADIF); // Clear ADC interrupt flag with a 1
+	  ADCSRA &= ~(1<<ADEN) & ~(1<<ADATE); // ADC disabled & ADC auto trigger disabled
 	  temp = ADCW;
-    //analogInputsRaw[i] = temp;
+#ifdef ADC_ENABLE_RAW	  
+    analogInputsRaw[i] = temp;
+#endif
 	  temp = (temp * 5 * 62) / 10;
 	  adcHigh = temp / 1024;
 	  temp -= (uint16_t)(adcHigh) * 1024;

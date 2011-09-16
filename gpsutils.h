@@ -21,6 +21,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "trigonometry.h"
 #include "commonutils.h"
 
+// GPS data
+typedef struct {
+	int32_t latitude;
+  int32_t longitude;
+  int16_t altitude;
+} TGpsPos;
+
+typedef struct {
+	TGpsPos pos;
+  uint32_t time;
+  uint8_t fix;
+  uint8_t sats;
+  uint16_t speed;
+  uint16_t angle;
+  uint32_t date;
+  uint8_t checksumValid;
+} TGpsData;
+
 // Convert nmea WGS84 to seconds * 100
 // wgs84 = DDMM[.]MMMM
 static int32_t wgs84ToSec100(int32_t wgs84) { 

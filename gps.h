@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "config.h"
 #include "gpsutils.h"
 #include "statistics.h"
+#include "home.h"
 
 #ifdef GPS_ENABLED
 
@@ -82,33 +83,10 @@ static uint8_t gpsTextPartStep = GPS_PART_FINISHED; // Try to start on a $
 static uint8_t gpsTextType = GPS_TYPE_NONE;
 static uint8_t gpsChecksum = 0;
 
-// GPS data
-typedef struct {
-	int32_t latitude;
-  int32_t longitude;
-  int16_t altitude;
-} TGpsPos;
-
-typedef struct {
-	TGpsPos pos;
-  uint32_t time;
-  uint8_t fix;
-  uint8_t sats;
-  uint16_t speed;
-  uint16_t angle;
-  uint32_t date;
-  uint8_t checksumValid;
-} TGpsData;
-
-static TGpsPos gpsHomePos = {};
-static uint8_t gpsHomePosSet = 0;
 static TGpsData gpsLastValidData = {};
 static uint8_t gpsValidData = 0;
 static TGpsData gpsLastData = {};
 static TTime lastFix = {};
-#ifdef HOME_SET_AT_FIX
-static uint8_t fixCount = 0;
-#endif //HOME_SET_AT_FIX
 
 // For debugging
 #ifdef GPS_PART_TEXT
@@ -248,23 +226,38 @@ static void parseGpsPart() {
 }
 
 static void setHomePos() {
-	gpsHomePos = gpsLastData.pos;
-	gpsHomePosSet = 1;
+	homePos = gpsLastValidData.pos;
+	homePosSet = 1;
 }
+
+#ifdef STATISTICS_ENABLED
+static void updateDistanceTraveled() {
+	TGpsPos last = gpsLastValidData.pos;
+	TGpsPos current = gpsLastData.pos;
+	if (last.latitude != current.latitude || last.longitude != current.longitude) {
+	  uint32_t distance;
+    calcHome(last.latitude, last.longitude, current.latitude, current.longitude, &distance, NULL);
+	  statDistTraveled += distance;
+	}	  
+}
+#endif //STATISTICS_ENABLED
 
 static void finishGpsDecoding() {
 	if (gpsLastData.checksumValid != 0) {
+#ifdef STATISTICS_ENABLED
+		updateDistanceTraveled();
+#endif //STATISTICS_ENABLED
 		gpsLastValidData = gpsLastData;
 		gpsValidData = 1;
 		lastFix = time;
 
-		if (gpsHomePosSet == 0) {
+		if (homePosSet == 0) {
 #ifdef HOME_SET_AT_FIX
-      if (fixCount >= HOME_SET_FIX_COUNT) {
+      if (homeFixCount >= HOME_SET_FIX_COUNT) {
 			  setHomePos();
 	    }
 		  else {
-			  ++fixCount;
+			  ++homeFixCount;
 		  }
 #endif //HOME_FIRST_FIX
 #ifdef HOME_AUTO_SET
@@ -273,6 +266,7 @@ static void finishGpsDecoding() {
 		  }
 #endif //HOME_AUTO_SET
 		}
+#ifdef STATISTICS_ENABLED		
 		else {
 			if (gpsLastValidData.speed > statMaxSpeed) {
           statMaxSpeed = gpsLastValidData.speed;
@@ -281,6 +275,7 @@ static void finishGpsDecoding() {
           statMaxAltitude = gpsLastValidData.pos.altitude;
 			}
 		}
+#endif //STATISTICS_ENABLED
 	}		  
 }
 

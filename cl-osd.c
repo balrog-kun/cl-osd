@@ -68,14 +68,21 @@ static void updateOnceEverySec() {
 	}
 	
 #ifdef DEBUG
-  testCalcHome();
+  //testCalcHome();
 #endif // DEBUG
   
-	if (gpsHomePosSet) {
+	if (homePosSet) {
 	  calcHome(gpsLastValidData.pos.latitude,
 	           gpsLastValidData.pos.longitude,
-			       gpsHomePos.latitude,
-				     gpsHomePos.longitude);
+			       homePos.latitude,
+				     homePos.longitude,
+					   &homeDistance,
+					   &homeBearing);
+#ifdef STATISTICS_ENABLED
+		if (homeDistance > statMaxDistance) {
+      statMaxDistance = homeDistance;
+    }
+#endif //STATISTICS_ENABLED
 	}
 #endif //GPS_ENABLED
   
