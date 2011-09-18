@@ -57,7 +57,7 @@ static void myReverse(char s[], uint8_t size) {
   uint8_t i;
   char c;
   size -= 1;
-  for (i = 0; i < size; i++) {
+  for (i = 0; i <= size/2; i++) {
     c = s[i];
     s[i] = s[size - i];
     s[size - i] = c;
