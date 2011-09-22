@@ -198,13 +198,22 @@ static uint8_t printBatterLevel(char* str, uint8_t pos, const uint8_t adcInput) 
 
 static uint8_t printGpsNumber(char* str, uint8_t pos, int32_t number, uint8_t numberLat) {
 	if (number == 0) {
-	  pos = printText(str, pos, "--:--.----?"); 
+#ifdef GPS_GOOGLE_FORMAT
+    pos = printText(str, pos, "--.-------?");
+#else
+	  pos = printText(str, pos, "--:--.----?");
+#endif
 	  return pos;
   }
 	
 	uint8_t hour = number / 1000000;
+#ifdef GPS_GOOGLE_FORMAT
+  uint32_t min = number - (hour * 1000000);
+  min = (min * 100)/60;
+#else
 	uint8_t min = (number - (hour * 1000000)) / 10000; //Get minute part
   uint32_t minDecimal = number % 10000; //Get minute decimal part
+#endif
   
   const char* str2;
   if (numberLat) {
@@ -213,10 +222,15 @@ static uint8_t printGpsNumber(char* str, uint8_t pos, int32_t number, uint8_t nu
   else {
 	  str2 = number > 0 ? "E" : "W";
   }
-  
+
+#ifdef GPS_GOOGLE_FORMAT
+  pos = printNumberWithUnit(str, pos, hour, ".");
+  return printNumberWithUnit(str, pos, min, str2);
+#else
   pos = printNumberWithUnit(str, pos, hour, ":");
   pos = printNumberWithUnit(str, pos, min, ".");
   return printNumberWithUnit(str, pos, minDecimal, str2);
+#endif
 }
 
 static void drawTextLine(uint8_t textId)

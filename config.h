@@ -63,9 +63,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //#define HOME_SET_AT_FIX
 #define HOME_AUTO_SET
 #define HOME_SET_WITH_BUTTON
-
 #define HOME_SET_FIX_COUNT 10
 #define HOME_FIX_MIN_SPEED 10 
+
+//GPS
+//#define GPS_GOOGLE_FORMAT
 
 // ----------------- INTERNAL CONFIGS ------------------
 
