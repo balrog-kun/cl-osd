@@ -20,14 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include "gpsutils.h"
 
-static uint32_t homeDistance = 0; // Distance to home in meters
-static uint16_t homeBearing = 0; // Direction to home
+static uint32_t gHomeDistance = 0; // Distance to home in meters
+static uint16_t gHomeBearing = 0; // Direction to home
 
-static TGpsPos homePos = {}; 
-static uint8_t homePosSet = 0;
+static TGpsPos gHomePos = {}; 
+static uint8_t gHomePosSet = 0;
 
 #ifdef HOME_SET_AT_FIX
-static uint8_t homeFixCount = 0;
+static uint8_t gHomeFixCount = 0;
 #endif //HOME_SET_AT_FIX
 
 // TODO: Some translations left

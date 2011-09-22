@@ -28,27 +28,27 @@ typedef struct {
 } TTime;
 
 // Time vars
-static volatile uint8_t timeTick = 0;
-static volatile TTime time = {};
+static volatile uint8_t gTimeTick = 0;
+static volatile TTime gTime = {};
 
 #ifdef TIME_ENABLED
 
 static void updateTime() {
-	++timeTick;
-	if (timeTick >= 50) {
-		timeTick = 0;
-		time.sec++;
+	++gTimeTick;
+	if (gTimeTick >= 50) {
+		gTimeTick = 0;
+		gTime.sec++;
 	}
-	if (time.sec >= 60) {
-		time.sec = 0;
-		time.min++;
+	if (gTime.sec >= 60) {
+		gTime.sec = 0;
+		gTime.min++;
 	}
-	if (time.min >= 60) {
-		time.min = 0;
-		time.hour++;
+	if (gTime.min >= 60) {
+		gTime.min = 0;
+		gTime.hour++;
 	}
-	if (time.hour >= 99) {
-		time.hour = 0;
+	if (gTime.hour >= 99) {
+		gTime.hour = 0;
 	}
 }
 

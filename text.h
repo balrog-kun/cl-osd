@@ -33,30 +33,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "delay.h"
 #include "gps.h"
 #include "home.h"
+#include "global.h"
 
 #define TEXT_ALIGN_LEFT 0
 #define TEXT_ALIGN_RIGHT 1
 
 // Text vars
-static uint16_t const textLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
-static char text[TEXT_LINES][TEXT_LINE_MAX_CHARS];
-static uint8_t textPixmap[TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
+static uint16_t const gTextLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
+static char gText[TEXT_LINES][TEXT_LINE_MAX_CHARS];
+static uint8_t gTextPixmap[TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
 #ifdef TEXT_INVERTED_ENABLED
-static uint8_t textInverted[TEXT_LINES][TEXT_LINE_MAX_CHARS/8];
+static uint8_t gTextInverted[TEXT_LINES][TEXT_LINE_MAX_CHARS/8];
 #endif // TEXT_INVERTED_ENABLED
 
 // Functions
 static void clearText() {
 	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
 	  for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
-		  text[i][j] = 0;
+		  gText[i][j] = 0;
 	  }		  
 	}
 }
 
 static void clearTextPixmap() {
 	for (uint16_t j = 0; j < TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT; ++j) {
-		textPixmap[j] = 0;
+		gTextPixmap[j] = 0;
 	}
 }
 
@@ -64,7 +65,7 @@ static void clearTextPixmap() {
 static void clearTextInverted() {
 	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
 	  for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS/8; ++j) {
-	    textInverted[i][j] = 0;
+	    gTextInverted[i][j] = 0;
 	  }
 	}	  
 }
@@ -73,20 +74,20 @@ static void setCharInverted(uint8_t line, uint8_t pos, uint8_t bitValue) {
 	uint8_t bytePos = pos/8;
 	uint8_t bitPos = pos - (bytePos*8);
 	if (bitValue == TEXT_INVERTED_OFF) {
-	  textInverted[line][bytePos] ^= ~(1<<bitPos);
+	  gTextInverted[line][bytePos] ^= ~(1<<bitPos);
 	}
 	else if (bitValue == TEXT_INVERTED_ON) {
-	  textInverted[line][bytePos] |= (1<<bitPos);
+	  gTextInverted[line][bytePos] |= (1<<bitPos);
 	}
 	else { //TEXT_INVERTED_FLIP
-	  textInverted[line][bytePos] ^= (1<<bitPos);
+	  gTextInverted[line][bytePos] ^= (1<<bitPos);
 	}
 }
 
 static uint8_t charInverted(uint8_t line, uint8_t pos) {
 	uint8_t bytePos = pos/8;
 	uint8_t bitPos = pos - (bytePos*8);
-	if (textInverted[line][bytePos] & (1<<bitPos)) {
+	if (gTextInverted[line][bytePos] & (1<<bitPos)) {
 		return 1;
 	}
 	return 0;
@@ -105,11 +106,11 @@ static uint8_t getCharData(uint16_t charPos) {
 static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
 	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
 		uint8_t val;
-		if (text[textId][j] == ' ' || text[textId][j] == 0) {
+		if (gText[textId][j] == ' ' || gText[textId][j] == 0) {
 			val = 0;
 		}
 		else {			
-		  uint16_t charPos = (text[textId][j] * TEXT_CHAR_HEIGHT) + line;
+		  uint16_t charPos = (gText[textId][j] * TEXT_CHAR_HEIGHT) + line;
 		  val = getCharData(charPos);
 #ifdef TEXT_INVERTED_ENABLED
 		  if (charInverted(textId, j)) {
@@ -118,7 +119,7 @@ static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
 #endif // TEXT_INVERTED_ENABLED
 		}
 		uint16_t bytePos = line*TEXT_LINE_MAX_CHARS + j; 
-		textPixmap[bytePos] = val;			
+		gTextPixmap[bytePos] = val;			
 	}
 }
 
@@ -160,23 +161,23 @@ static uint8_t printNumberWithUnit(char* str, uint8_t pos, int32_t number, const
 }
 
 static uint8_t printTime(char* str, uint8_t pos) {
-	if (time.hour < 10) {
+	if (gTime.hour < 10) {
 		str[pos++] = '0';
 	}
-	pos = printNumberWithUnit(str, pos, time.hour, ":");
-	if (time.min < 10) {
+	pos = printNumberWithUnit(str, pos, gTime.hour, ":");
+	if (gTime.min < 10) {
 		str[pos++] = '0';
 	}	
-	pos = printNumberWithUnit(str, pos, time.min, ":");
-	if (time.sec < 10) {
+	pos = printNumberWithUnit(str, pos, gTime.min, ":");
+	if (gTime.sec < 10) {
 		str[pos++] = '0';
 	}	
-	return printNumber(str, pos, time.sec);
+	return printNumber(str, pos, gTime.sec);
 }
 
 static uint8_t printAdc(char* str, uint8_t pos, const uint8_t adcInput) {
-	uint8_t low = analogInputs[adcInput].low;
-	uint8_t high = analogInputs[adcInput].high;
+	uint8_t low = gAnalogInputs[adcInput].low;
+	uint8_t high = gAnalogInputs[adcInput].high;
 	pos = printNumber(str, pos, high);
 	str[pos++] = '.';
 	if(low < 10) {
@@ -223,60 +224,60 @@ static void updateText(uint8_t textId) {
   uint8_t pos = 0;
 
   if (textId == 0) {
-	  pos = printTime(text[textId], pos);
+	  pos = printTime(gText[textId], pos);
 	  
-	  pos = printAdc(text[textId], pos+1, ANALOG_IN_1);
+	  pos = printAdc(gText[textId], pos+1, ANALOG_IN_1);
 	  
 #if ANALOG_IN_NUMBER == 2
-    pos = printRssiLevel(text[textId], pos+1, ANALOG_IN_2);
+    pos = printRssiLevel(gText[textId], pos+1, ANALOG_IN_2);
 #else // ANALOG_IN_NUMBER == 3
-    pos = printAdc(text[textId], pos+1, ANALOG_IN_2);
-	  pos = printRssiLevel(text[textId], pos+1, ANALOG_IN_3);
+    pos = printAdc(gText[textId], pos+1, ANALOG_IN_2);
+	  pos = printRssiLevel(gText[textId], pos+1, ANALOG_IN_3);
 #endif //ANALOG_IN_NUMBER == 2
   }
   else if (textId == 1) {
 #ifdef GPS_ENABLED
-		pos = printNumberWithUnit(text[textId], pos, homeDistance, TEXT_LENGTH_UNIT);
-		pos = printNumberWithUnit(text[textId], pos+1, homeBearing, "DEG");
-		pos = printText(text[textId], pos+1, homePosSet ? "H-SET" : "");
+		pos = printNumberWithUnit(gText[textId], pos, gHomeDistance, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(gText[textId], pos+1, gHomeBearing, "DEG");
+		pos = printText(gText[textId], pos+1, gHomePosSet ? "H-SET" : "");
 #endif //GPS_ENABLED
 	}
 	else if (textId == 2) {
 #ifdef GPS_ENABLED
-		pos = printGpsNumber(text[textId], pos, gpsLastValidData.pos.latitude, 1);
+		pos = printGpsNumber(gText[textId], pos, gGpsLastValidData.pos.latitude, 1);
 		char tmp[13];
-		uint8_t length = printGpsNumber(tmp, 0, gpsLastValidData.pos.longitude, 0);
-		printText(text[textId], TEXT_LINE_MAX_CHARS - length, tmp);
+		uint8_t length = printGpsNumber(tmp, 0, gGpsLastValidData.pos.longitude, 0);
+		printText(gText[textId], TEXT_LINE_MAX_CHARS - length, tmp);
 #endif //GPS_ENABLED
 	}
 	else if (textId == 3) {
 #ifdef GPS_ENABLED
-		pos = printNumberWithUnit(text[textId], pos, gpsLastValidData.pos.altitude - homePos.altitude, TEXT_LENGTH_UNIT);
-		pos = printNumberWithUnit(text[textId], pos+1, gpsLastValidData.speed, TEXT_SPEED_UNIT);
-		pos = printNumberWithUnit(text[textId], pos+1, gpsLastValidData.angle, "DEG");
-		pos = printNumberWithUnit(text[textId], pos+1, gpsLastValidData.sats, "S");
-		pos = printText(text[textId], pos+1, gpsLastValidData.fix ? "FIX" : "BAD");
+		pos = printNumberWithUnit(gText[textId], pos, gGpsLastValidData.pos.altitude - gHomePos.altitude, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(gText[textId], pos+1, gGpsLastValidData.speed, TEXT_SPEED_UNIT);
+		pos = printNumberWithUnit(gText[textId], pos+1, gGpsLastValidData.angle, "DEG");
+		pos = printNumberWithUnit(gText[textId], pos+1, gGpsLastValidData.sats, "S");
+		pos = printText(gText[textId], pos+1, gGpsLastValidData.fix ? "FIX" : "BAD");
 #endif //GPS_ENABLED
 	}
 	else {		
-		pos = printText(text[textId], pos, "T:");
-		pos = printText(text[textId], TEXT_LINE_MAX_CHARS-1-4, "V:");
-		pos = printNumber(text[textId], pos+1, textId + 1);
+		pos = printText(gText[textId], pos, "T:");
+		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-1-4, "V:");
+		pos = printNumber(gText[textId], pos+1, textId + 1);
 	}
 }
 
 static void drawTextLine(uint8_t textId)
 {
 	_delay_us(3);
-	uint8_t currLine = ((uint16_t)(line) - textLines[textId]) / TEXT_SIZE_MULT;
+	uint8_t currLine = ((uint16_t)(gActiveLine) - gTextLines[textId]) / TEXT_SIZE_MULT;
 	for (uint8_t i = 0; i < TEXT_LINE_MAX_CHARS; ++i) {
-		if (text[textId][i] != ' ' && text[textId][i] != 0) {
+		if (gText[textId][i] != ' ' && gText[textId][i] != 0) {
 			DDRB |= OUT1;
 		}
 		else {
 			DDRB &= ~OUT1;
 		}
-		SPDR = textPixmap[(uint16_t)(currLine)*TEXT_LINE_MAX_CHARS + i];
+		SPDR = gTextPixmap[(uint16_t)(currLine)*TEXT_LINE_MAX_CHARS + i];
 		DELAY_4_NOP();
 #ifndef TEXT_SMALL_ENABLED
 		DELAY_6_NOP();

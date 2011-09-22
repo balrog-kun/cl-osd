@@ -73,25 +73,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Text parsing
 #ifdef GPS_FULL_TEXT
-static char gpsFullText[GPS_FULL_LENGTH];
-static uint16_t gpsFullTextPos = 0;
+static char gGpsFullText[GPS_FULL_LENGTH];
+static uint16_t gGpsFullTextPos = 0;
 #endif // GPS_FULL_TEXT
 
-static char gpsText[GPS_MAX_CHARS];
-static uint8_t gpsTextPos = 0;
-static uint8_t gpsTextPartStep = GPS_PART_FINISHED; // Try to start on a $
-static uint8_t gpsTextType = GPS_TYPE_NONE;
-static uint8_t gpsChecksum = 0;
+static char gGpsText[GPS_MAX_CHARS];
+static uint8_t gGpsTextPos = 0;
+static uint8_t gGpsTextPartStep = GPS_PART_FINISHED; // Try to start on a $
+static uint8_t gGpsTextType = GPS_TYPE_NONE;
+static uint8_t gGpsChecksum = 0;
 
-static TGpsData gpsLastValidData = {};
-static uint8_t gpsValidData = 0;
-static TGpsData gpsLastData = {};
-static TTime lastFix = {};
+static TGpsData gGpsLastValidData = {};
+static uint8_t gGpsValidData = 0;
+static TGpsData gGpsLastData = {};
+static TTime gLastFix = {};
 
 // For debugging
 #ifdef GPS_PART_TEXT
-static char gpsTextPart[GPS_MAX_CHARS];
-static uint8_t gpsTextPartLength = 0;
+static char gGpsTextPart[GPS_MAX_CHARS];
+static uint8_t gGpsTextPartLength = 0;
 #endif //GPS_PART_TEXT
 
 static void setupGps() {
@@ -104,87 +104,87 @@ static void setupGps() {
 
 static void clearGpsText() {
 	for (uint8_t i = 0; i < GPS_MAX_CHARS; ++i) {
-		gpsText[i] = 0;
+		gGpsText[i] = 0;
 	}
 }
 
 #ifdef GPS_FULL_TEXT
 static void clearFullGpsText() {
 	for (uint8_t i = 0; i < GPS_FULL_LENGTH; ++i) {
-		gpsFullText[i] = 0;
+		gGpsFullText[i] = 0;
 	}
 }
 #endif // GPS_FULL_TEXT
 
 #ifdef GPS_PART_TEXT
 static void updateParts() {
-	strncpy((char*)gpsTextPart, (char*)gpsText, GPS_MAX_CHARS);
-	gpsTextPartLength = strlen((const char*)gpsText);
+	strncpy((char*)gGpsTextPart, (char*)gGpsText, GPS_MAX_CHARS);
+	gGpsTextPartLength = strlen((const char*)gGpsText);
 }
 #endif //GPS_PART_TEXT
 
 static void parseGpsPart() {
-	if (gpsTextType == GPS_TYPE_NONE) {
-		if (!strncmp((const char*)gpsText, "GPGGA", 5)) {
-			gpsTextType = GPS_TYPE_GPGGA;
-			gpsTextPartStep = GPS_PART_NONE;
+	if (gGpsTextType == GPS_TYPE_NONE) {
+		if (!strncmp((const char*)gGpsText, "GPGGA", 5)) {
+			gGpsTextType = GPS_TYPE_GPGGA;
+			gGpsTextPartStep = GPS_PART_NONE;
 			//updateParts();
 		}
-		else if (!strncmp((const char*)gpsText, "GPRMC", 5)) {
-			gpsTextType = GPS_TYPE_GPRMC;
-			gpsTextPartStep = GPS_GPRMC_PART_OFFSET;
+		else if (!strncmp((const char*)gGpsText, "GPRMC", 5)) {
+			gGpsTextType = GPS_TYPE_GPRMC;
+			gGpsTextPartStep = GPS_GPRMC_PART_OFFSET;
 			//updateParts();
 		}
 	}
-	else if (gpsTextType != GPS_TYPE_NONE) {
-		if (gpsTextPos != 0) {
-			switch (gpsTextPartStep) {
+	else if (gGpsTextType != GPS_TYPE_NONE) {
+		if (gGpsTextPos != 0) {
+			switch (gGpsTextPartStep) {
 			case GPS_PART_GPGGA_TIME:
 			case GPS_PART_GPRMC_TIME:
-				gpsLastData.time = parseInt(gpsText, GPS_MAX_CHARS);
+				gGpsLastData.gTime = parseInt(gGpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_LAT:
 			case GPS_PART_GPRMC_LAT:
-				gpsLastData.pos.latitude = parseFloat(gpsText, GPS_MAX_CHARS);
+				gGpsLastData.pos.latitude = parseFloat(gGpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_LAT_UNIT:
 			case GPS_PART_GPRMC_LAT_UNIT:
-				if (gpsText[0] == 'S') {
-					gpsLastData.pos.latitude = -gpsLastData.pos.latitude;
+				if (gGpsText[0] == 'S') {
+					gGpsLastData.pos.latitude = -gGpsLastData.pos.latitude;
 				}
 				break;
 			case GPS_PART_GPGGA_LONG:
 			case GPS_PART_GPRMC_LONG:
-				gpsLastData.pos.longitude = parseFloat(gpsText, GPS_MAX_CHARS);
+				gGpsLastData.pos.longitude = parseFloat(gGpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_LONG_UNIT:
 			case GPS_PART_GPRMC_LONG_UNIT:
-				if (gpsText[0] == 'W') {
-					gpsLastData.pos.longitude = -gpsLastData.pos.longitude;
+				if (gGpsText[0] == 'W') {
+					gGpsLastData.pos.longitude = -gGpsLastData.pos.longitude;
 				}
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_FIX:
-				gpsLastData.fix = parseInt(gpsText, GPS_MAX_CHARS);
+				gGpsLastData.fix = parseInt(gGpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPRMC_STATUS:
 				// Status
 				break;
 			case GPS_PART_GPGGA_SATS:
-				gpsLastData.sats = parseInt(gpsText, GPS_MAX_CHARS);
+				gGpsLastData.sats = parseInt(gGpsText, GPS_MAX_CHARS);
 				//updateParts();
 				break;
 			case GPS_PART_GPGGA_DILUTION:
 				// Horizontal dilution of position
 				break;
 			case GPS_PART_GPGGA_ALTITUDE:
-				gpsLastData.pos.altitude = parseInt(gpsText, GPS_MAX_CHARS);
+				gGpsLastData.pos.altitude = parseInt(gGpsText, GPS_MAX_CHARS);
 #ifdef IMPERIAL_SYSTEM
-        meterToFeet(&gpsLastData.pos.altitude);
+        meterToFeet(&gGpsLastData.pos.altitude);
 #endif // IMPERIAL_SYSTEM
 				//updateParts();
 				break;
@@ -198,26 +198,26 @@ static void parseGpsPart() {
 				// Geoid unit
 				break;
 			case GPS_PART_GPRMC_SPEED:
-				gpsLastData.speed = parseInt(gpsText, GPS_MAX_CHARS); // Only use int part
+				gGpsLastData.speed = parseInt(gGpsText, GPS_MAX_CHARS); // Only use int part
 #ifdef METRIC_SYSTEM
 				// Convert to km/h. 1 knot = 1.852 km/h = 463/250
-				gpsLastData.speed *= 463; // Might need bigger var if you go really fast! :-)
-				gpsLastData.speed /= 250;
+				gGpsLastData.speed *= 463; // Might need bigger var if you go really fast! :-)
+				gGpsLastData.speed /= 250;
 #else // IMPERIAL_SYSTEM
-        knotToMph(&gpsLastData.speed);
+        knotToMph(&gGpsLastData.speed);
 #endif // METRIC_SYSTEM
 				break;
 			case GPS_PART_GPRMC_ANGLE:
-				gpsLastData.angle = parseInt(gpsText, GPS_MAX_CHARS); // Only use int part
+				gGpsLastData.angle = parseInt(gGpsText, GPS_MAX_CHARS); // Only use int part
 				break;
 			case GPS_PART_GPRMC_DATE:
-			  gpsLastData.date = parseInt(gpsText, GPS_MAX_CHARS);
+			  gGpsLastData.date = parseInt(gGpsText, GPS_MAX_CHARS);
 			  break;
 			case GPS_PART_CHECKSUM:
 				//updateParts();
 				{
-				uint8_t val = parseHex(gpsText, GPS_MAX_CHARS);
-				gpsLastData.checksumValid = (val == gpsChecksum);
+				uint8_t val = parseHex(gGpsText, GPS_MAX_CHARS);
+				gGpsLastData.checksumValid = (val == gGpsChecksum);
 				}				
 				break;
 			}				
@@ -226,53 +226,53 @@ static void parseGpsPart() {
 }
 
 static void setHomePos() {
-	homePos = gpsLastValidData.pos;
-	homePosSet = 1;
+	gHomePos = gGpsLastValidData.pos;
+	gHomePosSet = 1;
 }
 
 #ifdef STATISTICS_ENABLED
 static void updateDistanceTraveled() {
-	TGpsPos last = gpsLastValidData.pos;
-	TGpsPos current = gpsLastData.pos;
+	TGpsPos last = gGpsLastValidData.pos;
+	TGpsPos current = gGpsLastData.pos;
 	if (last.latitude != current.latitude || last.longitude != current.longitude) {
 	  uint32_t distance;
     calcHome(last.latitude, last.longitude, current.latitude, current.longitude, &distance, NULL);
-	  statDistTraveled += distance;
+	  gStatDistTraveled += distance;
 	}	  
 }
 #endif //STATISTICS_ENABLED
 
 static void finishGpsDecoding() {
-	if (gpsLastData.checksumValid != 0) {
+	if (gGpsLastData.checksumValid != 0) {
 #ifdef STATISTICS_ENABLED
 		updateDistanceTraveled();
 #endif //STATISTICS_ENABLED
-		gpsLastValidData = gpsLastData;
-		gpsValidData = 1;
-		lastFix = time;
+		gGpsLastValidData = gGpsLastData;
+		gGpsValidData = 1;
+		gLastFix = gTime;
 
-		if (homePosSet == 0) {
+		if (gHomePosSet == 0) {
 #ifdef HOME_SET_AT_FIX
-      if (homeFixCount >= HOME_SET_FIX_COUNT) {
+      if (gHomeFixCount >= HOME_SET_FIX_COUNT) {
 			  setHomePos();
 	    }
 		  else {
-			  ++homeFixCount;
+			  ++gHomeFixCount;
 		  }
 #endif //HOME_FIRST_FIX
 #ifdef HOME_AUTO_SET
-      if (gpsLastValidData.speed >= HOME_FIX_MIN_SPEED) {
+      if (gGpsLastValidData.speed >= HOME_FIX_MIN_SPEED) {
 			  setHomePos();
 		  }
 #endif //HOME_AUTO_SET
 		}
 #ifdef STATISTICS_ENABLED		
 		else {
-			if (gpsLastValidData.speed > statMaxSpeed) {
-          statMaxSpeed = gpsLastValidData.speed;
+			if (gGpsLastValidData.speed > gStatMaxSpeed) {
+          gStatMaxSpeed = gGpsLastValidData.speed;
 			}
-			if (gpsLastValidData.pos.altitude > statMaxAltitude) {
-          statMaxAltitude = gpsLastValidData.pos.altitude;
+			if (gGpsLastValidData.pos.altitude > gStatMaxAltitude) {
+          gStatMaxAltitude = gGpsLastValidData.pos.altitude;
 			}
 		}
 #endif //STATISTICS_ENABLED
@@ -280,55 +280,55 @@ static void finishGpsDecoding() {
 }
 
 static void decodeGpsData(char data) {
-	if (gpsTextPartStep == GPS_PART_FINISHED && data != '$') {
+	if (gGpsTextPartStep == GPS_PART_FINISHED && data != '$') {
 		return;
 	}
 	
 	switch (data) {
 	case '$':
-		gpsTextPos = 0;
-		gpsTextType = GPS_TYPE_NONE;
-		gpsChecksum = 0;
-		gpsTextPartStep = 0;
+		gGpsTextPos = 0;
+		gGpsTextType = GPS_TYPE_NONE;
+		gGpsChecksum = 0;
+		gGpsTextPartStep = 0;
 		clearGpsText();
 #ifdef GPS_FULL_TEXT
 		clearFullGpsText();
-		gpsFullTextPos = 0;
+		gGpsFullTextPos = 0;
 #endif // FULLGPSTEXT
 		break;
 	case ',':
-		gpsChecksum ^= data;
+		gGpsChecksum ^= data;
 	case '*':
 		parseGpsPart();
 		clearGpsText();		
-		gpsTextPos = 0;
-		gpsTextPartStep++;
+		gGpsTextPos = 0;
+		gGpsTextPartStep++;
 		if (data =='*') {
-			gpsTextPartStep = GPS_PART_CHECKSUM;
+			gGpsTextPartStep = GPS_PART_CHECKSUM;
 		}			
 		break;
 	case '\r':
 	case '\n':
 	  parseGpsPart();
-	  gpsTextPartStep = GPS_PART_FINISHED;
+	  gGpsTextPartStep = GPS_PART_FINISHED;
 	  finishGpsDecoding();
 		return;
 		break;
 	default:
-		gpsText[gpsTextPos] = data;
-		if (gpsTextPartStep != GPS_PART_CHECKSUM) {
-		  gpsChecksum ^= data;
+		gGpsText[gGpsTextPos] = data;
+		if (gGpsTextPartStep != GPS_PART_CHECKSUM) {
+		  gGpsChecksum ^= data;
 		}
-		if (gpsTextPos < GPS_MAX_CHARS-1) {
-		  ++gpsTextPos;
+		if (gGpsTextPos < GPS_MAX_CHARS-1) {
+		  ++gGpsTextPos;
 		}
 		break;
 	}
 	
 #ifdef GPS_FULL_TEXT
-	gpsFullText[gpsFullTextPos] = data;
-	if (gpsFullTextPos + 1 != GPS_FULL_LENGTH) {
-	  gpsFullTextPos++;
+	gGpsFullText[gGpsFullTextPos] = data;
+	if (gGpsFullTextPos + 1 != GPS_FULL_LENGTH) {
+	  gGpsFullTextPos++;
 	}
 #endif // FULLGPSTEXT
 }

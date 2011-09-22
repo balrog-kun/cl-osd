@@ -202,6 +202,9 @@
     <Compile Include="delay.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="global.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="gps.h">
       <SubType>compile</SubType>
     </Compile>

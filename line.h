@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include <util/delay.h>
 
-static volatile uint8_t update = 0;
-static volatile uint8_t activeTextId = 0;
-static volatile uint16_t activeTextLine = 0;
-static volatile uint8_t lineType = LINE_TYPE_UNKNOWN;
+static volatile uint8_t gUpdateScreenData = 0;
+static volatile uint8_t gActiveTextId = 0;
+static volatile uint16_t gActiveTextLine = 0;
+static volatile uint8_t gLineType = LINE_TYPE_UNKNOWN;
 
 static void setupLine() {
   // Line trigger
@@ -45,18 +45,18 @@ static void setupLine() {
 #endif //TEXT_SMALL_ENABLED
 	SPCR = (1<<SPE) | (1<<MSTR) | (1<<CPHA);
 	
-	activeTextLine = textLines[activeTextId];
+	gActiveTextLine = gTextLines[gActiveTextId];
 }  
 
 static void updateLine() {
   _delay_us(5); // wait 5us to see if H or V sync
 
 	if(!(PIND & LTRIG)) { // H sync
-		if (line != 0) {
-			switch(lineType) {
+		if (gActiveLine != 0) {
+			switch(gLineType) {
 				case LINE_TYPE_TEXT:
 #ifdef TEXT_ENABLED				
-					drawTextLine(activeTextId);
+					drawTextLine(gActiveTextId);
 #endif //TEXTENABLED			
 					break;
 				case LINE_TYPE_GRAPHICS:
@@ -68,31 +68,31 @@ static void updateLine() {
 		}
 		
 		// We save some time in beginning of line by pre-calculating next type.
-		lineType = LINE_TYPE_UNKNOWN; // Default case
-		line++;
-		if (line == LAST_LINE) {
-			update = 1;
+		gLineType = LINE_TYPE_UNKNOWN; // Default case
+		gActiveLine++;
+		if (gActiveLine == LAST_LINE) {
+			gUpdateScreenData = 1;
 			return;
 		}
 	
-		if (line >= activeTextLine && line < (activeTextLine + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
-	    lineType = LINE_TYPE_TEXT;
+		if (gActiveLine >= gActiveTextLine && gActiveLine < (gActiveTextLine + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
+	    gLineType = LINE_TYPE_TEXT;
 		}
-		else if (line == (activeTextLine + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
-		  update = 2;
-			activeTextId = (activeTextId+1) % TEXT_LINES;
-			activeTextLine = textLines[activeTextId];
+		else if (gActiveLine == (gActiveTextLine + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
+		  gUpdateScreenData = 2;
+			gActiveTextId = (gActiveTextId+1) % TEXT_LINES;
+			gActiveTextLine = gTextLines[gActiveTextId];
 			return;
 		}
 		#ifdef GRAPICSENABLED		
-		else if (line >= GRAPHICS_LINE && line < (GRAPHICS_LINE + GRAPHICS_HEIGHT)) {
-			lineType = LINE_TYPE_GRAPHICS;
+		else if (gActiveLine >= GRAPHICS_LINE && gActiveLine < (GRAPHICS_LINE + GRAPHICS_HEIGHT)) {
+			gLineType = LINE_TYPE_GRAPHICS;
 		}
     #endif //GRAPICSENABLED
 	}
 	else { // V sync
-		if(line > 200) {
-			line = 0;
+		if(gActiveLine > 200) {
+			gActiveLine = 0;
 		}
 	}
 }

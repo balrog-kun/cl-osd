@@ -35,14 +35,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Graphics vars
 
-static uint8_t pixelData[GRAPHICS_WIDTH][GRAPHICS_HEIGHT];
+static uint8_t gPixelData[GRAPHICS_WIDTH][GRAPHICS_HEIGHT];
 
 // Functions
 
 static void clearGraphics() {
 	for (uint8_t x = 0; x < GRAPHICS_WIDTH; ++x) {
 	  for (uint8_t y = 0; y < GRAPHICS_HEIGHT; ++y) {
-			pixelData[x][y] = 0x00;
+			gPixelData[x][y] = 0x00;
 		}		
 	}
 }	
@@ -59,7 +59,7 @@ static void setPixel(uint8_t x, uint8_t y, uint8_t state) {
 		return;
 	}
 	uint8_t bitPos = 7-(x%8);
-	uint8_t temp = pixelData[x/8][y];
+	uint8_t temp = gPixelData[x/8][y];
 	if (state == 0) {
 		temp &= ~(1<<bitPos);
 	}
@@ -69,7 +69,7 @@ static void setPixel(uint8_t x, uint8_t y, uint8_t state) {
 	else {
 		temp ^= (1<<bitPos);
 	}
-	pixelData[x/8][y] = temp;
+	gPixelData[x/8][y] = temp;
 }
 
 // Credit for this one goes to wikipedia! :-)
@@ -153,7 +153,7 @@ static void drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 
 static void drawArrow(uint16_t angle) {
 	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1);
-	if (homeDistance < 10) {
+	if (gHomeDistance < 10) {
 	  drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, 2);
 	  return;
 	}
@@ -169,7 +169,7 @@ static void drawArrow(uint16_t angle) {
 
 static void updateGrapics() {
 #ifdef GPS_ENABLED
-  drawArrow(homeBearing - gpsLastValidData.angle);
+  drawArrow(gHomeBearing - gGpsLastValidData.angle);
 #endif //GPS_ENABLED
 }
 
@@ -179,9 +179,9 @@ static void drawGrapicsLine()
 	SPSR &= ~(1<<SPI2X); // Set normal speed
 #endif //TEXT_SMALL_ENABLED
   _delay_us(GRAPHICS_OFFSET);
-  uint16_t currLine = (line - GRAPHICS_LINE);
+  uint16_t currLine = (gActiveLine - GRAPHICS_LINE);
   for (uint8_t i = 0; i < GRAPHICS_WIDTH; ++i) {
-	  SPDR = pixelData[i][currLine];
+	  SPDR = gPixelData[i][currLine];
 	  DDRB |= OUT1;
 	  DELAY_9_NOP();
 	  DELAY_9_NOP();

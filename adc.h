@@ -29,12 +29,12 @@ typedef struct {
   uint8_t high;
 } TAnalogValue;
 
-static TAnalogValue analogInputs[ANALOG_IN_NUMBER] = {};
+static TAnalogValue gAnalogInputs[ANALOG_IN_NUMBER] = {};
 #ifdef ADC_ENABLE_RAW
-static uint16_t analogInputsRaw[ANALOG_IN_NUMBER] = {};
+static uint16_t gAnalogInputsRaw[ANALOG_IN_NUMBER] = {};
 #endif //ADC_ENABLE_RAW
-static const uint8_t analogMult[ANALOG_IN_NUMBER] = {ADC_MULT};
-static const uint8_t analogDiv[ANALOG_IN_NUMBER] = {ADC_DIV};
+static const uint8_t gAnalogMult[ANALOG_IN_NUMBER] = {ADC_MULT};
+static const uint8_t gAnalogDiv[ANALOG_IN_NUMBER] = {ADC_DIV};
 
 #ifndef ADC_ENABLED
 
@@ -65,22 +65,22 @@ static void measureAnalog() {
 	  ADCSRA &= ~(1<<ADEN) & ~(1<<ADATE); // ADC disabled & ADC auto trigger disabled
 	  temp = ADCW;
 #ifdef ADC_ENABLE_RAW	  
-    analogInputsRaw[i] = temp;
+    gAnalogInputsRaw[i] = temp;
 #endif
 	  temp = (temp * 5 * 62) / 10;
-	  temp *= analogMult[i];
-	  temp /= analogDiv[i];
+	  temp *= gAnalogMult[i];
+	  temp /= gAnalogDiv[i];
 	  adcHigh = temp / 1024;
 	  temp -= (uint16_t)(adcHigh) * 1024;
 	  adcLow = (temp * 100) / 1024;
 	
-	  analogInputs[i].low = adcLow;
-    analogInputs[i].high = adcHigh;
+	  gAnalogInputs[i].low = adcLow;
+    gAnalogInputs[i].high = adcHigh;
   }    
 }
 
 static uint8_t calcGenericLevel(uint8_t adcInput, uint16_t minLevel, uint16_t maxLevel) {
-	uint16_t level = ((analogInputs[adcInput].high * 100) + analogInputs[adcInput].low);
+	uint16_t level = ((gAnalogInputs[adcInput].high * 100) + gAnalogInputs[adcInput].low);
 	if (level > maxLevel) {
 		level = 100;
 	}		

@@ -226,20 +226,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
  {DATA_TYPE_GPS_ANGLE, LINE(1), NO_INDEX, AUTO_ADJUST}}, \
 {{DATA_TYPE_GPS_LAT, LINE(1), NO_INDEX, AUTO_ADJUST}, \
  {DATA_TYPE_GPS_LONG, LINE(1), NO_INDEX, TEXT_LINE_MAX_CHARS-1-7}}}
-	
 
-// Global vars
-static volatile uint16_t line = 0;
-
-// Debug vars!
-#ifdef DEBUG
-static volatile uint8_t u8 = 0;
-static volatile int8_t i8 = 0;
-static volatile uint16_t u16 = 0;
-static volatile int16_t i16 = 0;
-static volatile uint32_t u32 = 0;
-static volatile int32_t i32 = 0;
-static volatile char c8 = 0;
-#endif //DEBUG
 
 #endif /* SETUP_H_ */

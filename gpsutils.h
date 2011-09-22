@@ -30,7 +30,7 @@ typedef struct {
 
 typedef struct {
 	TGpsPos pos;
-  uint32_t time;
+  uint32_t gTime;
   uint8_t fix;
   uint8_t sats;
   uint16_t speed;

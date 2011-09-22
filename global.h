@@ -15,14 +15,21 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
 
-#ifndef STATISTICS_H_
-#define STATISTICS_H_
+#ifndef GLOBAL_H_
+#define GLOBAL_H_
 
-#ifdef STATISTICS_ENABLED
-static volatile uint16_t gStatDistTraveled = 0; // TODO!
-static volatile uint16_t gStatMaxSpeed = 0;
-static volatile uint16_t gStatMaxAltitude = 0;
-static volatile uint16_t gStatMaxDistance = 0;
-#endif //STATISTICS_ENABLED
+// Global vars
+static volatile uint16_t gActiveLine = 0;
 
-#endif /* STATISTICS_H_ */
+// Debug vars!
+#ifdef DEBUG
+static volatile uint8_t u8 = 0;
+static volatile int8_t i8 = 0;
+static volatile uint16_t u16 = 0;
+static volatile int16_t i16 = 0;
+static volatile uint32_t u32 = 0;
+static volatile int32_t i32 = 0;
+static volatile char c8 = 0;
+#endif //DEBUG
+
+#endif /* GLOBAL_H_ */

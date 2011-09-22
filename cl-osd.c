@@ -32,8 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-static uint8_t keyPressed = 0;
-static uint8_t keyTime = 0;
+static uint8_t gKeyPressed = 0;
+static uint8_t gKeyPressTime = 0;
 
 static void setup(void)
 {
@@ -60,7 +60,7 @@ static void updateOnceEverySec() {
 #ifndef GPS_ENABLED
   PORTD |= LED;
 #else //GPS_ENABLED
-  if (gpsLastData.fix != 0) {
+  if (gGpsLastData.fix != 0) {
 		PORTD |= LED;
 	}
 	else {
@@ -71,16 +71,16 @@ static void updateOnceEverySec() {
   //testCalcHome();
 #endif // DEBUG
   
-	if (homePosSet) {
-	  calcHome(gpsLastValidData.pos.latitude,
-	           gpsLastValidData.pos.longitude,
-			       homePos.latitude,
-				     homePos.longitude,
-					   &homeDistance,
-					   &homeBearing);
+	if (gHomePosSet) {
+	  calcHome(gGpsLastValidData.pos.latitude,
+	           gGpsLastValidData.pos.longitude,
+			       gHomePos.latitude,
+				     gHomePos.longitude,
+					   &gHomeDistance,
+					   &gHomeBearing);
 #ifdef STATISTICS_ENABLED
-		if (homeDistance > statMaxDistance) {
-      statMaxDistance = homeDistance;
+		if (gHomeDistance > gStatMaxDistance) {
+      gStatMaxDistance = gHomeDistance;
     }
 #endif //STATISTICS_ENABLED
 	}
@@ -93,11 +93,11 @@ static void updateOnceEverySec() {
   
 
 static void updateOnceEveryFrame() {
-  if (keyPressed) {
-		++keyTime;
+  if (gKeyPressed) {
+		++gKeyPressTime;
 	}
 
-	if (timeTick == 0) {
+	if (gTimeTick == 0) {
     updateOnceEverySec();
 	}
 
@@ -142,12 +142,12 @@ void main(void) {
     
 #ifndef DEBUG
 		if((PIND & KEY) != KEY) {
-			keyPressed = 1;
-			if(keyTime > 10) {
+			gKeyPressed = 1;
+			if(gKeyPressTime > 10) {
 				PORTD |= LED; // long press!
 #ifdef GPS_ENABLED
 #ifdef HOME_SET_WITH_BUTTON
-      if (gpsLastData.checksumValid != 0) {
+      if (gGpsLastData.checksumValid != 0) {
 				setHomePos();
 			}
 #endif //HOME_SET_WITH_BUTTON
@@ -155,31 +155,31 @@ void main(void) {
 			}
 		}
 		else {
-			if (keyPressed) {
+			if (gKeyPressed) {
 				PORTD &= ~LED;  // led off
 			}				
-			keyPressed = 0;
-			keyTime = 0;
+			gKeyPressed = 0;
+			gKeyPressTime = 0;
 		}
 #endif //!DEBUG
 
 #ifdef DEBUG
-		update = 1;
+		gUpdateScreenData = 1;
 #endif //DEBUG
 
 #ifdef TEXT_ENABLED
-    if (update == 2) {
-		  update = 0;
+    if (gUpdateScreenData == 2) {
+		  gUpdateScreenData = 0;
 #ifdef TEXT_INVERTED_ENABLED
 	    clearTextInverted();
 #endif //TEXT_INVERTED_ENABLED
-	    updateTextPixmap(activeTextId);
+	    updateTextPixmap(gActiveTextId);
 	  }
-	  else if (update == 1) {
+	  else if (gUpdateScreenData == 1) {
 #else
-    if (update == 1) {
+    if (gUpdateScreenData == 1) {
 #endif //TEXTENABLED
-			update = 0;
+			gUpdateScreenData = 0;
 			//DDRB |= OUT1;
 			updateOnceEveryFrame();
 			//DDRB &= ~OUT1;
