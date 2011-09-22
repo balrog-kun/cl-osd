@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include <util/delay.h>
 
+#define LINE_TYPE_UNKNOWN 0
+#define LINE_TYPE_TEXT 1
+#define LINE_TYPE_GRAPHICS 2
+
 static volatile uint8_t gUpdateScreenData = 0;
 static volatile uint8_t gActiveTextId = 0;
 static volatile uint16_t gActiveTextLine = 0;

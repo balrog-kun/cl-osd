@@ -217,6 +217,9 @@
     <Compile Include="home.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="layout.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="line.h">
       <SubType>compile</SubType>
     </Compile>

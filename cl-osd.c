@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "time.h"
 #include "adc.h"
 #include "gps.h"
+#include "layout.h"
 
 #ifdef DEBUG
 #include "test.h"

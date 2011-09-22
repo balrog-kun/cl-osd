@@ -180,20 +180,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 #define LAST_LINE 100 //240+25+16+2
 
-#define LINE_TYPE_UNKNOWN 0
-#define LINE_TYPE_TEXT 1
-#define LINE_TYPE_GRAPHICS 2
-
-// CPU speed
-#define F_CPU 24000000UL
-
 // GPS
 #define GPS_BAUD 4800
 #define GPS_UBRR (F_CPU/16/GPS_BAUD-1)
 #define GPS_MAX_CHARS 11
-
-#define DUMMY_FUNC return 0;
-#define NULL 0
 
 // TODO: Work more on this...
 // Text layout
@@ -226,6 +216,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
  {DATA_TYPE_GPS_ANGLE, LINE(1), NO_INDEX, AUTO_ADJUST}}, \
 {{DATA_TYPE_GPS_LAT, LINE(1), NO_INDEX, AUTO_ADJUST}, \
  {DATA_TYPE_GPS_LONG, LINE(1), NO_INDEX, TEXT_LINE_MAX_CHARS-1-7}}}
+
+// CPU speed
+#define F_CPU 24000000UL
+
+//Other
+#define NULL 0
 
 
 #endif /* SETUP_H_ */

@@ -219,53 +219,6 @@ static uint8_t printGpsNumber(char* str, uint8_t pos, int32_t number, uint8_t nu
   return printNumberWithUnit(str, pos, minDecimal, str2);
 }
 
-static void updateText(uint8_t textId) {
-  //testPrintDebugInfo();
-  uint8_t pos = 0;
-
-  if (textId == 0) {
-	  pos = printTime(gText[textId], pos);
-	  
-	  pos = printAdc(gText[textId], pos+1, ANALOG_IN_1);
-	  
-#if ANALOG_IN_NUMBER == 2
-    pos = printRssiLevel(gText[textId], pos+1, ANALOG_IN_2);
-#else // ANALOG_IN_NUMBER == 3
-    pos = printAdc(gText[textId], pos+1, ANALOG_IN_2);
-	  pos = printRssiLevel(gText[textId], pos+1, ANALOG_IN_3);
-#endif //ANALOG_IN_NUMBER == 2
-  }
-  else if (textId == 1) {
-#ifdef GPS_ENABLED
-		pos = printNumberWithUnit(gText[textId], pos, gHomeDistance, TEXT_LENGTH_UNIT);
-		pos = printNumberWithUnit(gText[textId], pos+1, gHomeBearing, "DEG");
-		pos = printText(gText[textId], pos+1, gHomePosSet ? "H-SET" : "");
-#endif //GPS_ENABLED
-	}
-	else if (textId == 2) {
-#ifdef GPS_ENABLED
-		pos = printGpsNumber(gText[textId], pos, gGpsLastValidData.pos.latitude, 1);
-		char tmp[13];
-		uint8_t length = printGpsNumber(tmp, 0, gGpsLastValidData.pos.longitude, 0);
-		printText(gText[textId], TEXT_LINE_MAX_CHARS - length, tmp);
-#endif //GPS_ENABLED
-	}
-	else if (textId == 3) {
-#ifdef GPS_ENABLED
-		pos = printNumberWithUnit(gText[textId], pos, gGpsLastValidData.pos.altitude - gHomePos.altitude, TEXT_LENGTH_UNIT);
-		pos = printNumberWithUnit(gText[textId], pos+1, gGpsLastValidData.speed, TEXT_SPEED_UNIT);
-		pos = printNumberWithUnit(gText[textId], pos+1, gGpsLastValidData.angle, "DEG");
-		pos = printNumberWithUnit(gText[textId], pos+1, gGpsLastValidData.sats, "S");
-		pos = printText(gText[textId], pos+1, gGpsLastValidData.fix ? "FIX" : "BAD");
-#endif //GPS_ENABLED
-	}
-	else {		
-		pos = printText(gText[textId], pos, "T:");
-		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-1-4, "V:");
-		pos = printNumber(gText[textId], pos+1, textId + 1);
-	}
-}
-
 static void drawTextLine(uint8_t textId)
 {
 	_delay_us(3);

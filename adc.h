@@ -38,6 +38,7 @@ static const uint8_t gAnalogDiv[ANALOG_IN_NUMBER] = {ADC_DIV};
 
 #ifndef ADC_ENABLED
 
+#define DUMMY_FUNC return 0;
 static uint8_t calcBatteryLevel(uint8_t adcInput) { DUMMY_FUNC }
 static uint8_t calcRssiLevel(uint8_t adcInput) { DUMMY_FUNC }
 

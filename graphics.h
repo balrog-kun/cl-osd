@@ -167,12 +167,6 @@ static void drawArrow(uint16_t angle) {
 	drawLine((GRAPHICS_SIZE/2)-1 + b, (GRAPHICS_SIZE/2)-1 - a, (GRAPHICS_SIZE/2)-1 + a/2, (GRAPHICS_SIZE/2)-1 + b/2);
 }
 
-static void updateGrapics() {
-#ifdef GPS_ENABLED
-  drawArrow(gHomeBearing - gGpsLastValidData.angle);
-#endif //GPS_ENABLED
-}
-
 static void drawGrapicsLine()
 {
 #ifdef TEXT_SMALL_ENABLED
