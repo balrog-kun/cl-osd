@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // This can also be set using symbol in configuration.
 //#define E_OSD
 //#define G_OSD
-//#define E_OSD_GPS //Non supported! Note: Also enable E_OSD!
+//#define E_OSD_GPS //Note: Also enable E_OSD!
 
 // Feature setup. (All combinations might not work) :-)
 #if defined(G_OSD) || defined(E_OSD_GPS)
@@ -86,24 +86,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifdef E_OSD
 #define KEY (1<<PD5)
 #define LED (1<<PD6)
-#endif // EOSD
-#ifdef G_OSD
+#else
 #define KEY (1<<PD4)
 #define LED (1<<PD3)
 #endif //GOSD
 
 #define OUT1 (1<<PB1)
 #define OUT2 (1<<PB3)
-
-#ifdef E_OSD
-#define ADC1 (1<<PC0) //ADC0
-#define ADC2 (1<<PC1) //ADC1
-#endif // EOSD
-#ifdef G_OSD
-#define ADC1 (1<<PC1) //ADC1
-#define ADC2 (1<<PC2) //ADC2
-#define ADC3 (1<<PC3) //ADC3
-#endif //GOSD
 
 #define LTRIG (1<<PD2) //INT0
 #define SS (1<<PB2)
@@ -143,19 +132,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #endif //METRIC_SYSTEM
 
 // ADC
-#define ANALOG_IN_1 0 // Voltage 1
-#define ANALOG_IN_2 1 // Voltage 2
-#define ANALOG_IN_3 2 // RSSI
-#define ANALOG_IN_4 3 // No input, just a pot.
+#ifdef E_OSD
+#define ANALOG_IN_1 1 // Voltage 1 = ADC1
+#define ANALOG_IN_2 0 // Voltage 2 = ADC0
+#else
+#define ANALOG_IN_1 0 // Voltage 1 = ADC0
+#define ANALOG_IN_2 1 // Voltage 2 = ADC1
+#endif
+#define ANALOG_IN_3 2 // RSSI = ADC2
+#define ANALOG_IN_4 3 // No input, just a pot = ADC3
 
 #define ADC_OFFSET 0
 
 #ifdef E_OSD
+#define ADC_MULT 1,1
+#define ADC_DIV 1,1
+#else
+#define ADC_MULT 1,1,1,1
+#define ADC_DIV 1,1,1,1
+#endif //E_OSD
+
+#ifdef E_OSD
 #define ANALOG_IN_NUMBER 2
-#endif // EOSD
-#ifdef G_OSD
+#else
 #define ANALOG_IN_NUMBER 4
-#endif //GOSD
+#endif //E_OSD
 
 // Battery
 #define BATT_MIN_VOLTAGE CELL_LOW_VOLTAGE*CELL_COUNT

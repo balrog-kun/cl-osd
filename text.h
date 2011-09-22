@@ -34,6 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "gps.h"
 #include "home.h"
 
+#define TEXT_ALIGN_LEFT 0
+#define TEXT_ALIGN_RIGHT 1
+
 // Text vars
 static uint16_t const textLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
 static char text[TEXT_LINES][TEXT_LINE_MAX_CHARS];
@@ -125,86 +128,94 @@ static void updateTextPixmap(uint8_t textId) {
 	}
 }
 
-static uint8_t printText(uint8_t textId, uint8_t pos, const char* str) {
-	uint8_t length = strlen(str);
+static uint8_t printText(char* str, uint8_t pos, const char* str2) {
+	uint8_t length = strlen(str2);
 	if (pos + length >= TEXT_LINE_MAX_CHARS) {
     length = TEXT_LINE_MAX_CHARS;
 	}
-	strncpy(&text[textId][pos], str, length);
+	strncpy(&str[pos], str2, length);
 	return length+pos;
 }
 
-static uint8_t printNumber(uint8_t textId, uint8_t pos, int32_t number) {
+static uint8_t printNumber(char* str, uint8_t pos, int32_t number) {
 	uint8_t length = 1;
-	int32_t tmp = number;
+	int32_t tmp = absi32(number);
 	while (tmp > 9) {
 		tmp /= 10;
 		++length;
 	}
+	if (number < 0) {
+		++length;
+	}
 	if (pos + length >= TEXT_LINE_MAX_CHARS) {
     return TEXT_LINE_MAX_CHARS;
-	}	
-	myItoa(number, &text[textId][pos]);
+	}
+	myItoa(number, &str[pos]);
 	return pos+length;
 }
 
-static uint8_t printNumberWithUnit(uint8_t textId, uint8_t pos, int32_t number, const char* unit) {
-	pos = printNumber(textId, pos, number);
-	return printText(textId, pos, unit);
+static uint8_t printNumberWithUnit(char* str, uint8_t pos, int32_t number, const char* unit) {
+	pos = printNumber(str, pos, number);
+	return printText(str, pos, unit);
 }
 
-static uint8_t printTime(uint8_t textId, uint8_t pos) {
+static uint8_t printTime(char* str, uint8_t pos) {
 	if (time.hour < 10) {
-		text[textId][pos++] = '0';
+		str[pos++] = '0';
 	}
-	pos = printNumberWithUnit(textId, pos, time.hour, ":");
+	pos = printNumberWithUnit(str, pos, time.hour, ":");
 	if (time.min < 10) {
-		text[textId][pos++] = '0';
+		str[pos++] = '0';
 	}	
-	pos = printNumberWithUnit(textId, pos, time.min, ":");
+	pos = printNumberWithUnit(str, pos, time.min, ":");
 	if (time.sec < 10) {
-		text[textId][pos++] = '0';
+		str[pos++] = '0';
 	}	
-	return printNumber(textId, pos, time.sec);
+	return printNumber(str, pos, time.sec);
 }
 
-static uint8_t printAdc(uint8_t textId, uint8_t pos, const uint8_t adcInput) {
+static uint8_t printAdc(char* str, uint8_t pos, const uint8_t adcInput) {
 	uint8_t low = analogInputs[adcInput].low;
 	uint8_t high = analogInputs[adcInput].high;
-	pos = printNumber(textId, pos, high);
-	text[textId][pos++] = '.';
+	pos = printNumber(str, pos, high);
+	str[pos++] = '.';
 	if(low < 10) {
-		text[textId][pos++] = '0';
+		str[pos++] = '0';
 	}
-	return printNumberWithUnit(textId, pos, low, "V");		
+	return printNumberWithUnit(str, pos, low, "V");		
 }
 
-static uint8_t printRssiLevel(uint8_t textId, uint8_t pos, const uint8_t adcInput) {
-	uint8_t rssiLevel = calcRssiLevel(ANALOG_IN_1);
-	return printNumberWithUnit(textId, pos, rssiLevel, "%");
+static uint8_t printRssiLevel(char* str, uint8_t pos, const uint8_t adcInput) {
+	uint8_t rssiLevel = calcRssiLevel(adcInput);
+	return printNumberWithUnit(str, pos, rssiLevel, "%");
 }
 
-static uint8_t printBatterLevel(uint8_t textId, uint8_t pos, const uint8_t adcInput) {
-	uint8_t batterLevel = calcBatteryLevel(ANALOG_IN_1);
-	return printNumberWithUnit(textId, pos, batterLevel, "%");
+static uint8_t printBatterLevel(char* str, uint8_t pos, const uint8_t adcInput) {
+	uint8_t batterLevel = calcBatteryLevel(adcInput);
+	return printNumberWithUnit(str, pos, batterLevel, "%");
 }
 
-static uint8_t printGpsNumber(uint8_t textId, uint8_t pos, int32_t number, uint8_t numberLat) {
+static uint8_t printGpsNumber(char* str, uint8_t pos, int32_t number, uint8_t numberLat) {
+	if (number == 0) {
+	  pos = printText(str, pos, "--:--.----?"); 
+	  return pos;
+  }
+	
 	uint8_t hour = number / 1000000;
 	uint8_t min = (number - (hour * 1000000)) / 10000; //Get minute part
   uint32_t minDecimal = number % 10000; //Get minute decimal part
   
-  const char* str;
+  const char* str2;
   if (numberLat) {
-	  str = number > 0 ? "N" : "S";
+	  str2 = number > 0 ? "N" : "S";
   }
   else {
-	  str = number > 0 ? "E" : "W";
+	  str2 = number > 0 ? "E" : "W";
   }
   
-  pos = printNumberWithUnit(textId, pos, hour, ":");
-  pos = printNumberWithUnit(textId, pos, min, ".");
-  return printNumberWithUnit(textId, pos, minDecimal, str);
+  pos = printNumberWithUnit(str, pos, hour, ":");
+  pos = printNumberWithUnit(str, pos, min, ".");
+  return printNumberWithUnit(str, pos, minDecimal, str2);
 }
 
 static void updateText(uint8_t textId) {
@@ -212,43 +223,45 @@ static void updateText(uint8_t textId) {
   uint8_t pos = 0;
 
   if (textId == 0) {
-	  pos = printTime(textId, pos);
+	  pos = printTime(text[textId], pos);
 	  
-	  pos = printAdc(textId, pos+1, ANALOG_IN_1);
+	  pos = printAdc(text[textId], pos+1, ANALOG_IN_1);
 	  
 #if ANALOG_IN_NUMBER == 2
-    pos = printRssiLevel(textId, pos+1, ANALOG_IN_2);
+    pos = printRssiLevel(text[textId], pos+1, ANALOG_IN_2);
 #else // ANALOG_IN_NUMBER == 3
-    pos = printAdc(textId, pos+1, ANALOG_IN_2);
-	  pos = printRssiLevel(textId, pos+1, ANALOG_IN_3);
+    pos = printAdc(text[textId], pos+1, ANALOG_IN_2);
+	  pos = printRssiLevel(text[textId], pos+1, ANALOG_IN_3);
 #endif //ANALOG_IN_NUMBER == 2
   }
   else if (textId == 1) {
 #ifdef GPS_ENABLED
-		pos = printNumberWithUnit(textId, pos, homeDistance, TEXT_LENGTH_UNIT);
-		pos = printNumberWithUnit(textId, pos+1, homeBearing, "DEG");
-		pos = printText(textId, pos+1, homePosSet ? "H-SET" : "");
+		pos = printNumberWithUnit(text[textId], pos, homeDistance, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(text[textId], pos+1, homeBearing, "DEG");
+		pos = printText(text[textId], pos+1, homePosSet ? "H-SET" : "");
 #endif //GPS_ENABLED
 	}
 	else if (textId == 2) {
 #ifdef GPS_ENABLED
-		pos = printGpsNumber(textId, pos, gpsLastValidData.pos.latitude, 1);
-		pos = printGpsNumber(textId, TEXT_LINE_MAX_CHARS-1-10, gpsLastValidData.pos.longitude, 0);
+		pos = printGpsNumber(text[textId], pos, gpsLastValidData.pos.latitude, 1);
+		char tmp[13];
+		uint8_t length = printGpsNumber(tmp, 0, gpsLastValidData.pos.longitude, 0);
+		printText(text[textId], TEXT_LINE_MAX_CHARS - length, tmp);
 #endif //GPS_ENABLED
 	}
 	else if (textId == 3) {
 #ifdef GPS_ENABLED
-		pos = printNumberWithUnit(textId, pos, gpsLastValidData.pos.altitude - homePos.altitude, TEXT_LENGTH_UNIT);
-		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.speed, TEXT_SPEED_UNIT);
-		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.angle, "DEG");
-		pos = printNumberWithUnit(textId, pos+1, gpsLastValidData.sats, "S");
-		pos = printText(textId, pos+1, gpsLastValidData.fix ? "FIX" : "BAD");
+		pos = printNumberWithUnit(text[textId], pos, gpsLastValidData.pos.altitude - homePos.altitude, TEXT_LENGTH_UNIT);
+		pos = printNumberWithUnit(text[textId], pos+1, gpsLastValidData.speed, TEXT_SPEED_UNIT);
+		pos = printNumberWithUnit(text[textId], pos+1, gpsLastValidData.angle, "DEG");
+		pos = printNumberWithUnit(text[textId], pos+1, gpsLastValidData.sats, "S");
+		pos = printText(text[textId], pos+1, gpsLastValidData.fix ? "FIX" : "BAD");
 #endif //GPS_ENABLED
 	}
 	else {		
-		pos = printText(textId, pos, "T:");
-		pos = printText(textId, TEXT_LINE_MAX_CHARS-1-4, "V:");
-		pos = printNumber(textId, pos+1, textId + 1);
+		pos = printText(text[textId], pos, "T:");
+		pos = printText(text[textId], TEXT_LINE_MAX_CHARS-1-4, "V:");
+		pos = printNumber(text[textId], pos+1, textId + 1);
 	}
 }
 

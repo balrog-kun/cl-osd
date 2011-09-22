@@ -33,6 +33,8 @@ static TAnalogValue analogInputs[ANALOG_IN_NUMBER] = {};
 #ifdef ADC_ENABLE_RAW
 static uint16_t analogInputsRaw[ANALOG_IN_NUMBER] = {};
 #endif //ADC_ENABLE_RAW
+static const uint8_t analogMult[ANALOG_IN_NUMBER] = {ADC_MULT};
+static const uint8_t analogDiv[ANALOG_IN_NUMBER] = {ADC_DIV};
 
 #ifndef ADC_ENABLED
 
@@ -66,6 +68,8 @@ static void measureAnalog() {
     analogInputsRaw[i] = temp;
 #endif
 	  temp = (temp * 5 * 62) / 10;
+	  temp *= analogMult[i];
+	  temp /= analogDiv[i];
 	  adcHigh = temp / 1024;
 	  temp -= (uint16_t)(adcHigh) * 1024;
 	  adcLow = (temp * 100) / 1024;
