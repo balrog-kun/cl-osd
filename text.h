@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Text vars
 static uint16_t const gTextLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
+static uint8_t const gTextLineSizes[TEXT_LINES] = {TEXT_LINE_TEXT_SIZES};
 static char gText[TEXT_LINES][TEXT_LINE_MAX_CHARS];
 static uint8_t gTextPixmap[TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
 #ifdef TEXT_INVERTED_ENABLED
@@ -236,7 +237,7 @@ static uint8_t printGpsNumber(char* str, uint8_t pos, int32_t number, uint8_t nu
 static void drawTextLine(uint8_t textId)
 {
 	_delay_us(3);
-	uint8_t currLine = ((uint16_t)(gActiveLine) - gTextLines[textId]) / TEXT_SIZE_MULT;
+	uint8_t currLine = gActivePixmapLine;
 	for (uint8_t i = 0; i < TEXT_LINE_MAX_CHARS; ++i) {
 		if (gText[textId][i] != ' ' && gText[textId][i] != 0) {
 			DDRB |= OUT1;
@@ -248,7 +249,7 @@ static void drawTextLine(uint8_t textId)
 		DELAY_4_NOP();
 #ifndef TEXT_SMALL_ENABLED
 		DELAY_6_NOP();
-		DELAY_9_NOP();
+		DELAY_7_NOP();
 #endif //TEXT_SMALL_ENABLED	
 	}
 	DELAY_10_NOP();

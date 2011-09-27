@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "delay.h"
 #include "gps.h"
 #include "home.h"
+#include "global.h"
 
 #include <avr/pgmspace.h>
 #include <stdio.h>
@@ -153,7 +154,7 @@ static void drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 
 static void drawArrow(uint16_t angle) {
 	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1);
-	if (gHomeDistance < 10) {
+	if (gHomeDistance < 10 || gGpsLastData.fix == 0) {
 	  drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, 2);
 	  return;
 	}
@@ -173,7 +174,7 @@ static void drawGrapicsLine()
 	SPSR &= ~(1<<SPI2X); // Set normal speed
 #endif //TEXT_SMALL_ENABLED
   _delay_us(GRAPHICS_OFFSET);
-  uint16_t currLine = (gActiveLine - GRAPHICS_LINE);
+  uint16_t currLine = gActivePixmapLine;
   for (uint8_t i = 0; i < GRAPHICS_WIDTH; ++i) {
 	  SPDR = gPixelData[i][currLine];
 	  DDRB |= OUT1;

@@ -47,12 +47,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #endif //TEXT_ENABLED
 
 // Battery
-#define CELL_LOW_VOLTAGE 3.8
+#define CELL_LOW_VOLTAGE 3.8 //(Max two digits after the dot)
 #define CELL_HIGH_VOLTAGE 4.2
 #define CELL_COUNT 3
 
-// RSSI convertion
-#define RSSI_MAX_VOLTAGE 4.7
+// RSSI convertion 
+#define RSSI_MAX_VOLTAGE 4.7 //(Max two digits after the dot)
 #define RSSI_MIN_VOLTAGE 1.2
 
 // Unit system
@@ -64,10 +64,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define HOME_AUTO_SET
 #define HOME_SET_WITH_BUTTON
 #define HOME_SET_FIX_COUNT 10
-#define HOME_FIX_MIN_SPEED 10 
+#define HOME_FIX_MIN_SPEED 10
+#define HOME_SET_MIN_SATS 4
 
 //GPS
 //#define GPS_GOOGLE_FORMAT
+
+//User data
+#define TEXT_CALLSIGN "CLJ"
 
 // ----------------- INTERNAL CONFIGS ------------------
 
@@ -103,22 +107,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifndef TEXT_SMALL_ENABLED
 #define TEXT_LINE_MAX_CHARS 33
 #else
-#define TEXT_LINE_MAX_CHARS 58
+#define TEXT_LINE_MAX_CHARS 30
 #endif //TEXT_SMALL_ENABLED
 #define TEXT_CHAR_HEIGHT 8
-/*#define TEXT_LINES 9
-#define START 43
-#define DIFF 29
-#define TEXT_TRIG_LINES_LIST START, START+(DIFF*1), START+(DIFF*2), START+(DIFF*3), START+(DIFF*4), START+(DIFF*5), START+(DIFF*6), START+(DIFF*7), START+(DIFF*8)*/
-#define TEXT_LINES 4
-#define TEXT_TRIG_LINES_LIST 51, 51+25, 240, 240+25
+
+#define TEXT_LINES 6
+#define TEXT_TRIG_LINES_LIST 50, 50+16, 160, 183, 255, 280 // Must be rising line numbers!
+
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
 #define TEXT_INVERTED_FLIP 2
+
 #ifndef TEXT_SMALL_ENABLED
-#define TEXT_SIZE_MULT 2
-#else
-#define TEXT_SIZE_MULT 1
+#define TEXT_SIZE_LARGE_MULT 2
+#define TEXT_SIZE_SMALL_MULT 1
+#define TEXT_LINE_TEXT_SIZES TEXT_SIZE_SMALL_MULT, TEXT_SIZE_LARGE_MULT, TEXT_SIZE_SMALL_MULT, TEXT_SIZE_SMALL_MULT, TEXT_SIZE_LARGE_MULT, TEXT_SIZE_SMALL_MULT
 #endif //TEXT_SMALL_ENABLED
 
 #ifdef METRIC_SYSTEM
@@ -141,7 +144,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define ANALOG_IN_1 0 // Voltage 1 = ADC0
 #define ANALOG_IN_2 1 // Voltage 2 = ADC1
 #endif
-#define ANALOG_IN_3 2 // RSSI = ADC2
+#define ANALOG_IN_3 2 // RSSI = ADC2 (only 0-5 Volt!)
 #define ANALOG_IN_4 3 // No input, just a pot = ADC3
 
 #define ADC_OFFSET 0
@@ -180,44 +183,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Line triggering
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
-#define LAST_LINE 100 //240+25+16+2
+#define UPDATE_LINE 120 //240+25+16+2
 
 // GPS
 #define GPS_BAUD 4800
 #define GPS_UBRR (F_CPU/16/GPS_BAUD-1)
 #define GPS_MAX_CHARS 11
-
-// TODO: Work more on this...
-// Text layout
-#define DATA_TYPE_NONE 0
-#define DATA_TYPE_VOLT 1
-#define DATA_TYPE_RSSI 2
-#define DATA_TYPE_BATTERY 3
-#define DATA_TYPE_TIME 4
-#define DATA_TYPE_GPS_TIME 5
-#define DATA_TYPE_GPS_DATE 6
-#define DATA_TYPE_GPS_LAT 7
-#define DATA_TYPE_GPS_LONG 8
-#define DATA_TYPE_GPS_SATS 9
-#define DATA_TYPE_GPS_FIX 10
-#define DATA_TYPE_GPS_ANGLE 11
-#define DATA_TYPE_GPS_SPEED 12
-#define DATA_TYPE_HOME_DISTANCE 13
-#define DATA_TYPE_HOME_BEARING 14
-
-// Text placement
-#define LINE(a) a
-#define NO_INDEX 0
-#define AUTO_ADJUST -1
-#define TEXT_PLACEMENT { \
-{{DATA_TYPE_TIME, LINE(0), NO_INDEX, AUTO_ADJUST}, \
- {DATA_TYPE_VOLT, LINE(0), ANALOG_IN_1, AUTO_ADJUST}, \
- {DATA_TYPE_VOLT, LINE(0), ANALOG_IN_2, AUTO_ADJUST}, \
- {DATA_TYPE_RSSI, LINE(0), ANALOG_IN_3, AUTO_ADJUST}}, \
-{{DATA_TYPE_GPS_SPEED, LINE(1), NO_INDEX, AUTO_ADJUST}, \
- {DATA_TYPE_GPS_ANGLE, LINE(1), NO_INDEX, AUTO_ADJUST}}, \
-{{DATA_TYPE_GPS_LAT, LINE(1), NO_INDEX, AUTO_ADJUST}, \
- {DATA_TYPE_GPS_LONG, LINE(1), NO_INDEX, TEXT_LINE_MAX_CHARS-1-7}}}
 
 // CPU speed
 #define F_CPU 24000000UL

@@ -18,8 +18,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
+#include "config.h"
+
 // Global vars
-static volatile uint16_t gActiveLine = 0;
+static uint16_t gActiveLine = 0;
+static uint8_t gActiveTextSize = 2;
+static uint8_t gActivePixmapLine = 0;
 
 // Debug vars!
 #ifdef DEBUG

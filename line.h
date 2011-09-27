@@ -29,9 +29,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define LINE_TYPE_GRAPHICS 2
 
 static volatile uint8_t gUpdateScreenData = 0;
-static volatile uint8_t gActiveTextId = 0;
-static volatile uint16_t gActiveTextLine = 0;
-static volatile uint8_t gLineType = LINE_TYPE_UNKNOWN;
+static uint8_t gActiveTextId = 0;
+static uint16_t gActiveTextLine = 0;
+static uint16_t gActiveTextLastLine = 2;
+static uint8_t gLineType = LINE_TYPE_UNKNOWN;
 
 static void setupLine() {
   // Line trigger
@@ -49,7 +50,9 @@ static void setupLine() {
 #endif //TEXT_SMALL_ENABLED
 	SPCR = (1<<SPE) | (1<<MSTR) | (1<<CPHA);
 	
+#ifdef TEXT_ENABLED
 	gActiveTextLine = gTextLines[gActiveTextId];
+#endif //TEXT_ENABLED
 }  
 
 static void updateLine() {
@@ -74,25 +77,37 @@ static void updateLine() {
 		// We save some time in beginning of line by pre-calculating next type.
 		gLineType = LINE_TYPE_UNKNOWN; // Default case
 		gActiveLine++;
-		if (gActiveLine == LAST_LINE) {
+		if (gActiveLine == UPDATE_LINE) {
 			gUpdateScreenData = 1;
-			return;
 		}
-	
-		if (gActiveLine >= gActiveTextLine && gActiveLine < (gActiveTextLine + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
+		if (gActiveLine == UPDATE_LINE + 1) {
+			gUpdateScreenData = 2;
+		}			
+
+#ifdef TEXT_ENABLED	
+		if (gActiveLine >= gActiveTextLine && gActiveLine < gActiveTextLastLine) {
 	    gLineType = LINE_TYPE_TEXT;
+		  gActivePixmapLine = (gActiveLine - gActiveTextLine);
+		  if (gActiveTextSize == TEXT_SIZE_LARGE_MULT) {
+		    gActivePixmapLine /= TEXT_SIZE_LARGE_MULT;
+		  }
 		}
-		else if (gActiveLine == (gActiveTextLine + TEXT_CHAR_HEIGHT * TEXT_SIZE_MULT)) {
+		else if (gActiveLine == gActiveTextLastLine) {
 		  gUpdateScreenData = 2;
 			gActiveTextId = (gActiveTextId+1) % TEXT_LINES;
 			gActiveTextLine = gTextLines[gActiveTextId];
+			gActiveTextSize = gTextLineSizes[gActiveTextId];
+			gActiveTextLastLine = gActiveTextLine + TEXT_CHAR_HEIGHT * gActiveTextSize;
+			gActivePixmapLine = 1;
 			return;
 		}
-		#ifdef GRAPICSENABLED		
+#endif //TEXT_ENABLED		
+#ifdef GRAPICSENABLED		
 		else if (gActiveLine >= GRAPHICS_LINE && gActiveLine < (GRAPHICS_LINE + GRAPHICS_HEIGHT)) {
 			gLineType = LINE_TYPE_GRAPHICS;
+			gActivePixmapLine = (gActiveLine - GRAPHICS_LINE);
 		}
-    #endif //GRAPICSENABLED
+#endif //GRAPICSENABLED
 	}
 	else { // V sync
 		if(gActiveLine > 200) {

@@ -252,20 +252,24 @@ static void finishGpsDecoding() {
 		gLastFix = gTime;
 
 		if (gHomePosSet == 0) {
+			if (gGpsLastData.fix != 0) {
 #ifdef HOME_SET_AT_FIX
-      if (gHomeFixCount >= HOME_SET_FIX_COUNT) {
-			  setHomePos();
-	    }
-		  else {
-			  ++gHomeFixCount;
-		  }
+        if (gHomeFixCount >= HOME_SET_FIX_COUNT) {
+			    if (gGpsLastData.sats >= HOME_SET_MIN_SATS) {
+			      setHomePos();
+				  }				  
+	      }
+		    else {
+			    ++gHomeFixCount;
+		    }
 #endif //HOME_FIRST_FIX
 #ifdef HOME_AUTO_SET
-      if (gGpsLastValidData.speed >= HOME_FIX_MIN_SPEED) {
-			  setHomePos();
-		  }
+        if (gGpsLastValidData.speed >= HOME_FIX_MIN_SPEED) {
+			    setHomePos();
+		    }
 #endif //HOME_AUTO_SET
-		}
+      }
+		}	  
 #ifdef STATISTICS_ENABLED		
 		else {
 			if (gGpsLastValidData.speed > gStatMaxSpeed) {
