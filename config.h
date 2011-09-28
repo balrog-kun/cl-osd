@@ -112,7 +112,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_CHAR_HEIGHT 8
 
 #define TEXT_LINES 6
-#define TEXT_TRIG_LINES_LIST 50, 50+16, 160, 183, 255, 280 // Must be rising line numbers!
+#define TEXT_TRIG_LINES_LIST 50, 50+16, 160, 185, 255, 280 // Must be rising line numbers!
 
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
@@ -179,7 +179,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define GRAPHICS_WIDTH (GRAPHICS_SIZE/8)
 #define GRAPHICS_HEIGHT GRAPHICS_SIZE
 #define GRAPHICS_LINE 105
-#define GRAPHICS_OFFSET 48
+#define GRAPHICS_OFFSET 46
 
 // Line triggering
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))

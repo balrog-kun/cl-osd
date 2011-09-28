@@ -34,6 +34,7 @@ static void updateText(uint8_t textId) {
 	  pos = printTime(gText[textId], TEXT_LINE_MAX_CHARS-9);
   }
   else if (textId == 1) {
+	  printText(gText[textId], TEXT_LINE_MAX_CHARS-1-strlen(TEXT_CALLSIGN), TEXT_CALLSIGN);
 	  pos = printAdc(gText[textId], 0, ANALOG_IN_1);
 #if ANALOG_IN_NUMBER == 2
     pos = printRssiLevel(gText[textId], 7, ANALOG_IN_2);
@@ -44,51 +45,46 @@ static void updateText(uint8_t textId) {
   }
   else if (textId == 2) {
 #ifdef GPS_ENABLED
-    if (!gHomePosSet && gGpsLastValidData.speed < 10) {
-	    pos = printGpsNumber(gText[textId], pos+10, gGpsLastValidData.pos.latitude, 1);
-	  }		
+	  if (gHomePosSet || gGpsLastValidData.speed >= 10) {
+		  return;
+	  }
+	  pos = printText(gText[textId], 4, "ACQUIRING HOME POS..."); 
 #endif //GPS_ENABLED
   }	  
   else if (textId == 3) {
 #ifdef GPS_ENABLED
-    if (!gHomePosSet && gGpsLastValidData.speed < 10) {
-      pos = printGpsNumber(gText[textId], pos+10, gGpsLastValidData.pos.longitude, 0);
-		  
-	  }  
+	  if (gHomePosSet || gGpsLastValidData.speed >= 10) {
+		  return;
+	  }
+    pos = printGpsNumber(gText[textId], pos+3, gGpsLastValidData.pos.latitude, 1);
+    pos = printGpsNumber(gText[textId], pos+1, gGpsLastValidData.pos.longitude, 0); 
 #endif //GPS_ENABLED
 	}
 	else if (textId == 4) {
 #ifdef GPS_ENABLED
-    pos = printNumber(gText[textId], 0, gGpsLastValidData.pos.altitude - gHomePos.altitude);
-	  pos = printNumber(gText[textId], 5, gGpsLastValidData.speed);
+	  pos = printNumber(gText[textId], 0, gGpsLastValidData.speed);
     if (!gHomePosSet) {
-		  pos = printText(gText[textId], 9, "-");
+		  pos = printText(gText[textId], 4, "-");
 	  }
 	  else {
-		  pos = printNumber(gText[textId], 9, gHomeDistance);
+		  pos = printNumber(gText[textId], 4, gHomeDistance);
 	  }		  
 		if (gGpsLastValidData.fix) {
-		  pos = printNumber(gText[textId], 16, gGpsLastValidData.sats);
+		  pos = printNumber(gText[textId], TEXT_LINE_MAX_CHARS-10, gGpsLastValidData.sats);
 		}
 		else {			
-		  pos = printText(gText[textId], 16, "-");
+		  pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-10, "-");
 	  }
-		/*pos = printNumber(gText[textId], 20, gGpsLastValidData.angle);
-		pos = printNumber(gText[textId], 25, gHomeBearing);*/
+		pos = printNumber(gText[textId], TEXT_LINE_MAX_CHARS-5, gGpsLastValidData.pos.altitude - gHomePos.altitude);
 #endif //GPS_ENABLED
 	}
 	else if (textId == 5) {
-		printText(gText[textId], TEXT_LINE_MAX_CHARS-1-strlen(TEXT_CALLSIGN), TEXT_CALLSIGN);
 #ifdef GPS_ENABLED
-		pos = printText(gText[textId], pos, "ALT ");
-		pos = printText(gText[textId], pos+1, "SPD");
+		pos = printText(gText[textId], pos, "SPD");
 		pos = printText(gText[textId], pos+1, "LOS   ");
-		pos = printText(gText[textId], pos+1, "SAT");
-		/*pos = printText(gText[textId], pos+1, "CBRN");
-		pos = printText(gText[textId], pos+1, "HBRN");*/
-		if (gHomePosSet) {
-		  pos = printText(gText[textId], pos+1, "H-SET");
-		}		  
+		
+		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-10, "SAT");
+		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-5, "ALT ");
 #endif //GPS_ENABLED
 	}
 	else {		
