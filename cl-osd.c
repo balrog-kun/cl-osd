@@ -90,6 +90,10 @@ static void updateOnceEverySec() {
 #ifdef ADC_ENABLED 
   measureAnalog();
 #endif //ADCENABLED
+
+#ifdef ALARM_ENABLED
+  updateAlarms();
+#endif // ALARM_ENABLED
 }
   
 
@@ -107,8 +111,8 @@ static void updateOnceEveryFrame() {
 #endif //TIMEENABLED
 
 #ifdef TEXT_ENABLED
-  clearText();
   for (uint8_t i = 0; i < TEXT_LINES; ++i) {
+	  clearText(i);
 	  updateText(i);
   }
 #endif //TEXT_ENABLED
@@ -116,7 +120,7 @@ static void updateOnceEveryFrame() {
 #ifdef GRAPICSENABLED
 	clearGraphics();
 	updateGrapics();
-#endif //GRAPICSENABLED  
+#endif //GRAPICSENABLED
 }
 
 void main(void) __attribute__ ((noreturn)); // Main never returns, saves a few bytes
@@ -124,14 +128,6 @@ void main(void) __attribute__ ((noreturn)); // Main never returns, saves a few b
 void main(void) {
 	//_delay_ms(1000);
 	setup();
-  
-#ifdef TEXT_ENABLED
-	clearText();
-#endif //TEXTENABLED
-
-#ifdef GRAPICSENABLED
-	clearGraphics();
-#endif //GRAPICSENABLED
 
 	while(1) {
     

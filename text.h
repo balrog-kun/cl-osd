@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "gps.h"
 #include "home.h"
 #include "global.h"
+#include "commonutils.h"
 
 #define TEXT_ALIGN_LEFT 0
 #define TEXT_ALIGN_RIGHT 1
@@ -48,11 +49,9 @@ static uint8_t gTextInverted[TEXT_LINES][TEXT_LINE_MAX_CHARS/8];
 #endif // TEXT_INVERTED_ENABLED
 
 // Functions
-static void clearText() {
-	for (uint8_t i = 0; i < TEXT_LINES; ++i) {
-	  for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
-		  gText[i][j] = 0;
-	  }		  
+static void clearText(uint8_t textId) {
+	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
+		gText[textId][j] = 0;
 	}
 }
 
@@ -104,22 +103,40 @@ static uint8_t getCharData(uint16_t charPos) {
 	}	  
 }
 
+static uint8_t getSpecialCharData(uint16_t charPos) {
+	if (charPos >= 0 && charPos < CHAR_SPECIAL_ARRAY_LENGTH) {
+	  return eeprom_read_byte(&(specialChars[charPos]));
+	}	
+	else {
+		return 0xAA;
+	}	  
+}
+
 static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
 	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
 		uint8_t val;
-		if (gText[textId][j] == ' ' || gText[textId][j] == 0) {
+		uint8_t character = gText[textId][j];
+		if (character == ' ' || character == 0) {
 			val = 0;
 		}
-		else {			
-		  uint16_t charPos = (gText[textId][j] * TEXT_CHAR_HEIGHT) + line;
-		  val = getCharData(charPos);
-#ifdef TEXT_INVERTED_ENABLED
-		  if (charInverted(textId, j)) {
-		    val = ~val;
+		else {
+		  if (character >= CHAR_SPECIAL_OFFSET) {
+			  uint16_t charPos = ((character - CHAR_SPECIAL_OFFSET) * TEXT_CHAR_HEIGHT) + line;
+			  val = getSpecialCharData(charPos);
 		  }
-#endif // TEXT_INVERTED_ENABLED
+		  else {
+			  uint16_t charPos = (character * TEXT_CHAR_HEIGHT) + line;
+		    val = getCharData(charPos);
+		  }			
 		}
-		uint16_t bytePos = line*TEXT_LINE_MAX_CHARS + j; 
+
+#ifdef TEXT_INVERTED_ENABLED
+		if (charInverted(textId, j)) {
+		  val = ~val;
+		}
+#endif // TEXT_INVERTED_ENABLED
+		
+		uint16_t bytePos = line*TEXT_LINE_MAX_CHARS + j;
 		gTextPixmap[bytePos] = val;			
 	}
 }
@@ -130,7 +147,7 @@ static void updateTextPixmap(uint8_t textId) {
 	}
 }
 
-static uint8_t printText(char* str, uint8_t pos, const char* str2) {
+static uint8_t printText(char* const str, uint8_t pos, const char* const str2) {
 	uint8_t length = strlen(str2);
 	if (pos + length >= TEXT_LINE_MAX_CHARS) {
     length = TEXT_LINE_MAX_CHARS;
@@ -139,7 +156,7 @@ static uint8_t printText(char* str, uint8_t pos, const char* str2) {
 	return length+pos;
 }
 
-static uint8_t printNumber(char* str, uint8_t pos, int32_t number) {
+static uint8_t printNumber(char* const str, uint8_t pos, int32_t number) {
 	uint8_t length = 1;
 	int32_t tmp = absi32(number);
 	while (tmp > 9) {
@@ -156,12 +173,12 @@ static uint8_t printNumber(char* str, uint8_t pos, int32_t number) {
 	return pos+length;
 }
 
-static uint8_t printNumberWithUnit(char* str, uint8_t pos, int32_t number, const char* unit) {
+static uint8_t printNumberWithUnit(char* const str, uint8_t pos, int32_t number, const char* unit) {
 	pos = printNumber(str, pos, number);
 	return printText(str, pos, unit);
 }
 
-static uint8_t printTime(char* str, uint8_t pos) {
+static uint8_t printTime(char* const str, uint8_t pos) {
 	if (gTime.hour < 10) {
 		str[pos++] = '0';
 	}
@@ -176,7 +193,7 @@ static uint8_t printTime(char* str, uint8_t pos) {
 	return printNumber(str, pos, gTime.sec);
 }
 
-static uint8_t printAdc(char* str, uint8_t pos, const uint8_t adcInput) {
+static uint8_t printAdc(char* const str, uint8_t pos, const uint8_t adcInput) {
 	uint8_t low = gAnalogInputs[adcInput].low;
 	uint8_t high = gAnalogInputs[adcInput].high;
 	pos = printNumber(str, pos, high);
@@ -187,17 +204,17 @@ static uint8_t printAdc(char* str, uint8_t pos, const uint8_t adcInput) {
 	return printNumberWithUnit(str, pos, low, "V");		
 }
 
-static uint8_t printRssiLevel(char* str, uint8_t pos, const uint8_t adcInput) {
+static uint8_t printRssiLevel(char* const str, uint8_t pos, const uint8_t adcInput) {
 	uint8_t rssiLevel = calcRssiLevel(adcInput);
 	return printNumberWithUnit(str, pos, rssiLevel, "%");
 }
 
-static uint8_t printBatterLevel(char* str, uint8_t pos, const uint8_t adcInput) {
+static uint8_t printBatterLevel(char* const str, uint8_t pos, const uint8_t adcInput) {
 	uint8_t batterLevel = calcBatteryLevel(adcInput);
 	return printNumberWithUnit(str, pos, batterLevel, "%");
 }
 
-static uint8_t printGpsNumber(char* str, uint8_t pos, int32_t number, uint8_t numberLat) {
+static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint8_t numberLat) {
 	if (number == 0) {
 #ifdef GPS_GOOGLE_FORMAT
     pos = printText(str, pos, "--.-------?");

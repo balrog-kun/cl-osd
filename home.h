@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include "gpsutils.h"
 
+#ifdef GPS_ENABLED
+
 static uint32_t gHomeDistance = 0; // Distance to home in meters
 static uint16_t gHomeBearing = 0; // Direction to home
 
@@ -31,7 +33,7 @@ static uint8_t gHomeFixCount = 0;
 #endif //HOME_SET_AT_FIX
 
 // TODO: Some translations left
-static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t homeLong, uint32_t* distanceResult, uint16_t* bearingResult) {
+static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t homeLong, uint32_t* const distanceResult, uint16_t* const bearingResult) {
   // calculates bearing and distance to reference point
   // vehicle in currLat, currLong
   // reference point on homeLat, homeLong
@@ -46,6 +48,12 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
   // considers flat earth around vehicle and reference
 
   // Ernani Reis, Aug 2011
+  
+  if (currLat == homeLat && currLong == homeLong) {
+	  *distanceResult = 0;
+	  *bearingResult = 0;
+	  return;
+  }
 
 
   // cosseno de lat recicla p/ seno de home
@@ -146,5 +154,7 @@ static void calcHome(int32_t currLat, int32_t currLong, int32_t homeLat, int32_t
 #endif //IMPERIAL_SYSTEM
   *distanceResult = distance;
 }
+
+#endif //GPS_ENABLED
 
 #endif /* HOME_H_ */

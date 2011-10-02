@@ -18,6 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifndef GPSUTILS_H_
 #define GPSUTILS_H_
 
+#ifdef GPS_ENABLED
+
 #include "trigonometry.h"
 #include "commonutils.h"
 
@@ -71,14 +73,14 @@ static int32_t wgs84ToSec100(int32_t wgs84) {
 }
 
 #ifdef IMPERIAL_SYSTEM
-static void meterToFeet(int16_t* var) {
+static void meterToFeet(int16_t* const var) {
 	int32_t tmp = *var;
 	tmp *= 3281;
 	tmp /= 1000;
 	*var = tmp;
 }
 
-static void knotToMph(uint16_t* var) {
+static void knotToMph(uint16_t* const var) {
 	int32_t tmp = *var;
 	tmp *= 1151;
 	tmp /= 1000;
@@ -86,7 +88,7 @@ static void knotToMph(uint16_t* var) {
 }
 #endif //IMPERIAL_SYSTEM
 
-static int32_t parseInt(const char* text, uint8_t maxLength) {
+static int32_t parseInt(const char* const text, uint8_t maxLength) {
 	uint8_t i = 0;
 	uint32_t decimal = 0;
 	uint8_t neg = 0;
@@ -102,7 +104,7 @@ static int32_t parseInt(const char* text, uint8_t maxLength) {
 	return decimal * (neg ? -1 : 1);
 }
 
-static int32_t parseFloat(const char* text, uint8_t maxLength) {
+static int32_t parseFloat(const char* const text, uint8_t maxLength) {
 	
 	uint32_t val = 0;
 	uint8_t neg = 0;
@@ -123,7 +125,7 @@ static int32_t parseFloat(const char* text, uint8_t maxLength) {
 	return val * (neg ? -1 : 1);
 }
 
-static uint8_t parseHex(const char* text, uint8_t maxLength) {
+static uint8_t parseHex(const char* const text, uint8_t maxLength) {
 	uint8_t i = 0;
 	uint32_t val = 0;
 	while (text[i] != 0 && i < maxLength) {
@@ -141,5 +143,7 @@ static uint8_t parseHex(const char* text, uint8_t maxLength) {
 	}
 	return val;
 }
+
+#endif //GPS_ENABLED
 
 #endif /* GPSUTILS_H_ */

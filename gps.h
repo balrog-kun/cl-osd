@@ -226,6 +226,9 @@ static void parseGpsPart() {
 }
 
 static void setHomePos() {
+#ifdef STATISTICS_ENABLED	
+	resetStatistics();
+#endif //STATISTICS_ENABLED
 	gHomePos = gGpsLastValidData.pos;
 	gHomePosSet = 1;
 }
@@ -252,10 +255,10 @@ static void finishGpsDecoding() {
 		gLastFix = gTime;
 
 		if (gHomePosSet == 0) {
-			if (gGpsLastData.fix != 0) {
+			if (gGpsLastValidData.fix != 0) {
 #ifdef HOME_SET_AT_FIX
         if (gHomeFixCount >= HOME_SET_FIX_COUNT) {
-			    if (gGpsLastData.sats >= HOME_SET_MIN_SATS) {
+			    if (gGpsLastValidData.sats >= HOME_SET_MIN_SATS) {
 			      setHomePos();
 				  }				  
 	      }
@@ -275,8 +278,8 @@ static void finishGpsDecoding() {
 			if (gGpsLastValidData.speed > gStatMaxSpeed) {
           gStatMaxSpeed = gGpsLastValidData.speed;
 			}
-			if (gGpsLastValidData.pos.altitude > gStatMaxAltitude) {
-          gStatMaxAltitude = gGpsLastValidData.pos.altitude;
+			if (gGpsLastValidData.pos.altitude - gHomePos.altitude > gStatMaxAltitude) {
+          gStatMaxAltitude = gGpsLastValidData.pos.altitude - gHomePos.altitude;
 			}
 		}
 #endif //STATISTICS_ENABLED

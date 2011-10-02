@@ -153,19 +153,24 @@ static void drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 }
 
 static void drawArrow(uint16_t angle) {
-	drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1);
-	if (gHomeDistance < 10 || gGpsLastData.fix == 0) {
-	  drawCircle((GRAPHICS_SIZE/2)-1, (GRAPHICS_SIZE/2)-1, 2);
+	drawCircle(GRAPHICS_MID, GRAPHICS_MID, GRAPHICS_MID);
+	if (gHomeDistance < 10) {
+	  drawCircle(GRAPHICS_MID, GRAPHICS_MID, 2);
 	  return;
+	}
+	if (gGpsLastValidData.speed < 10 || gGpsLastData.fix == 0) {
+		drawLine(GRAPHICS_MID - (GRAPHICS_SIZE/4), GRAPHICS_MID - (GRAPHICS_SIZE/4), GRAPHICS_MID + (GRAPHICS_SIZE/4), GRAPHICS_MID + (GRAPHICS_SIZE/4));
+		drawLine(GRAPHICS_MID - (GRAPHICS_SIZE/4), GRAPHICS_MID + (GRAPHICS_SIZE/4), GRAPHICS_MID + (GRAPHICS_SIZE/4), GRAPHICS_MID - (GRAPHICS_SIZE/4));
+		return;
 	}
 	int16_t a = myCos(angle);
 	int16_t b = mySin(angle);
 	a = (a * (GRAPHICS_SIZE / 3)) / 100;
 	b = (b * (GRAPHICS_SIZE / 3)) / 100;
-	drawLine((GRAPHICS_SIZE/2)-1 - b, (GRAPHICS_SIZE/2)-1 + a, (GRAPHICS_SIZE/2)-1 + b, (GRAPHICS_SIZE/2)-1 - a); //Direction line
-	//drawLine((GRAPHICS_SIZE/2)-1 + a/2, (GRAPHICS_SIZE/2)-1 + b/2, (GRAPHICS_SIZE/2)-1 - a/2, (GRAPHICS_SIZE/2)-1 - b/2); //Arrow bottom line
-	drawLine((GRAPHICS_SIZE/2)-1 + b, (GRAPHICS_SIZE/2)-1 - a, (GRAPHICS_SIZE/2)-1 - a/2, (GRAPHICS_SIZE/2)-1 - b/2); // Arrow "wings"
-	drawLine((GRAPHICS_SIZE/2)-1 + b, (GRAPHICS_SIZE/2)-1 - a, (GRAPHICS_SIZE/2)-1 + a/2, (GRAPHICS_SIZE/2)-1 + b/2);
+	drawLine(GRAPHICS_MID - b, GRAPHICS_MID + a, GRAPHICS_MID + b, GRAPHICS_MID - a); //Direction line
+	//drawLine(GRAPHICS_MID_X + a/2, GRAPHICS_MID_X + b/2, GRAPHICS_MID_X - a/2, GRAPHICS_MID_X - b/2); //Arrow bottom line
+	drawLine(GRAPHICS_MID + b, GRAPHICS_MID - a, GRAPHICS_MID - a/2, GRAPHICS_MID - b/2); // Arrow "wings"
+	drawLine(GRAPHICS_MID + b, GRAPHICS_MID - a, GRAPHICS_MID + a/2, GRAPHICS_MID + b/2);
 }
 
 static void drawGrapicsLine()

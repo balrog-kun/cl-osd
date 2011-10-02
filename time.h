@@ -30,6 +30,7 @@ typedef struct {
 // Time vars
 static volatile uint8_t gTimeTick = 0;
 static volatile TTime gTime = {};
+static volatile uint8_t gBlink1Hz = 0;
 
 #ifdef TIME_ENABLED
 
@@ -38,6 +39,7 @@ static void updateTime() {
 	if (gTimeTick >= 50) {
 		gTimeTick = 0;
 		gTime.sec++;
+		gBlink1Hz = (gBlink1Hz+1)%2;
 	}
 	if (gTime.sec >= 60) {
 		gTime.sec = 0;

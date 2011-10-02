@@ -39,7 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_ENABLED
 #define TIME_ENABLED
 #define ADC_ENABLED
-//#define STATISTICS_ENABLED
+#define STATISTICS_ENABLED
+#define ALARM_ENABLED
 
 #ifdef TEXT_ENABLED
 //#define TEXT_INVERTED_ENABLED
@@ -70,8 +71,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //GPS
 //#define GPS_GOOGLE_FORMAT
 
+//Alarms (Comment to disable)
+#define ALARM_BATT1_LOW 5.00
+#define ALARM_BATT2_LOW 0.00
+//#define ALARM_RSSI_LOW 50
+#define ALARM_SPEED_HIGH 200
+#define ALARM_ALTITUDE_LOW 0
+#define ALARM_ALTITUDE_HIGH 5000
+#define ALARM_DISTANCE_HIGH 10000
+
 //User data
-#define TEXT_CALLSIGN "CLJ"
+#define TEXT_CALLSIGN ""
 
 // ----------------- INTERNAL CONFIGS ------------------
 
@@ -112,7 +122,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_CHAR_HEIGHT 8
 
 #define TEXT_LINES 6
-#define TEXT_TRIG_LINES_LIST 50, 50+16, 160, 185, 255, 280 // Must be rising line numbers!
+#define TEXT_TRIG_LINES_LIST 50, 66, 170, 200, 255, 280 // Must be rising line numbers!
 
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
@@ -173,6 +183,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define RSSI_MIN_VOLTAGE_INT (uint16_t)(RSSI_MIN_VOLTAGE*100)
 #define RSSI_MAX_VOLTAGE_INT (uint16_t)(RSSI_MAX_VOLTAGE*100)
 
+// Alarm conversion
+#define ALARM_BATT1_LOW_INT (uint16_t)(ALARM_BATT1_LOW*100)
+#define ALARM_BATT2_LOW_INT (uint16_t)(ALARM_BATT2_LOW*100)
+
 // Graphics
 #define GRAPHICS_SIZE 24 // Multiple of 8
 #define GRAPHICS_WIDTH_REAL GRAPHICS_SIZE
@@ -180,10 +194,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define GRAPHICS_HEIGHT GRAPHICS_SIZE
 #define GRAPHICS_LINE 105
 #define GRAPHICS_OFFSET 46
+#define GRAPHICS_MID (GRAPHICS_SIZE/2)-1
 
 // Line triggering
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
-#define UPDATE_LINE 120 //240+25+16+2
+#define UPDATE_LINE 110
 
 // GPS
 #define GPS_BAUD 4800
