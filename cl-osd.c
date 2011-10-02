@@ -43,6 +43,9 @@ static void setup(void)
 	DDRD  = LED; // led output
 	PORTB &= ~OUT1;
 	DDRB  = OUT2 | SS;
+	
+	TIMSK1 |= (1 << TOIE1); // Enable overflow interrupt
+	TCCR1B |= (1 << CS11); // Start timer at Fcpu/8
 
 	setupLine();
   	
@@ -187,3 +190,13 @@ void main(void) {
 ISR(INT0_vect) {
 	updateLine();
 }
+
+ISR(TIMER1_OVF_vect)
+{
+	static uint8_t lastLine = 0;
+	if (lastLine == gActiveLine) {
+    PORTD ^= LED; // Toggle the LED
+	}
+	lastLine = gActiveLine;
+}
+
