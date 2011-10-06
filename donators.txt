@@ -8,18 +8,22 @@ Mark Illum
 Armando Luis Maria Bianchi
 Jerrod Johnson
 Denis Konyashchenko
+Simon Jellinghaus
 
 
 Programmers:
 ____________________________________________
 
 Carl Ljungström
+
 Ernani Reis
+Pascal Becker
 
 
 Special thanks to:
 ____________________________________________
 
 Emilie T
+Anders Petersson
 
 

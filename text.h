@@ -261,6 +261,7 @@ static void drawTextLine(uint8_t textId)
 		}
 		else {
 			DDRB &= ~OUT1;
+			DELAY_1_NOP();
 		}
 		SPDR = gTextPixmap[(uint16_t)(currLine)*TEXT_LINE_MAX_CHARS + i];
 		DELAY_4_NOP();
