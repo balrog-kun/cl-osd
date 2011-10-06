@@ -53,7 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define CELL_COUNT 3
 
 // RSSI convertion 
-#define RSSI_MAX_VOLTAGE 4.7 //(Max two digits after the dot)
+#define RSSI_MAX_VOLTAGE 5.0 //(Max two digits after the dot)
 #define RSSI_MIN_VOLTAGE 1.2
 
 // Unit system
@@ -164,7 +164,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define ADC_DIV 1,1
 #else
 #define ADC_MULT 1,1,1,1
-#define ADC_DIV 1,1,1,1
+#define ADC_DIV 1,1,6,1
 #endif //E_OSD
 
 #ifdef E_OSD

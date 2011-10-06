@@ -51,7 +51,7 @@ static void updateText(uint8_t textId) {
 	  }
 	  if (!gAlarmRssi || gBlink1Hz) {
 	    pos = printRssiLevel(gText[textId], 14, ANALOG_IN_3);
-	  }		
+	  }
 #endif //ANALOG_IN_NUMBER == 2
   }
   else if (textId == 2) {
