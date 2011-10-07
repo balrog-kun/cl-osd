@@ -6,12 +6,10 @@
 // Credit for this goes to MegaPirateOSD and Syberian!
 // Some minor changes made to fit my code better.
 
-#define CHAR_ARRAY_OFFSET 33*8
-#define CHAR_ARRAY_LENGTH 58*8
-#define CHAR_ARRAY_MAX (CHAR_ARRAY_OFFSET + CHAR_ARRAY_LENGTH)
-
-#define CHAR_OFFSET CHAR_ARRAY_OFFSET/8
-#define CHAR_MAX CHAR_ARRAY_MAX/8
+#define CHAR_OFFSET 33
+#define CHAR_LENGTH 58
+#define CHAR_ARRAY_OFFSET CHAR_OFFSET*8
+#define CHAR_ARRAY_LENGTH CHAR_LENGTH*8
 
 #define CHAR_SPECIAL_ARRAY_LENGTH 2*8
 #define CHAR_SPECIAL_OFFSET 100
@@ -1170,6 +1168,7 @@ ________,
 ________*/
 };
 
+#ifdef TEXT_USE_SPECIAL_CHARS
 static const uint8_t specialChars[CHAR_SPECIAL_ARRAY_LENGTH] EEMEM = { // 6x8 special characters
 ___X____,
 __XXX___,
@@ -1189,6 +1188,7 @@ __XXX___,
 ___X____,
 ________,
 };
+#endif //TEXT_USE_SPECIAL_CHARS
 
 /*
 ________,

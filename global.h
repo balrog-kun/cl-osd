@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 static uint16_t gActiveLine = 0;
 static uint8_t gActiveTextSize = 2;
 static uint8_t gActivePixmapLine = 0;
+static uint8_t gInfoShow = 1;
 
 // Debug vars!
 #ifdef DEBUG

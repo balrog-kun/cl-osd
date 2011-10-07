@@ -143,7 +143,7 @@ void main(void) {
 #ifndef DEBUG
 		if((PIND & KEY) != KEY) {
 			gKeyPressed = 1;
-			if(gKeyPressTime > 10) {
+			if(gKeyPressTime > 50) {
 				PORTD |= LED; // long press!
 #ifdef GPS_ENABLED
 #ifdef HOME_SET_WITH_BUTTON
@@ -164,7 +164,7 @@ void main(void) {
 #endif //!DEBUG
 
 #ifdef DEBUG
-		gUpdateScreenData = 1;
+		gUpdateScreenData = 2;
 #endif //DEBUG
 
 #ifdef TEXT_ENABLED

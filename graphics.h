@@ -158,7 +158,7 @@ static void drawArrow(uint16_t angle) {
 	  drawCircle(GRAPHICS_MID, GRAPHICS_MID, 2);
 	  return;
 	}
-	if (gGpsLastValidData.speed < 10 || gGpsLastData.fix == 0) {
+	if (gGpsLastValidData.speed < HOME_FIX_MIN_SPEED || gGpsLastData.fix == 0) {
 		drawLine(GRAPHICS_MID - (GRAPHICS_SIZE/4), GRAPHICS_MID - (GRAPHICS_SIZE/4), GRAPHICS_MID + (GRAPHICS_SIZE/4), GRAPHICS_MID + (GRAPHICS_SIZE/4));
 		drawLine(GRAPHICS_MID - (GRAPHICS_SIZE/4), GRAPHICS_MID + (GRAPHICS_SIZE/4), GRAPHICS_MID + (GRAPHICS_SIZE/4), GRAPHICS_MID - (GRAPHICS_SIZE/4));
 		return;

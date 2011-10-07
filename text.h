@@ -95,24 +95,27 @@ static uint8_t charInverted(uint8_t line, uint8_t pos) {
 #endif // TEXT_INVERTED_ENABLED
 
 static uint8_t getCharData(uint16_t charPos) {
-	if (charPos >= CHAR_ARRAY_OFFSET && charPos < CHAR_ARRAY_MAX) {
-	  return eeprom_read_byte(&(oem6x8[charPos - CHAR_ARRAY_OFFSET]));
+	if (charPos < CHAR_ARRAY_LENGTH) {
+	  return eeprom_read_byte(&(oem6x8[charPos]));
 	}	
 	else {
 		return 0x00;
 	}	  
 }
 
+#ifdef TEXT_USE_SPECIAL_CHARS
 static uint8_t getSpecialCharData(uint16_t charPos) {
-	if (charPos >= 0 && charPos < CHAR_SPECIAL_ARRAY_LENGTH) {
+	if (charPos < CHAR_SPECIAL_ARRAY_LENGTH) {
 	  return eeprom_read_byte(&(specialChars[charPos]));
 	}	
 	else {
-		return 0xAA;
+		return 0x00;
 	}	  
 }
+#endif //TEXT_USE_SPECIAL_CHARS
 
 static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
+	uint16_t bytePos = line*TEXT_LINE_MAX_CHARS;
 	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
 		uint8_t val;
 		uint8_t character = gText[textId][j];
@@ -120,12 +123,17 @@ static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
 			val = 0;
 		}
 		else {
+#ifdef TEXT_USE_SPECIAL_CHARS		
 		  if (character >= CHAR_SPECIAL_OFFSET) {
 			  uint16_t charPos = ((character - CHAR_SPECIAL_OFFSET) * TEXT_CHAR_HEIGHT) + line;
 			  val = getSpecialCharData(charPos);
 		  }
+#else
+      if (0) {
+	    }		  
+#endif
 		  else {
-			  uint16_t charPos = (character * TEXT_CHAR_HEIGHT) + line;
+			  uint16_t charPos = ((character - CHAR_OFFSET) * TEXT_CHAR_HEIGHT) + line;
 		    val = getCharData(charPos);
 		  }			
 		}
@@ -135,9 +143,8 @@ static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
 		  val = ~val;
 		}
 #endif // TEXT_INVERTED_ENABLED
-		
-		uint16_t bytePos = line*TEXT_LINE_MAX_CHARS + j;
-		gTextPixmap[bytePos] = val;			
+
+		gTextPixmap[bytePos++] = val;			
 	}
 }
 

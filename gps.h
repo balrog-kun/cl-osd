@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "gpsutils.h"
 #include "statistics.h"
 #include "home.h"
+#include "global.h"
 
 #ifdef GPS_ENABLED
 
@@ -249,10 +250,11 @@ static void finishGpsDecoding() {
 	if (gGpsLastData.checksumValid != 0) {
 #ifdef STATISTICS_ENABLED
 		updateDistanceTraveled();
-#endif //STATISTICS_ENABLED
+#endif //STATISTICS_ENABLED    
 		gGpsLastValidData = gGpsLastData;
 		gGpsValidData = 1;
 		gLastFix = gTime;
+		gInfoShow = gGpsLastValidData.speed < INFO_MIN_SPEED_SHOW;
 
 		if (gHomePosSet == 0) {
 			if (gGpsLastValidData.fix != 0) {

@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifdef TEXT_ENABLED
 //#define TEXT_INVERTED_ENABLED
 //#define TEXT_SMALL_ENABLED
+//#define TEXT_USE_SPECIAL_CHARS
 #endif //TEXT_ENABLED
 
 // Battery
@@ -79,6 +80,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define ALARM_ALTITUDE_LOW 0
 #define ALARM_ALTITUDE_HIGH 5000
 #define ALARM_DISTANCE_HIGH 10000
+
+//Pre and post flight info
+#define INFO_MIN_SPEED_SHOW 3
 
 //User data
 #define TEXT_CALLSIGN ""

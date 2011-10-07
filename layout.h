@@ -56,7 +56,7 @@ static void updateText(uint8_t textId) {
   }
   else if (textId == 2) {
 #ifdef GPS_ENABLED
-	  if (gGpsLastValidData.speed < 10) {
+	  if (gInfoShow) {
 	    if (gHomePosSet) {
 #ifdef STATISTICS_ENABLED
 		    pos = 7;
@@ -71,7 +71,7 @@ static void updateText(uint8_t textId) {
   }	  
   else if (textId == 3) {
 #ifdef GPS_ENABLED
-	  if (gGpsLastValidData.speed < 10) {  
+	  if (gInfoShow) {
 	    if (gHomePosSet) {
 #ifdef STATISTICS_ENABLED
 		    pos = 7;
