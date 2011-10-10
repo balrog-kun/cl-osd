@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifdef TEXT_ENABLED
 //#define TEXT_INVERTED_ENABLED
 //#define TEXT_SMALL_ENABLED
-//#define TEXT_USE_SPECIAL_CHARS
+#define TEXT_USE_SPECIAL_CHARS
 #endif //TEXT_ENABLED
 
 // Battery
@@ -86,6 +86,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 //User data
 #define TEXT_CALLSIGN ""
+
+//Time
+//#define TIME_HOUR_ENABLED
 
 // ----------------- INTERNAL CONFIGS ------------------
 

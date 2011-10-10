@@ -130,7 +130,7 @@ static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
 		  }
 #else
       if (0) {
-	    }		  
+	    }
 #endif
 		  else {
 			  uint16_t charPos = ((character - CHAR_OFFSET) * TEXT_CHAR_HEIGHT) + line;
@@ -186,10 +186,12 @@ static uint8_t printNumberWithUnit(char* const str, uint8_t pos, int32_t number,
 }
 
 static uint8_t printTime(char* const str, uint8_t pos) {
+#ifdef TIME_HOUR_ENABLED
 	if (gTime.hour < 10) {
 		str[pos++] = '0';
 	}
 	pos = printNumberWithUnit(str, pos, gTime.hour, ":");
+#endif //TIME_HOUR_ENABLED
 	if (gTime.min < 10) {
 		str[pos++] = '0';
 	}	
@@ -257,6 +259,41 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
   return printNumberWithUnit(str, pos, minDecimal, str2);
 #endif
 }
+
+static uint8_t printCompassArrow(char* const str, uint8_t pos, uint16_t angle, uint8_t length) {
+  printText(str, pos + ((length*10)+5)/20, "\155");
+}
+  
+static uint8_t printCompass(char* const str, uint8_t pos, uint16_t angle, uint8_t length) {
+  if(angle % 10 < 5) {
+    angle -= (angle % 10);
+  }
+  else {
+    angle += (10 - (angle % 10));
+  }
+  angle += 260;
+				
+  for (uint8_t i = pos; i < pos+length; i++) {
+	  angle = ((angle + 10) % 360);
+    switch (angle) {
+      case (0):
+        str[i]='N';
+      break;
+      case (90):
+        str[i]='E';
+      break;
+      case (180):
+        str[i]='S';
+      break;
+      case (270):
+        str[i]= 'W';
+      break;
+      default:
+        str[i]='\154';
+    }
+  }
+  return pos+length;
+}  
 
 static void drawTextLine(uint8_t textId)
 {

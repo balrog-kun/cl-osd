@@ -24,7 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 typedef struct {
   uint8_t sec;
   uint8_t min;
+#ifdef TIME_HOUR_ENABLED
   uint8_t hour;
+#endif //TIME_HOUR_ENABLED
 } TTime;
 
 // Time vars
@@ -47,11 +49,15 @@ static void updateTime() {
 	}
 	if (gTime.min >= 60) {
 		gTime.min = 0;
+#ifdef TIME_HOUR_ENABLED
 		gTime.hour++;
+#endif //TIME_HOUR_ENABLED
 	}
+#ifdef TIME_HOUR_ENABLED
 	if (gTime.hour >= 99) {
 		gTime.hour = 0;
 	}
+#endif //TIME_HOUR_ENABLED
 }
 
 #endif //TIME_ENABLED
