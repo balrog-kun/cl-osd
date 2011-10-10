@@ -262,6 +262,7 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
 
 static uint8_t printCompassArrow(char* const str, uint8_t pos, uint16_t angle, uint8_t length) {
   printText(str, pos + ((length*10)+5)/20, "\155");
+  return pos + length;
 }
   
 static uint8_t printCompass(char* const str, uint8_t pos, uint16_t angle, uint8_t length) {
@@ -277,22 +278,22 @@ static uint8_t printCompass(char* const str, uint8_t pos, uint16_t angle, uint8_
 	  angle = ((angle + 10) % 360);
     switch (angle) {
       case (0):
-        str[i]='N';
+        str[i] = 'N';
       break;
       case (90):
-        str[i]='E';
+        str[i] = 'E';
       break;
       case (180):
-        str[i]='S';
+        str[i] = 'S';
       break;
       case (270):
-        str[i]= 'W';
+        str[i] = 'W';
       break;
       default:
-        str[i]='\154';
+        str[i] = '\154';
     }
   }
-  return pos+length;
+  return pos + length;
 }  
 
 static void drawTextLine(uint8_t textId)
