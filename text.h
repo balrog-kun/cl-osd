@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 static uint16_t const gTextLines[TEXT_LINES] = {TEXT_TRIG_LINES_LIST};
 static uint8_t const gTextLineSizes[TEXT_LINES] = {TEXT_LINE_TEXT_SIZES};
 static char gText[TEXT_LINES][TEXT_LINE_MAX_CHARS];
+static int16_t gTextCharEepromPos[TEXT_LINE_MAX_CHARS];
 static uint8_t gTextPixmap[TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
 #ifdef TEXT_INVERTED_ENABLED
 static uint8_t gTextInverted[TEXT_LINES][TEXT_LINE_MAX_CHARS/8];
@@ -94,48 +95,33 @@ static uint8_t charInverted(uint8_t line, uint8_t pos) {
 }
 #endif // TEXT_INVERTED_ENABLED
 
-static uint8_t getCharData(uint16_t charPos) {
-	if (charPos < CHAR_ARRAY_LENGTH) {
-	  return eeprom_read_byte(&(oem6x8[charPos]));
-	}	
-	else {
-		return 0x00;
-	}	  
-}
-
-#ifdef TEXT_USE_SPECIAL_CHARS
-static uint8_t getSpecialCharData(uint16_t charPos) {
-	if (charPos < CHAR_SPECIAL_ARRAY_LENGTH) {
-	  return eeprom_read_byte(&(specialChars[charPos]));
-	}	
-	else {
-		return 0x00;
-	}	  
-}
-#endif //TEXT_USE_SPECIAL_CHARS
-
-static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
-	uint16_t bytePos = line*TEXT_LINE_MAX_CHARS;
+static void updateTextCharStartPos(uint8_t textId) {
 	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
-		uint8_t val;
 		uint8_t character = gText[textId][j];
+		int16_t eepromPos;
 		if (character == ' ' || character == 0) {
-			val = 0;
+			eepromPos = -1;
 		}
-		else {
-#ifdef TEXT_USE_SPECIAL_CHARS		
-		  if (character >= CHAR_SPECIAL_OFFSET) {
-			  uint16_t charPos = ((character - CHAR_SPECIAL_OFFSET) * TEXT_CHAR_HEIGHT) + line;
-			  val = getSpecialCharData(charPos);
-		  }
-#else
-      if (0) {
-	    }
-#endif
-		  else {
-			  uint16_t charPos = ((character - CHAR_OFFSET) * TEXT_CHAR_HEIGHT) + line;
-		    val = getCharData(charPos);
-		  }			
+		else if (character < CHAR_OFFSET + CHAR_LENGTH) {
+			uint16_t charPos = ((character - CHAR_OFFSET) * TEXT_CHAR_HEIGHT);
+			eepromPos = &(oem6x8[charPos]);
+		}
+#ifdef TEXT_USE_SPECIAL_CHARS
+		else if (character > CHAR_SPECIAL_OFFSET && character < CHAR_SPECIAL_OFFSET+CHAR_SPECIAL_LENGTH) {
+			uint16_t charPos = ((character - CHAR_SPECIAL_OFFSET) * TEXT_CHAR_HEIGHT);
+			eepromPos = &(specialChars[charPos]);
+		}
+#endif //TEXT_USE_SPECIAL_CHARS
+		gTextCharEepromPos[j] = eepromPos;
+	}		
+}
+
+static void updateTextPixmap(uint8_t textId) {
+	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
+		int16_t eepromPos = gTextCharEepromPos[j];
+		uint8_t val[8] = {};
+		if (eepromPos != -1) {
+		  eeprom_read_block(val, eepromPos, 8);
 		}
 
 #ifdef TEXT_INVERTED_ENABLED
@@ -143,14 +129,10 @@ static void updateTextPixmapLine(uint8_t textId, uint8_t line) {
 		  val = ~val;
 		}
 #endif // TEXT_INVERTED_ENABLED
-
-		gTextPixmap[bytePos++] = val;			
-	}
-}
-
-static void updateTextPixmap(uint8_t textId) {
-	for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
-	  updateTextPixmapLine(textId, i);
+    
+	  for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
+		  gTextPixmap[j + (i*TEXT_LINE_MAX_CHARS)] = val[i];
+	  }		  
 	}
 }
 
@@ -264,8 +246,9 @@ static uint8_t printCompassArrow(char* const str, uint8_t pos, uint16_t angle, u
   printText(str, pos + ((length*10)+5)/20, "\155");
   return pos + length;
 }
-  
+
 static uint8_t printCompass(char* const str, uint8_t pos, uint16_t angle, uint8_t length) {
+  // Made by superjelli - Changed a bit by me
   if(angle % 10 < 5) {
     angle -= (angle % 10);
   }

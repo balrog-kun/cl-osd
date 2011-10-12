@@ -173,6 +173,7 @@ void main(void) {
 #ifdef TEXT_INVERTED_ENABLED
 	    clearTextInverted();
 #endif //TEXT_INVERTED_ENABLED
+      updateTextCharStartPos(gActiveTextId);
 	    updateTextPixmap(gActiveTextId);
 	  }
 	  else if (gUpdateScreenData == 1) {
