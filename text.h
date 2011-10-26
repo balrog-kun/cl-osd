@@ -104,12 +104,12 @@ static void updateTextCharStartPos(uint8_t textId) {
 		}
 		else if (character < CHAR_OFFSET + CHAR_LENGTH) {
 			uint16_t charPos = ((character - CHAR_OFFSET) * TEXT_CHAR_HEIGHT);
-			eepromPos = &(oem6x8[charPos]);
+			eepromPos = (int16_t)&(oem6x8[charPos]);
 		}
 #ifdef TEXT_USE_SPECIAL_CHARS
 		else if (character > CHAR_SPECIAL_OFFSET && character < CHAR_SPECIAL_OFFSET+CHAR_SPECIAL_LENGTH) {
 			uint16_t charPos = ((character - CHAR_SPECIAL_OFFSET) * TEXT_CHAR_HEIGHT);
-			eepromPos = &(specialChars[charPos]);
+			eepromPos = (int16_t)&(specialChars[charPos]);
 		}
 #endif //TEXT_USE_SPECIAL_CHARS
 		gTextCharEepromPos[j] = eepromPos;
@@ -121,7 +121,7 @@ static void updateTextPixmap(uint8_t textId) {
 		int16_t eepromPos = gTextCharEepromPos[j];
 		uint8_t val[8] = {};
 		if (eepromPos != -1) {
-		  eeprom_read_block(val, eepromPos, 8);
+		  eeprom_read_block((void*)val, (const void*)eepromPos, 8);
 		}
 
 #ifdef TEXT_INVERTED_ENABLED

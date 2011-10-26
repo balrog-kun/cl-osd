@@ -96,11 +96,11 @@ static uint8_t gGpsTextPartLength = 0;
 #endif //GPS_PART_TEXT
 
 static void setupGps() {
-  // USART setup
-	UCSR0B = (1<<RXEN0); // Enable RX
-	UCSR0B |= (1<<UCSZ02); // 8 bits
-	UBRR0H = (uint8_t)(GPS_UBRR>>8); // set baud
-	UBRR0L = (uint8_t)GPS_UBRR;
+	// USART setup
+  UBRR0H = (uint8_t)(GPS_UBRR>>8); // set baud
+  UBRR0L = (uint8_t)GPS_UBRR;
+  UCSR0C = (3<<UCSZ00); // 8N1
+  UCSR0B = (1<<RXEN0); // Enable RX
 }
 
 static void clearGpsText() {
