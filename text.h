@@ -45,6 +45,8 @@ static uint8_t const gTextLineSizes[TEXT_LINES] = {TEXT_LINE_TEXT_SIZES};
 static char gText[TEXT_LINES][TEXT_LINE_MAX_CHARS];
 static int16_t gTextCharEepromPos[TEXT_LINE_MAX_CHARS];
 static uint8_t gTextPixmap[TEXT_LINE_MAX_CHARS*TEXT_CHAR_HEIGHT];
+static uint8_t gTextLastCharBuffer[TEXT_CHAR_HEIGHT];
+static int8_t gTextLastCharEepromPos = -1;
 #ifdef TEXT_INVERTED_ENABLED
 static uint8_t gTextInverted[TEXT_LINES][TEXT_LINE_MAX_CHARS/8];
 #endif // TEXT_INVERTED_ENABLED
@@ -119,19 +121,26 @@ static void updateTextCharStartPos(uint8_t textId) {
 static void updateTextPixmap(uint8_t textId) {
 	for (uint8_t j = 0; j < TEXT_LINE_MAX_CHARS; ++j) {
 		int16_t eepromPos = gTextCharEepromPos[j];
-		uint8_t val[8] = {};
-		if (eepromPos != -1) {
-		  eeprom_read_block((void*)val, (const void*)eepromPos, 8);
-		}
+		if (gTextLastCharEepromPos != eepromPos) {
+		  if (eepromPos != -1) {
+		  eeprom_read_block((void*)gTextLastCharBuffer, (const void*)eepromPos, 8);
+			  gTextLastCharEepromPos = eepromPos;
+		  }
+		  else {
+			  memset(gTextLastCharBuffer, 0, 8);
+			  gTextLastCharEepromPos = -1;
+		  }
+		}		  
+
+	  for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
 
 #ifdef TEXT_INVERTED_ENABLED
 		if (charInverted(textId, j)) {
-		  val = ~val;
+		  gTextLastCharBuffer[i] = ~gTextLastCharBuffer[i];
 		}
 #endif // TEXT_INVERTED_ENABLED
-    
-	  for (uint8_t i = 0; i < TEXT_CHAR_HEIGHT; i++) {
-		  gTextPixmap[j + (i*TEXT_LINE_MAX_CHARS)] = val[i];
+
+      gTextPixmap[j + (i*TEXT_LINE_MAX_CHARS)] = gTextLastCharBuffer[i];
 	  }		  
 	}
 }
