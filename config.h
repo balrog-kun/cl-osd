@@ -53,7 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define CELL_HIGH_VOLTAGE 4.2
 #define CELL_COUNT 3
 
-// RSSI convertion 
+// RSSI conversion 
 #define RSSI_MAX_VOLTAGE 5.0 //(Max two digits after the dot)
 #define RSSI_MIN_VOLTAGE 1.2
 
@@ -90,6 +90,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //Time
 //#define TIME_HOUR_ENABLED
 
+// Color system (Thanks to chatch15117)
+//#define COLORSYSTEM_NTSC
+
 // ----------------- INTERNAL CONFIGS ------------------
 
 // Check sanity
@@ -122,14 +125,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Text
 #ifndef TEXT_SMALL_ENABLED
+#ifdef COLORSYSTEM_NTSC
+#define TEXT_LINE_MAX_CHARS 32
+#else //PAL
 #define TEXT_LINE_MAX_CHARS 33
+#endif //COLORSYSTEM_NTSC
 #else
 #define TEXT_LINE_MAX_CHARS 30
 #endif //TEXT_SMALL_ENABLED
 #define TEXT_CHAR_HEIGHT 8
 
 #define TEXT_LINES 6
-#define TEXT_TRIG_LINES_LIST 50, 66, 170, 200, 255, 280 // Must be rising line numbers!
+#ifdef COLORSYSTEM_NTSC
+#define TEXT_TRIG_LINES_LIST 25, 50, 135, 180, 210, 235 // Must be rising line numbers!
+#else //PAL
+#define TEXT_TRIG_LINES_LIST 50, 66, 170, 205, 255, 280 // Must be rising line numbers!
+#endif //COLORSYSTEM_NTSC
 
 #define TEXT_INVERTED_OFF 0
 #define TEXT_INVERTED_ON 1
@@ -199,13 +210,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define GRAPHICS_WIDTH_REAL GRAPHICS_SIZE
 #define GRAPHICS_WIDTH (GRAPHICS_SIZE/8)
 #define GRAPHICS_HEIGHT GRAPHICS_SIZE
+#ifdef COLORSYSTEM_NTSC
+#define GRAPHICS_LINE 80
+#define GRAPHICS_OFFSET 45
+#else //PAL
 #define GRAPHICS_LINE 105
 #define GRAPHICS_OFFSET 46
+#endif //COLORSYSTEM_NTSC
 #define GRAPHICS_MID (GRAPHICS_SIZE/2)-1
 
 // Line triggering
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
+#ifdef COLORSYSTEM_NTSC
+#define UPDATE_LINE 85
+#else //PAL
 #define UPDATE_LINE 110
+#endif //COLORSYSTEM_NTSC
 
 // GPS
 #define GPS_BAUD 4800

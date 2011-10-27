@@ -21,6 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #include "config.h"
 
+#ifdef COLORSYSTEM_NTSC
+#define TIME_FRAMES_PER_SEC 60
+#else //PAL
+#define TIME_FRAMES_PER_SEC 50
+#endif
+
 typedef struct {
   uint8_t sec;
   uint8_t min;
@@ -38,7 +44,7 @@ static volatile uint8_t gBlink1Hz = 0;
 
 static void updateTime() {
 	++gTimeTick;
-	if (gTimeTick >= 50) {
+	if (gTimeTick >= TIME_FRAMES_PER_SEC) {
 		gTimeTick = 0;
 		gTime.sec++;
 		gBlink1Hz = (gBlink1Hz+1)%2;
