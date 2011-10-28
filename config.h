@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // ------------------ MAIN CONFIGS -----------------------
 
 // Select one of these depending on your board (Wrong type might damage the board!)
-// This can also be set using symbol in configuration.
+// This can also be set with configuration from the GUI in AVR Studio.
 //#define E_OSD
 //#define G_OSD
 //#define E_OSD_GPS //Note: Also enable E_OSD!
@@ -71,6 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 //GPS
 //#define GPS_GOOGLE_FORMAT
+//#define GPS_DIYD //Use DIYD/APM binary protocol (Thanks to David Collett)
 
 //Alarms (Comment to disable)
 #define ALARM_BATT1_LOW 5.00

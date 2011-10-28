@@ -233,6 +233,15 @@
     <Compile Include="global.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="gps-common.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="gps-diyd.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="gps-nmea.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="gps.h">
       <SubType>compile</SubType>
     </Compile>
