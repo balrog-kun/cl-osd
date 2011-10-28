@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "home.h"
 #include "global.h"
 #include "commonutils.h"
+#include "sensors.h"
 
 #define TEXT_ALIGN_LEFT 0
 #define TEXT_ALIGN_RIGHT 1
@@ -206,12 +207,12 @@ static uint8_t printAdc(char* const str, uint8_t pos, const uint8_t adcInput) {
 }
 
 static uint8_t printRssiLevel(char* const str, uint8_t pos, const uint8_t adcInput) {
-	uint8_t rssiLevel = calcRssiLevel(adcInput);
+	uint8_t rssiLevel = gSensorRssi;
 	return printNumberWithUnit(str, pos, rssiLevel, "%");
 }
 
 static uint8_t printBatterLevel(char* const str, uint8_t pos, const uint8_t adcInput) {
-	uint8_t batterLevel = calcBatteryLevel(adcInput);
+	uint8_t batterLevel = gSensorBatteryPercentage;
 	return printNumberWithUnit(str, pos, batterLevel, "%");
 }
 

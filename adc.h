@@ -36,13 +36,7 @@ static uint16_t gAnalogInputsRaw[ANALOG_IN_NUMBER] = {};
 static const uint8_t gAnalogMult[ANALOG_IN_NUMBER] = {ADC_MULT};
 static const uint8_t gAnalogDiv[ANALOG_IN_NUMBER] = {ADC_DIV};
 
-#ifndef ADC_ENABLED
-
-#define DUMMY_FUNC return 0;
-static uint8_t calcBatteryLevel(uint8_t adcInput) { DUMMY_FUNC }
-static uint8_t calcRssiLevel(uint8_t adcInput) { DUMMY_FUNC }
-
-#else
+#ifdef ADC_ENABLED
 
 static void setupAdc() {
   // ADC setup
@@ -78,30 +72,6 @@ static void measureAnalog() {
 	  gAnalogInputs[i].low = adcLow;
     gAnalogInputs[i].high = adcHigh;
   }    
-}
-
-static uint8_t calcGenericLevel(uint8_t adcInput, uint16_t minLevel, uint16_t maxLevel) {
-	uint16_t level = ((gAnalogInputs[adcInput].high * 100) + gAnalogInputs[adcInput].low);
-	if (level > maxLevel) {
-		level = 100;
-	}		
-	else if (level > minLevel) {
-		level -= minLevel;
-		level *= 100;
-		level /= maxLevel - minLevel;
-	}
-	else {
-		level = 0;
-	}
-	return level;
-}
-
-static uint8_t calcBatteryLevel(uint8_t adcInput) {
-  return calcGenericLevel(adcInput, BATT_MIN_VOLTAGE_INT, BATT_MAX_VOLTAGE_INT);
-}
-
-static uint8_t calcRssiLevel(uint8_t adcInput) {
-  return calcGenericLevel(adcInput, RSSI_MIN_VOLTAGE_INT, RSSI_MAX_VOLTAGE_INT);
 }
 
 #endif //ADC_ENABLED 

@@ -19,9 +19,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifndef SETUP_H_
 #define SETUP_H_
 
+#include "hardware.h"
 #include <avr/io.h>
 
-// ------------------ MAIN CONFIGS -----------------------
+// ------------------ MAIN CONFIGS -------------------------------------------------
 
 // Select one of these depending on your board (Wrong type might damage the board!)
 // This can also be set with configuration from the GUI in AVR Studio.
@@ -29,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //#define G_OSD
 //#define E_OSD_GPS //Note: Also enable E_OSD!
 
-// Feature setup. (All combinations might not work) :-)
+// ----------- MAIN FEATURES --------------
 #if defined(G_OSD) || defined(E_OSD_GPS)
 #define GPS_ENABLED
 #endif //defined(G_OSD) || defined(E_OSD_GPS)
@@ -41,21 +42,64 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define ADC_ENABLED
 #define STATISTICS_ENABLED
 #define ALARM_ENABLED
+#define SENSORS_ENABLED
+
+// ----------- ALARMS --------------
+//Alarms (Comment to disable)
+#define ALARM_BATT1_LOW 5.00
+#define ALARM_BATT2_LOW 0.00
+//#define ALARM_RSSI_LOW 50
+#define ALARM_SPEED_HIGH 200
+#define ALARM_ALTITUDE_LOW 0
+#define ALARM_ALTITUDE_HIGH 5000
+#define ALARM_DISTANCE_HIGH 10000
+
+// ----------- SENSORS --------------
+// Enabled sensors
+//#define SENSOR_BATTERY_PERCENTAGE_ENABLED
+#define SENSOR_RSSI_ENABLED
+//#define SENSOR_COMPASS_ENABLED
+//#define SENSOR_CURRENT_ENABLED
+
+// Battery percentage sensor
+#ifdef SENSOR_BATTERY_PERCENTAGE_ENABLED
+#define SENSOR_BATTERY_PERCENTAGE_INPUT ANALOG_IN_1
+#define SENSOR_CELL_LOW_VOLTAGE 3.8 //(Max two digits after the dot)
+#define SENSOR_CELL_HIGH_VOLTAGE 4.2
+#define SENSOR_CELL_COUNT 3
+#endif //SENSOR_BATTERY_PERCENTAGE_ENABLED
+
+// RSSI sensor
+#ifdef SENSOR_RSSI_ENABLED
+#ifdef ANALOG_IN_3
+#define SENSOR_RSSI_INPUT ANALOG_IN_3
+#else
+#define SENSOR_RSSI_INPUT ANALOG_IN_2
+#endif
+#define SENSOR_RSSI_MAX_VOLTAGE 5.0 //(Max two digits after the dot)
+#define SENSOR_RSSI_MIN_VOLTAGE 1.2
+#endif //SENSOR_RSSI_ENABLED
+
+// Compass sensor
+#ifdef SENSOR_COMPASS_ENABLED
+#define SENSOR_COMPASS_INPUT ANALOG_IN_2
+#define SENSOR_COMPASS_MIN_VOLTAGE 0.00 //(Max two digits after the dot)
+#define SENSOR_COMPASS_MAX_VOLTAGE 5.00
+#endif
+
+// Current sensor
+#define SENSOR_CURRENT_INPUT ANALOG_IN_2
+#define SENSOR_CURRENT_MIN_VOLTAGE 0.00 //(Max two digits after the dot)
+#define SENSOR_CURRENT_MAX_VOLTAGE 5.00
+#define SENSOR_CURRENT_MAX_AMPS 100 //AMP
+
+// ----------- OTHER --------------
 
 #ifdef TEXT_ENABLED
 //#define TEXT_INVERTED_ENABLED
 //#define TEXT_SMALL_ENABLED
 #define TEXT_USE_SPECIAL_CHARS
 #endif //TEXT_ENABLED
-
-// Battery
-#define CELL_LOW_VOLTAGE 3.8 //(Max two digits after the dot)
-#define CELL_HIGH_VOLTAGE 4.2
-#define CELL_COUNT 3
-
-// RSSI conversion 
-#define RSSI_MAX_VOLTAGE 5.0 //(Max two digits after the dot)
-#define RSSI_MIN_VOLTAGE 1.2
 
 // Unit system
 //#define IMPERIAL_SYSTEM
@@ -73,15 +117,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //#define GPS_GOOGLE_FORMAT
 //#define GPS_DIYD //Use DIYD/APM binary protocol (Thanks to David Collett)
 
-//Alarms (Comment to disable)
-#define ALARM_BATT1_LOW 5.00
-#define ALARM_BATT2_LOW 0.00
-//#define ALARM_RSSI_LOW 50
-#define ALARM_SPEED_HIGH 200
-#define ALARM_ALTITUDE_LOW 0
-#define ALARM_ALTITUDE_HIGH 5000
-#define ALARM_DISTANCE_HIGH 10000
-
 //Pre and post flight info
 #define INFO_MIN_SPEED_SHOW 3
 
@@ -94,7 +129,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // Color system (Thanks to chatch15117)
 //#define COLORSYSTEM_NTSC
 
-// ----------------- INTERNAL CONFIGS ------------------
+// ----------------- INTERNAL CONFIGS ---------------------------------------------
 
 // Check sanity
 #if (defined(E_OSD_GPS) && !defined(E_OSD)) 
@@ -109,22 +144,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #error "Select one and only one unit system!"
 #endif
 
-// in / out
-#ifdef E_OSD
-#define KEY (1<<PD5)
-#define LED (1<<PD6)
-#else
-#define KEY (1<<PD4)
-#define LED (1<<PD3)
-#endif //GOSD
-
-#define OUT1 (1<<PB1)
-#define OUT2 (1<<PB3)
-
-#define LTRIG (1<<PD2) //INT0
-#define SS (1<<PB2)
-
-// Text
+// ----------- TEXT --------------
 #ifndef TEXT_SMALL_ENABLED
 #ifdef COLORSYSTEM_NTSC
 #define TEXT_LINE_MAX_CHARS 32
@@ -153,60 +173,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define TEXT_LINE_TEXT_SIZES TEXT_SIZE_SMALL_MULT, TEXT_SIZE_LARGE_MULT, TEXT_SIZE_SMALL_MULT, TEXT_SIZE_SMALL_MULT, TEXT_SIZE_LARGE_MULT, TEXT_SIZE_SMALL_MULT
 #endif //TEXT_SMALL_ENABLED
 
-#ifdef METRIC_SYSTEM
-#define TEXT_LENGTH_UNIT "M"
-#else
-#define TEXT_LENGTH_UNIT "F"
-#endif //METRIC_SYSTEM
-
-#ifdef METRIC_SYSTEM
-#define TEXT_SPEED_UNIT "KM/H"
-#else 
-#define TEXT_SPEED_UNIT "MPH"
-#endif //METRIC_SYSTEM
-
-// ADC
-#ifdef E_OSD
-#define ANALOG_IN_1 1 // Voltage 1 = ADC1
-#define ANALOG_IN_2 0 // Voltage 2 = ADC0
-#else
-#define ANALOG_IN_1 0 // Voltage 1 = ADC0
-#define ANALOG_IN_2 1 // Voltage 2 = ADC1
-#endif
-#define ANALOG_IN_3 2 // RSSI = ADC2 (only 0-5 Volt!)
-#define ANALOG_IN_4 3 // No input, just a pot = ADC3
-
-#define ADC_OFFSET 0
-
-#ifdef E_OSD
-#define ADC_MULT 1,1
-#define ADC_DIV 1,1
-#else
-#define ADC_MULT 1,1,1,1
-#define ADC_DIV 1,1,6,1
-#endif //E_OSD
-
-#ifdef E_OSD
-#define ANALOG_IN_NUMBER 2
-#else
-#define ANALOG_IN_NUMBER 4
-#endif //E_OSD
-
-// Battery
-#define BATT_MIN_VOLTAGE CELL_LOW_VOLTAGE*CELL_COUNT
-#define BATT_MAX_VOLTAGE CELL_HIGH_VOLTAGE*CELL_COUNT
-#define BATT_MIN_VOLTAGE_INT (uint16_t)(BATT_MIN_VOLTAGE*100)
-#define BATT_MAX_VOLTAGE_INT (uint16_t)(BATT_MAX_VOLTAGE*100)
-
-// RSSI conversion
-#define RSSI_MIN_VOLTAGE_INT (uint16_t)(RSSI_MIN_VOLTAGE*100)
-#define RSSI_MAX_VOLTAGE_INT (uint16_t)(RSSI_MAX_VOLTAGE*100)
-
-// Alarm conversion
-#define ALARM_BATT1_LOW_INT (uint16_t)(ALARM_BATT1_LOW*100)
-#define ALARM_BATT2_LOW_INT (uint16_t)(ALARM_BATT2_LOW*100)
-
-// Graphics
+// ----------- GRAPHICS --------------
 #define GRAPHICS_SIZE 24 // Multiple of 8
 #define GRAPHICS_WIDTH_REAL GRAPHICS_SIZE
 #define GRAPHICS_WIDTH (GRAPHICS_SIZE/8)
@@ -220,7 +187,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #endif //COLORSYSTEM_NTSC
 #define GRAPHICS_MID (GRAPHICS_SIZE/2)-1
 
-// Line triggering
+// ----------- UPDATE LINE --------------
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 #ifdef COLORSYSTEM_NTSC
 #define UPDATE_LINE 85
@@ -228,10 +195,48 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define UPDATE_LINE 110
 #endif //COLORSYSTEM_NTSC
 
-// GPS
+// ----------- TEXT UNITS --------------
+#ifdef METRIC_SYSTEM
+#define TEXT_LENGTH_UNIT "M"
+#else
+#define TEXT_LENGTH_UNIT "F"
+#endif //METRIC_SYSTEM
+
+#ifdef METRIC_SYSTEM
+#define TEXT_SPEED_UNIT "KM/H"
+#else 
+#define TEXT_SPEED_UNIT "MPH"
+#endif //METRIC_SYSTEM
+
+// ----------- SENSORS --------------
+
+// Battery
+#define BATT_MIN_VOLTAGE SENSOR_CELL_LOW_VOLTAGE*SENSOR_CELL_COUNT
+#define BATT_MAX_VOLTAGE SENSOR_CELL_HIGH_VOLTAGE*SENSOR_CELL_COUNT
+#define BATT_MIN_VOLTAGE_INT (uint16_t)(BATT_MIN_VOLTAGE*100)
+#define BATT_MAX_VOLTAGE_INT (uint16_t)(BATT_MAX_VOLTAGE*100)
+
+// RSSI conversion
+#define RSSI_MIN_VOLTAGE_INT (uint16_t)(SENSOR_RSSI_MIN_VOLTAGE*100)
+#define RSSI_MAX_VOLTAGE_INT (uint16_t)(SENSOR_RSSI_MAX_VOLTAGE*100)
+
+#define COMPASS_MIN_VOLTAGE_INT (uint16_t)(SENSOR_COMPASS_MIN_VOLTAGE*100)
+#define COMPASS_MAX_VOLTAGE_INT (uint16_t)(SENSOR_COMPASS_MAX_VOLTAGE*100)
+
+#define CURRENT_MIN_VOLTAGE_INT (uint16_t)(SENSOR_CURRENT_MIN_VOLTAGE*100)
+#define CURRENT_MAX_VOLTAGE_INT (uint16_t)(SENSOR_CURRENT_MAX_VOLTAGE*100)
+#define SENSOR_CURRENT_MAX_AMPS 100 //AMP
+
+// ----------- GPS --------------
 #define GPS_BAUD 4800
 #define GPS_UBRR (F_CPU/16/GPS_BAUD-1)
 #define GPS_MAX_CHARS 11
+
+// ----------- OTHER --------------
+
+// Alarm conversion
+#define ALARM_BATT1_LOW_INT (uint16_t)(ALARM_BATT1_LOW*100)
+#define ALARM_BATT2_LOW_INT (uint16_t)(ALARM_BATT2_LOW*100)
 
 // CPU speed
 #define F_CPU 24000000UL

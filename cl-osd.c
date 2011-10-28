@@ -94,6 +94,10 @@ static void updateOnceEverySec() {
   measureAnalog();
 #endif //ADCENABLED
 
+#ifdef SENSORS_ENABLED
+  updateSensors();
+#endif
+
 #ifdef ALARM_ENABLED
   updateAlarms();
 #endif // ALARM_ENABLED

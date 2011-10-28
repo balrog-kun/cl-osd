@@ -251,6 +251,9 @@
     <Compile Include="gpsutils.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hardware.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="home.h">
       <SubType>compile</SubType>
     </Compile>
@@ -264,6 +267,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensors.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="statistics.h">
