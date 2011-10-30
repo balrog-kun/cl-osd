@@ -141,8 +141,8 @@ static void decodeGpsData(char data) {
         gGpsLastData.pos.latitude   = gDiydBuffer.msg.latitude;
         gGpsLastData.pos.longitude  = gDiydBuffer.msg.longitude;
         gGpsLastData.pos.altitude   = (int16_t) (gDiydBuffer.msg.altitude / 100);
-        gGpsLastData.speed          = (uint16_t) gDiydBuffer.msg.ground_speed;
-        gGpsLastData.angle          = (uint16_t) gDiydBuffer.msg.ground_course;
+        gGpsLastData.speed          = (uint16_t) ((gDiydBuffer.msg.ground_speed * 36) / 1000);
+        gGpsLastData.angle          = (uint16_t) (gDiydBuffer.msg.ground_course / 100);
         gGpsLastData.sats           = gDiydBuffer.msg.satellites;
         gGpsLastData.date           = gDiydBuffer.msg.utc_date;
         gGpsLastData.gTime          = gDiydBuffer.msg.utc_time / 1000;
