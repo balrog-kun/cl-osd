@@ -24,16 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // ------------------ MAIN CONFIGS -------------------------------------------------
 
-// Select one of these depending on your board (Wrong type might damage the board!)
-// This can also be set with configuration from the GUI in AVR Studio.
-//#define E_OSD
-//#define G_OSD
-//#define E_OSD_GPS //Note: Also enable E_OSD!
-
 // ----------- MAIN FEATURES --------------
-#if defined(G_OSD) || defined(E_OSD_GPS)
+#ifdef HARDWARE_SUPPORT_GPS
 #define GPS_ENABLED
-#endif //defined(G_OSD) || defined(E_OSD_GPS)
+#endif //HARDWARE_SUPPORT_GPSE
 #ifdef GPS_ENABLED
 #define GRAPICSENABLED
 #endif //GPS_ENABLED
@@ -131,15 +125,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // ----------------- INTERNAL CONFIGS ---------------------------------------------
 
-// Check sanity
-#if (defined(E_OSD_GPS) && !defined(E_OSD)) 
-#error "Make sure to define E_OSD as well when using E_OSD_GPS"
-#endif
-
-#if (defined(E_OSD) && defined(G_OSD)) || (!defined(E_OSD) && !defined(G_OSD))
-#error "Select one and only one target!"
-#endif
-
+// ----------- CHECK SANITY --------------
 #if (defined(IMPERIAL_SYSTEM) && defined(METRIC_SYSTEM)) || (!defined(IMPERIAL_SYSTEM) && !defined(METRIC_SYSTEM))
 #error "Select one and only one unit system!"
 #endif
