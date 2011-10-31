@@ -66,6 +66,15 @@ static void updateTime() {
 #endif //TIME_HOUR_ENABLED
 }
 
+static void resetTime() {
+	gTimeTick = 0;
+	gTime.sec = 0;
+	gTime.min = 0;
+#ifdef TIME_HOUR_ENABLED
+	gTime.hour = 0;
+#endif //TIME_HOUR_ENABLED
+}	
+
 #endif //TIME_ENABLED
 
 #endif /* TIME_H_ */

@@ -101,7 +101,18 @@ static void updateOnceEverySec() {
 #ifdef ALARM_ENABLED
   updateAlarms();
 #endif // ALARM_ENABLED
-}
+
+#ifdef GPS_ENABLED
+  if (gGpsLastValidData.speed < STATISTICS_MIN_SPEED_SHOW) {
+    if (gStatisticsShowCount < STATISTICS_DELAY_SHOW) {
+      gStatisticsShowCount += 1;
+    }			  
+  }
+  if (gStatisticsShowCount == STATISTICS_DELAY_SHOW) {
+    gStatisticsShow = 1;
+  }
+#endif //GPS_ENABLED
+}  
   
 
 static void updateOnceEveryFrame() {
@@ -153,6 +164,9 @@ void main(void) {
 #ifdef HOME_SET_WITH_BUTTON
       if (gGpsLastData.checksumValid != 0 && gGpsLastData.fix != 0) {
 				setHomePos();
+#ifdef TIME_ENABLED
+        resetTime();
+#endif //TIME_ENABLED
 			}
 #endif //HOME_SET_WITH_BUTTON
 #endif //GPS_ENABLED
@@ -195,6 +209,7 @@ void main(void) {
 }
 
 ISR(INT0_vect) {
+	TCNT1 = 0; // Reset sync lost timeout.
 	updateLine();
 }
 

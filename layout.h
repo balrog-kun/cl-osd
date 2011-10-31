@@ -41,7 +41,7 @@ static void updateText(uint8_t textId) {
 #endif //TIME_HOUR_ENABLED
   }
   else if (textId == 1) {
-	  printText(gText[textId], TEXT_LINE_MAX_CHARS-1-strlen(TEXT_CALLSIGN), TEXT_CALLSIGN);
+	  printText(gText[textId], TEXT_LINE_MAX_CHARS-1-strlen(TEXT_CALL_SIGN), TEXT_CALL_SIGN);
 	  if (!gAlarmBatt1 || gBlink1Hz) {
 	    pos = printAdc(gText[textId], 0, ANALOG_IN_1);
 	  }		
@@ -61,7 +61,7 @@ static void updateText(uint8_t textId) {
   }
   else if (textId == 2) {
 #ifdef GPS_ENABLED
-	  if (gInfoShow) {
+	  if (gStatisticsShow) {
 	    if (gHomePosSet) {
 #ifdef STATISTICS_ENABLED
 		    pos = printText(gText[textId], 7, "LOS  SPD TRIP  ALT");
@@ -72,13 +72,15 @@ static void updateText(uint8_t textId) {
 	    }
 	  }
 	  else {
-		  //printCompassArrow(gText[textId], 7, gGpsLastValidData.angle, 19);
+#ifdef TEXT_COMPASS_ENABLED
+		  printCompassArrow(gText[textId], 7, gGpsLastValidData.angle, 19);
+#endif //TEXT_COMPASS_ENABLED
 	  }
 #endif //GPS_ENABLED
   }	  
   else if (textId == 3) {
 #ifdef GPS_ENABLED
-	  if (gInfoShow) {
+	  if (gStatisticsShow) {
 	    if (gHomePosSet) {
 #ifdef STATISTICS_ENABLED
 		    pos = 7;
@@ -94,7 +96,9 @@ static void updateText(uint8_t textId) {
 	    }
 	  }
 	  else {
-		  //printCompass(gText[textId], 7, gGpsLastValidData.angle, 19);
+#ifdef TEXT_COMPASS_ENABLED		  
+		  printCompass(gText[textId], 7, gGpsLastValidData.angle, 19);
+#endif //TEXT_COMPASS_ENABLED
 	  }
 #endif //GPS_ENABLED
 	}

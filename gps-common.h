@@ -63,7 +63,11 @@ static void finishGpsDecoding() {
 		gGpsLastValidData = gGpsLastData;
 		gGpsValidData = 1;
 		gLastFix = gTime;
-		gInfoShow = gGpsLastValidData.speed < INFO_MIN_SPEED_SHOW;
+		
+		if (gGpsLastValidData.speed >= STATISTICS_MIN_SPEED_SHOW) {
+			gStatisticsShow = 0;
+			gStatisticsShowCount = 0;
+		}			
 
 		if (gHomePosSet == 0) {
 			if (gGpsLastValidData.fix != 0) {

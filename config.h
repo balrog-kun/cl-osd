@@ -22,9 +22,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "hardware.h"
 #include <avr/io.h>
 
+//NOTE: Most options can be disabled by commenting them out.
+//This is done by inserting // at the start of the line.
+//Some options depend on others so you might get an error if you mess around too much. :-)
+
 // ------------------ MAIN CONFIGS -------------------------------------------------
 
 // ----------- MAIN FEATURES --------------
+//(Comment to disable)
 #ifdef HARDWARE_SUPPORT_GPS
 #define GPS_ENABLED
 #endif //HARDWARE_SUPPORT_GPSE
@@ -40,13 +45,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // ----------- ALARMS --------------
 //Alarms (Comment to disable)
-#define ALARM_BATT1_LOW 5.00
-#define ALARM_BATT2_LOW 0.00
-//#define ALARM_RSSI_LOW 50
-#define ALARM_SPEED_HIGH 200
-#define ALARM_ALTITUDE_LOW 0
-#define ALARM_ALTITUDE_HIGH 5000
-#define ALARM_DISTANCE_HIGH 10000
+#define ALARM_BATT1_LOW 5.00 //Warn if below this level (in volt)
+#define ALARM_BATT2_LOW 0.00 //Warn if below this level (in volt)
+//#define ALARM_RSSI_LOW 50 //Warn if below this level (in %)
+#define ALARM_SPEED_HIGH 200 //Warn if above this level (in kmph/mph)
+#define ALARM_ALTITUDE_LOW 0 //Warn if below this level (in meters/feet)
+#define ALARM_ALTITUDE_HIGH 5000 //Warn if above this level (in meters/feet)
+#define ALARM_DISTANCE_HIGH 10000 //Warn if below this level (in meters/feet)
 
 // ----------- SENSORS --------------
 // Enabled sensors
@@ -90,35 +95,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // ----------- OTHER --------------
 
 #ifdef TEXT_ENABLED
-//#define TEXT_INVERTED_ENABLED
-//#define TEXT_SMALL_ENABLED
-#define TEXT_USE_SPECIAL_CHARS
+//#define TEXT_INVERTED_ENABLED //Make text transparent and background white.
+//#define TEXT_SMALL_ENABLED //Enable small text. Might be buggy!
+#define TEXT_USE_SPECIAL_CHARS //Use chars with non-ascii symbols.
+//#define TEXT_COMPASS_ENABLED //Enable compass when no statistics is shown.
 #endif //TEXT_ENABLED
 
 // Unit system
-//#define IMPERIAL_SYSTEM
-#define METRIC_SYSTEM
+//#define IMPERIAL_SYSTEM //Feet, mph etc...
+#define METRIC_SYSTEM //Meter, hm/h etc...
 
-// Home set (Use at least one of the first two)
-//#define HOME_SET_AT_FIX
-#define HOME_AUTO_SET
-#define HOME_SET_WITH_BUTTON
-#define HOME_SET_FIX_COUNT 10
-#define HOME_FIX_MIN_SPEED 10
-#define HOME_SET_MIN_SATS 4
+// Home pos set
+// Note: Use at least one or you will never get a home pos!
+// Comment out unwanted to disable
+//#define HOME_SET_AT_FIX // Home position is set when GPS gets satellited fix.
+#define HOME_AUTO_SET //Home position is set when a certain speed is exceeded.
+#define HOME_SET_WITH_BUTTON //Home position is set when the little button on OSD is long pressed.
+#define HOME_SET_FIX_COUNT 10 //Config for _SET_AT_FIX: After 10 successfully fixes, home is set.
+#define HOME_FIX_MIN_SPEED 10 //Config for _AUTO_SET: More than 10 km/h sets home.
+#define HOME_SET_MIN_SATS 4 //Config for _SET_AT_FIX: Set home only when more than 4 satellites.
 
 //GPS
 //#define GPS_GOOGLE_FORMAT
 //#define GPS_DIYD //Use DIYD/APM binary protocol (Thanks to David Collett)
 
 //Pre and post flight info
-#define INFO_MIN_SPEED_SHOW 3
+#define STATISTICS_MIN_SPEED_SHOW 3 //Under this speed the statistics will show.
+#define STATISTICS_DELAY_SHOW 10 //It takes ten secs before the statistics is shown. (Higher is better for multicopters!)
 
 //User data
-#define TEXT_CALLSIGN ""
+#define TEXT_CALL_SIGN "" //Set this to your call sign.
 
 //Time
-//#define TIME_HOUR_ENABLED
+//#define TIME_HOUR_ENABLED //Enable time to show and count hours.
 
 // Color system (Thanks to chatch15117)
 //#define COLORSYSTEM_NTSC
