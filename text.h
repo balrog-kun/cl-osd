@@ -225,6 +225,16 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
 #endif
 	  return pos;
   }
+  
+  const char* str2;
+  if (numberLat) {
+	  str2 = number > 0 ? "N" : "S";
+  }
+  else {
+	  str2 = number > 0 ? "E" : "W";
+  }
+  
+  number = absi32(number);
 	
 	uint8_t hour = number / 1000000;
 #ifdef GPS_GOOGLE_FORMAT
@@ -234,14 +244,6 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
 	uint8_t min = (number - (hour * 1000000)) / 10000; //Get minute part
   uint32_t minDecimal = number % 10000; //Get minute decimal part
 #endif
-  
-  const char* str2;
-  if (numberLat) {
-	  str2 = number > 0 ? "N" : "S";
-  }
-  else {
-	  str2 = number > 0 ? "E" : "W";
-  }
 
 #ifdef GPS_GOOGLE_FORMAT
   pos = printNumberWithUnit(str, pos, hour, ".");
