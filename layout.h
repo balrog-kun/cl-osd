@@ -28,46 +28,46 @@ static void updateText(uint8_t textId) {
 
 	if (textId == 0) {
 #ifdef SENSOR_VOLTAGE_1
-		pos = printText(gText[textId], 0, "\1521");
+		pos = printText(gText[textId], 0, "\1521"); //Battery symbol + '1'
 #endif
 #if ANALOG_IN_NUMBER == 2
 #ifdef SENSOR_RSSI_ENABLED
-    pos = printText(gText[textId], 7, "\151");
+    pos = printText(gText[textId], 7, "\151"); //Antenna symbol (RSSI)
 #endif
 #else // ANALOG_IN_NUMBER > 2
 #ifdef SENSOR_VOLTAGE_2
-    pos = printText(gText[textId], 7, "\1522");
+    pos = printText(gText[textId], 7, "\1522"); //Battery symbol + '2'
 #endif
 #ifdef SENSOR_RSSI_ENABLED
-	  pos = printText(gText[textId], 14, "\151");
+	  pos = printText(gText[textId], 14, "\151"); //Antenna symbol (RSSI)
 #endif
 #endif //ANALOG_IN_NUMBER == 2
 #ifdef TIME_HOUR_ENABLED
-	  pos = printTime(gText[textId], TEXT_LINE_MAX_CHARS-9);
+	  pos = printTime(gText[textId], TEXT_LINE_MAX_CHARS-9); // Time with hours
 #else
-    pos = printTime(gText[textId], TEXT_LINE_MAX_CHARS-6);
+    pos = printTime(gText[textId], TEXT_LINE_MAX_CHARS-6); // Time without hours
 #endif //TIME_HOUR_ENABLED
   }
   else if (textId == 1) {
-	  printText(gText[textId], TEXT_LINE_MAX_CHARS-1-strlen(TEXT_CALL_SIGN), TEXT_CALL_SIGN);
+	  printText(gText[textId], TEXT_LINE_MAX_CHARS-1-strlen(TEXT_CALL_SIGN), TEXT_CALL_SIGN); // Call sign
 #ifdef SENSOR_VOLTAGE_1
 	  if (!gAlarmBatt1 || gBlink1Hz) {
-	    pos = printAdc(gText[textId], 0, ANALOG_IN_1);
+	    pos = printAdc(gText[textId], 0, ANALOG_IN_1); // Voltage 1
 	  }
 #endif
 #if ANALOG_IN_NUMBER == 2
     if (!gAlarmRssi || gBlink1Hz) {
-      pos = printRssiLevel(gText[textId], 7, ANALOG_IN_2);
+      pos = printRssiLevel(gText[textId], 7, ANALOG_IN_2); // RSSI
 	  }	  
 #else // ANALOG_IN_NUMBER > 2
 #ifdef SENSOR_VOLTAGE_2
     if (!gAlarmBatt2 || gBlink1Hz) {
-      pos = printAdc(gText[textId], 7, ANALOG_IN_2);
+      pos = printAdc(gText[textId], 7, ANALOG_IN_2); // Voltage 2
 	  }
 #endif
 #ifdef SENSOR_RSSI_ENABLED
 	  if (!gAlarmRssi || gBlink1Hz) {
-	    pos = printRssiLevel(gText[textId], 14, ANALOG_IN_3);
+	    pos = printRssiLevel(gText[textId], 14, ANALOG_IN_3); // RSSI
 	  }
 #endif
 #endif //ANALOG_IN_NUMBER == 2
@@ -78,7 +78,7 @@ static void updateText(uint8_t textId) {
 	  if (gStatisticsShow) {
 	    if (gHomePosSet) {
 #ifdef STATISTICS_ENABLED
-		    pos = printText(gText[textId], 7, "DST  SPD TRIP  ALT");
+		    pos = printText(gText[textId], 7, "DST  SPD TRIP  ALT"); // Statistics (titles)
 #endif //STATISTICS_ENABLED
 	    }
 	    else if (gBlink1Hz) {
@@ -87,7 +87,7 @@ static void updateText(uint8_t textId) {
 	  }
 	  else {
 #ifdef TEXT_COMPASS_ENABLED
-		  printCompassArrow(gText[textId], 7, gGpsLastValidData.angle, 19);
+		  printCompassArrow(gText[textId], 7, gGpsLastValidData.angle, 19); // Upper compass part
 #endif //TEXT_COMPASS_ENABLED
 	  }
 #endif //GPS_ENABLED
@@ -98,20 +98,20 @@ static void updateText(uint8_t textId) {
 	    if (gHomePosSet) {
 #ifdef STATISTICS_ENABLED
 		    pos = 7;
-		    printNumber(gText[textId], pos, gStatMaxDistance);
+		    printNumber(gText[textId], pos, gStatMaxDistance); // Statistics (numbers)
 		    printNumber(gText[textId], pos+5, gStatMaxSpeed);
 		    printNumber(gText[textId], pos+9, gStatDistTraveled);
 		    printNumber(gText[textId], pos+15, gStatMaxAltitude);
 #endif //STATISTICS_ENABLED
 	    }
 	    else {
-        pos = printGpsNumber(gText[textId], pos+4, gGpsLastValidData.pos.latitude, 1);
+        pos = printGpsNumber(gText[textId], pos+4, gGpsLastValidData.pos.latitude, 1); // GPS position
         pos = printGpsNumber(gText[textId], pos+2, gGpsLastValidData.pos.longitude, 0);
 	    }
 	  }
 	  else {
 #ifdef TEXT_COMPASS_ENABLED		  
-		  printCompass(gText[textId], 7, gGpsLastValidData.angle, 19);
+		  printCompass(gText[textId], 7, gGpsLastValidData.angle, 19); // Lower compass part
 #endif //TEXT_COMPASS_ENABLED
 	  }
 #endif //GPS_ENABLED
@@ -119,24 +119,24 @@ static void updateText(uint8_t textId) {
 	else if (textId == 4) {
 #ifdef GPS_ENABLED
     if (!gAlarmSpeed || gBlink1Hz) {
-	    pos = printNumber(gText[textId], 0, gGpsLastValidData.speed);
+	    pos = printNumber(gText[textId], 0, gGpsLastValidData.speed); // Speed
 	  }		
     if (!gHomePosSet) {
 		  pos = printText(gText[textId], 5, "-");
 	  }
 	  else {
 		  if (!gAlarmDistance || gBlink1Hz) {
-		    pos = printNumber(gText[textId], 5, gHomeDistance);
+		    pos = printNumber(gText[textId], 5, gHomeDistance); // Distance
 		  }			
 	  }		  
 		if (gGpsLastValidData.fix) {
-		  pos = printNumber(gText[textId], TEXT_LINE_MAX_CHARS-10, gGpsLastValidData.sats);
+		  pos = printNumber(gText[textId], TEXT_LINE_MAX_CHARS-10, gGpsLastValidData.sats); // Satellites
 		}
 		else {			
 		  pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-10, "-");
 	  }
 	  if (!gAlarmAltitude || gBlink1Hz) {
-		  pos = printNumber(gText[textId], TEXT_LINE_MAX_CHARS-5, gGpsLastValidData.pos.altitude - gHomePos.altitude);
+		  pos = printNumber(gText[textId], TEXT_LINE_MAX_CHARS-5, gGpsLastValidData.pos.altitude - gHomePos.altitude); // Altitude
 	  }		  
 #endif //GPS_ENABLED
 	}
@@ -146,21 +146,22 @@ static void updateText(uint8_t textId) {
 		pos = printText(gText[textId], 5, "LOS");
 		
 		if (gHomePosSet) {
-		  pos = printText(gText[textId], pos+3, "\146");
+		  pos = printText(gText[textId], pos+3, "\146"); // Home set symbol
 		}
 		else {
-			pos = printText(gText[textId], pos+3, "\147");
+			pos = printText(gText[textId], pos+3, "\147"); // No home set symbol
 		}
 		
 		// Blink satellite at checksum errors! Thanks to after.burner
 		if (gGpsLastData.checksumValid> 0 || gBlink1Hz) {
-  		  pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-10, "\150");
+  		  pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-10, "\150"); // Satellites symbol
 		}
 		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-5, "ALT");
 		//pos = printText(gText[textId], pos-2, "\144-\145");
 #endif //GPS_ENABLED
 	}
-	else {		
+	else {
+		// For testing...
 		pos = printText(gText[textId], pos, "T:");
 		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-1-4, "V:");
 		pos = printNumber(gText[textId], pos+1, textId + 1);
