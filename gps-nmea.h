@@ -181,11 +181,17 @@ static void parseGpsPart() {
 			case GPS_PART_GPRMC_SPEED:
 				gGpsLastData.speed = parseInt(gGpsText, GPS_MAX_CHARS); // Only use int part
 #ifdef METRIC_SYSTEM
+#ifndef GOSDII_GPS_SPEED_BUGFIX
 				// Convert to km/h. 1 knot = 1.852 km/h = 463/250
 				gGpsLastData.speed *= 463; // Might need bigger var if you go really fast! :-)
 				gGpsLastData.speed /= 250;
+#endif
 #else // IMPERIAL_SYSTEM
+#ifndef GOSDII_GPS_SPEED_BUGFIX
         knotToMph(&gGpsLastData.speed);
+#else
+		    kmphToMph(&gGpsLastData.speed);
+#endif
 #endif // METRIC_SYSTEM
 				break;
 			case GPS_PART_GPRMC_ANGLE:

@@ -86,6 +86,13 @@ static void knotToMph(uint16_t* const var) {
 	tmp /= 1000;
 	*var = tmp;
 }
+
+static void kmphToMph(uint16_t* const var) {
+	int32_t tmp = *var;
+	tmp *= 621;
+	tmp /= 1000;
+	*var = tmp;
+}
 #endif //IMPERIAL_SYSTEM
 
 static int32_t parseInt(const char* const text, uint8_t maxLength) {

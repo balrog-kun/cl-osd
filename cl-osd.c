@@ -60,7 +60,7 @@ static void setup(void)
 	sei();
 }
 
-static void updateOnceEverySec() {
+static void updateSensorsAndScreen() {
 #ifndef GPS_ENABLED
   PORTD |= LED;
 #else //GPS_ENABLED
@@ -113,15 +113,14 @@ static void updateOnceEverySec() {
   }
 #endif //GPS_ENABLED
 }  
-  
 
 static void updateOnceEveryFrame() {
   if (gKeyPressed) {
 		++gKeyPressTime;
 	}
 
-	if (gTimeTick == 0) {
-    updateOnceEverySec();
+	if ((gTimeTick%(TIME_FRAMES_PER_SEC/SCREEN_AND_SENSOR_UPDATES_PER_SEC) == 0)) {
+    updateSensorsAndScreen();
 	}
 
 #ifdef TIME_ENABLED

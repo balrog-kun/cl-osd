@@ -27,12 +27,20 @@ static void updateText(uint8_t textId) {
   uint8_t pos = 0;
 
 	if (textId == 0) {
+#ifdef SENSOR_VOLTAGE_1
 		pos = printText(gText[textId], 0, "\1521");
+#endif
 #if ANALOG_IN_NUMBER == 2
+#ifdef SENSOR_RSSI_ENABLED
     pos = printText(gText[textId], 7, "\151");
+#endif
 #else // ANALOG_IN_NUMBER > 2
+#ifdef SENSOR_VOLTAGE_2
     pos = printText(gText[textId], 7, "\1522");
-	  pos = printText(gText[textId], 14, "\151");    
+#endif
+#ifdef SENSOR_RSSI_ENABLED
+	  pos = printText(gText[textId], 14, "\151");
+#endif
 #endif //ANALOG_IN_NUMBER == 2
 #ifdef TIME_HOUR_ENABLED
 	  pos = printTime(gText[textId], TEXT_LINE_MAX_CHARS-9);
@@ -42,20 +50,26 @@ static void updateText(uint8_t textId) {
   }
   else if (textId == 1) {
 	  printText(gText[textId], TEXT_LINE_MAX_CHARS-1-strlen(TEXT_CALL_SIGN), TEXT_CALL_SIGN);
+#ifdef SENSOR_VOLTAGE_1
 	  if (!gAlarmBatt1 || gBlink1Hz) {
 	    pos = printAdc(gText[textId], 0, ANALOG_IN_1);
-	  }		
+	  }
+#endif
 #if ANALOG_IN_NUMBER == 2
     if (!gAlarmRssi || gBlink1Hz) {
       pos = printRssiLevel(gText[textId], 7, ANALOG_IN_2);
 	  }	  
 #else // ANALOG_IN_NUMBER > 2
+#ifdef SENSOR_VOLTAGE_2
     if (!gAlarmBatt2 || gBlink1Hz) {
       pos = printAdc(gText[textId], 7, ANALOG_IN_2);
 	  }
+#endif
+#ifdef SENSOR_RSSI_ENABLED
 	  if (!gAlarmRssi || gBlink1Hz) {
 	    pos = printRssiLevel(gText[textId], 14, ANALOG_IN_3);
 	  }
+#endif
 #endif //ANALOG_IN_NUMBER == 2
 
   }
@@ -64,7 +78,7 @@ static void updateText(uint8_t textId) {
 	  if (gStatisticsShow) {
 	    if (gHomePosSet) {
 #ifdef STATISTICS_ENABLED
-		    pos = printText(gText[textId], 7, "LOS  SPD TRIP  ALT");
+		    pos = printText(gText[textId], 7, "DST  SPD TRIP  ALT");
 #endif //STATISTICS_ENABLED
 	    }
 	    else if (gBlink1Hz) {
@@ -138,7 +152,10 @@ static void updateText(uint8_t textId) {
 			pos = printText(gText[textId], pos+3, "\147");
 		}
 		
-		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-10, "\150");
+		// Blink satellite at checksum errors! Thanks to after.burner
+		if (gGpsLastData.checksumValid> 0 || gBlink1Hz) {
+  		  pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-10, "\150");
+		}
 		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-5, "ALT");
 		//pos = printText(gText[textId], pos-2, "\144-\145");
 #endif //GPS_ENABLED

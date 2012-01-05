@@ -60,6 +60,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //#define SENSOR_COMPASS_ENABLED
 //#define SENSOR_CURRENT_ENABLED
 
+// Battery voltage sensor
+#define SENSOR_VOLTAGE_1
+#define SENSOR_VOLTAGE_2
+
 // Battery percentage sensor
 #ifdef SENSOR_BATTERY_PERCENTAGE_ENABLED
 #define SENSOR_BATTERY_PERCENTAGE_INPUT ANALOG_IN_1
@@ -131,6 +135,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Color system (Thanks to chatch15117)
 //#define COLORSYSTEM_NTSC
+
+//BUG fix for GOSDII GPS (sends km/h instead of knots)
+//#define GOSDII_GPS_SPEED_BUGFIX
+
+//Screen and sensor refresh rate (Don't set too high!)
+#define SCREEN_AND_SENSOR_UPDATES_PER_SEC 1
 
 // ----------------- INTERNAL CONFIGS ---------------------------------------------
 

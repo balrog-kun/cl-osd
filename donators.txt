@@ -11,6 +11,10 @@ Denis Konyashchenko
 Simon Jellinghaus
 David Collett
 Johannes Hermen
+Mark Illum
+Suzanne Spooner
+Laurent Thibaudet
+John Alsbrooks
 
 
 Programmers:
