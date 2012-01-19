@@ -26,53 +26,64 @@ static void updateText(uint8_t textId) {
   //testPrintDebugInfo();
   uint8_t pos = 0;
 
+  // --------------- TEXT LINE 1 (From top) -----------------------
 	if (textId == 0) {
-#ifdef SENSOR_VOLTAGE_1
-		pos = printText(gText[textId], 0, "\1521"); //Battery symbol + '1'
+#ifdef SENSOR_VOLTAGE_1_ENABLED
+		printText(gText[textId], pos, "\1521"); //Battery symbol + '1'
+		pos += 7;
 #endif
-#if ANALOG_IN_NUMBER == 2
-#ifdef SENSOR_RSSI_ENABLED
-    pos = printText(gText[textId], 7, "\151"); //Antenna symbol (RSSI)
-#endif
-#else // ANALOG_IN_NUMBER > 2
-#ifdef SENSOR_VOLTAGE_2
-    pos = printText(gText[textId], 7, "\1522"); //Battery symbol + '2'
+#ifdef SENSOR_VOLTAGE_2_ENABLED
+    printText(gText[textId], pos, "\1522"); //Battery symbol + '2'
+	  pos += 7;
 #endif
 #ifdef SENSOR_RSSI_ENABLED
-	  pos = printText(gText[textId], 14, "\151"); //Antenna symbol (RSSI)
+    printText(gText[textId], pos, "\151"); //Antenna symbol (RSSI)
+	  pos += 7;
 #endif
-#endif //ANALOG_IN_NUMBER == 2
+#ifdef SENSOR_CURRENT_ENABLED
+    printText(gText[textId], pos, "A"); //Ampere
+    printText(gText[textId], pos+7, "MAH"); //Milli ampere hours
+#endif
 #ifdef TIME_HOUR_ENABLED
 	  pos = printTime(gText[textId], TEXT_LINE_MAX_CHARS-9); // Time with hours
 #else
     pos = printTime(gText[textId], TEXT_LINE_MAX_CHARS-6); // Time without hours
 #endif //TIME_HOUR_ENABLED
   }
+  // --------------- TEXT LINE 2 (From top) -----------------------
   else if (textId == 1) {
+	  
 	  printText(gText[textId], TEXT_LINE_MAX_CHARS-1-strlen(TEXT_CALL_SIGN), TEXT_CALL_SIGN); // Call sign
-#ifdef SENSOR_VOLTAGE_1
+	  
+#ifdef SENSOR_VOLTAGE_1_ENABLED
 	  if (!gAlarmBatt1 || gBlink1Hz) {
-	    pos = printAdc(gText[textId], 0, ANALOG_IN_1); // Voltage 1
+	    printAdc(gText[textId], pos, ANALOG_IN_1); // Voltage 1
 	  }
+	  pos += 7;
 #endif
-#if ANALOG_IN_NUMBER == 2
-    if (!gAlarmRssi || gBlink1Hz) {
-      pos = printRssiLevel(gText[textId], 7, ANALOG_IN_2); // RSSI
-	  }	  
-#else // ANALOG_IN_NUMBER > 2
-#ifdef SENSOR_VOLTAGE_2
+#ifdef SENSOR_VOLTAGE_2_ENABLED
     if (!gAlarmBatt2 || gBlink1Hz) {
-      pos = printAdc(gText[textId], 7, ANALOG_IN_2); // Voltage 2
+      printAdc(gText[textId], pos, ANALOG_IN_2); // Voltage 2
 	  }
+	  pos += 7;
 #endif
 #ifdef SENSOR_RSSI_ENABLED
 	  if (!gAlarmRssi || gBlink1Hz) {
-	    pos = printRssiLevel(gText[textId], 14, ANALOG_IN_3); // RSSI
+	    printRssiLevel(gText[textId], pos, SENSOR_RSSI_INPUT); // RSSI
 	  }
+	  pos += 7;
 #endif
-#endif //ANALOG_IN_NUMBER == 2
-
+#ifdef SENSOR_CURRENT_ENABLED
+	  if (!gAlarmCurrent || gBlink1Hz) {
+	    printNumber(gText[textId], pos, gSensorCurrent); //Ampere
+	  }
+	  if (!gAlarmPowerUsage || gBlink1Hz) {		
+      printNumber(gText[textId], pos+7, gSensorPowerUsage/1000); //Milli ampere hours
+	  }
+	  pos += 7;
+#endif
   }
+  // --------------- TEXT LINE 3 (From top) -----------------------
   else if (textId == 2) {
 #ifdef GPS_ENABLED
 	  if (gStatisticsShow) {
@@ -91,7 +102,8 @@ static void updateText(uint8_t textId) {
 #endif //TEXT_COMPASS_ENABLED
 	  }
 #endif //GPS_ENABLED
-  }	  
+  }
+  // --------------- TEXT LINE 4 (From top) -----------------------
   else if (textId == 3) {
 #ifdef GPS_ENABLED
 	  if (gStatisticsShow) {
@@ -116,6 +128,7 @@ static void updateText(uint8_t textId) {
 	  }
 #endif //GPS_ENABLED
 	}
+	// --------------- TEXT LINE 5 (From top) -----------------------
 	else if (textId == 4) {
 #ifdef GPS_ENABLED
     if (!gAlarmSpeed || gBlink1Hz) {
@@ -140,6 +153,7 @@ static void updateText(uint8_t textId) {
 	  }		  
 #endif //GPS_ENABLED
 	}
+	// --------------- TEXT LINE 6 (From top) -----------------------
 	else if (textId == 5) {
 #ifdef GPS_ENABLED
 		pos = printText(gText[textId], 0, "SPD");
@@ -160,8 +174,8 @@ static void updateText(uint8_t textId) {
 		//pos = printText(gText[textId], pos-2, "\144-\145");
 #endif //GPS_ENABLED
 	}
+	// --------------- For testing... -----------------------
 	else {
-		// For testing...
 		pos = printText(gText[textId], pos, "T:");
 		pos = printText(gText[textId], TEXT_LINE_MAX_CHARS-1-4, "V:");
 		pos = printNumber(gText[textId], pos+1, textId + 1);

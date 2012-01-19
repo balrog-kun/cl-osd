@@ -52,6 +52,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define ALARM_ALTITUDE_LOW 0 //Warn if below this level (in meters/feet)
 #define ALARM_ALTITUDE_HIGH 5000 //Warn if above this level (in meters/feet)
 #define ALARM_DISTANCE_HIGH 10000 //Warn if below this level (in meters/feet)
+#define ALARM_CURRENT_HIGH 50 //Warn if above this level (in Ampere)
+#define ALARM_POWER_USAGE_HIGH 5000 //Warn if above this level (in mAh)
 
 // ----------- SENSORS --------------
 // Enabled sensors
@@ -61,8 +63,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //#define SENSOR_CURRENT_ENABLED
 
 // Battery voltage sensor
-#define SENSOR_VOLTAGE_1
-#define SENSOR_VOLTAGE_2
+#define SENSOR_VOLTAGE_1_ENABLED
+//#define SENSOR_VOLTAGE_2_ENABLED
 
 // Battery percentage sensor
 #ifdef SENSOR_BATTERY_PERCENTAGE_ENABLED
@@ -90,11 +92,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define SENSOR_COMPASS_MAX_VOLTAGE 5.00
 #endif
 
-// Current sensor
+// Current sensor (Settings for ACS758LCB-100U-PFF-T, might need to tweak a bit.)
+#ifdef SENSOR_CURRENT_ENABLED
+#ifdef ANALOG_IN_3
+#define SENSOR_CURRENT_INPUT ANALOG_IN_3
+#else
 #define SENSOR_CURRENT_INPUT ANALOG_IN_2
-#define SENSOR_CURRENT_MIN_VOLTAGE 0.00 //(Max two digits after the dot)
-#define SENSOR_CURRENT_MAX_VOLTAGE 5.00
+#endif
+#define SENSOR_CURRENT_MIN_VOLTAGE 0.50 //(Max two digits after the dot)
+#define SENSOR_CURRENT_MAX_VOLTAGE 4.00
 #define SENSOR_CURRENT_MAX_AMPS 100 //AMP
+#endif
 
 // ----------- OTHER --------------
 
@@ -147,6 +155,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // ----------- CHECK SANITY --------------
 #if (defined(IMPERIAL_SYSTEM) && defined(METRIC_SYSTEM)) || (!defined(IMPERIAL_SYSTEM) && !defined(METRIC_SYSTEM))
 #error "Select one and only one unit system!"
+#endif
+
+#if (defined(SENSOR_VOLTAGE_2_ENABLED) && (ANALOG_IN_NUMBER <= 2) && defined(SENSOR_RSSI_ENABLED))
+#error "Can't use both RSSI and voltage 2 at the same time on this board."
 #endif
 
 // ----------- TEXT --------------
@@ -225,12 +237,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define RSSI_MIN_VOLTAGE_INT (uint16_t)(SENSOR_RSSI_MIN_VOLTAGE*100)
 #define RSSI_MAX_VOLTAGE_INT (uint16_t)(SENSOR_RSSI_MAX_VOLTAGE*100)
 
+// Compass
 #define COMPASS_MIN_VOLTAGE_INT (uint16_t)(SENSOR_COMPASS_MIN_VOLTAGE*100)
 #define COMPASS_MAX_VOLTAGE_INT (uint16_t)(SENSOR_COMPASS_MAX_VOLTAGE*100)
 
+// Current sensor
 #define CURRENT_MIN_VOLTAGE_INT (uint16_t)(SENSOR_CURRENT_MIN_VOLTAGE*100)
 #define CURRENT_MAX_VOLTAGE_INT (uint16_t)(SENSOR_CURRENT_MAX_VOLTAGE*100)
-#define SENSOR_CURRENT_MAX_AMPS 100 //AMP
 
 // ----------- GPS --------------
 #define GPS_BAUD 4800

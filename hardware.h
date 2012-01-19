@@ -58,7 +58,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // ----------- ADC --------------
 #if defined(E_OSD) || defined(E_OSD_GPS)
 #define ANALOG_IN_1 1 // Voltage 1 = ADC1
-#define ANALOG_IN_2 0 // Voltage 2 = ADC0
+#define ANALOG_IN_2 0 // Voltage 2 = ADC0 (can be RSSI)
 #else //G_OSD
 #define ANALOG_IN_1 0 // Voltage 1 = ADC0
 #define ANALOG_IN_2 1 // Voltage 2 = ADC1

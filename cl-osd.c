@@ -158,6 +158,7 @@ void main(void) {
 		if((PIND & KEY) != KEY) {
 			gKeyPressed = 1;
 			if(gKeyPressTime > 50) {
+				gKeyPressTime = 0;
 				PORTD |= LED; // long press!
 #ifdef GPS_ENABLED
 #ifdef HOME_SET_WITH_BUTTON

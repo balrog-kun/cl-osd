@@ -18,11 +18,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #ifndef SENSORS_H_
 #define SENSORS_H_
 
+#include "adc.h"
+
 static uint8_t gSensorBatteryPercentage = 0;
 static uint8_t gSensorRssi = 0;
 static uint8_t gSensorCompassDirection = 0;
 static uint8_t gSensorCurrent = 0;
 static uint32_t gSensorPowerUsage = 0;
+static TAnalogValue gSensorVoltage1 = {};
+static TAnalogValue gSensorVoltage2 = {};
 
 #ifdef SENSORS_ENABLED
 #ifndef ADC_ENABLED
@@ -50,6 +54,12 @@ static uint8_t calcGenericVoltageLevel(uint8_t adcInput, uint16_t inMin, uint16_
 }
 
 static void updateSensors() {
+#ifdef SENSOR_VOLTAGE_1_ENABLED
+    gSensorVoltage1 = gAnalogInputs[ANALOG_IN_1];
+#endif
+#ifdef SENSOR_VOLTAGE_2_ENABLED
+    gSensorVoltage2 = gAnalogInputs[ANALOG_IN_2];
+#endif
 #ifdef SENSOR_BATTERY_PERCENTAGE_ENABLED
    gSensorBatteryPercentage = calcGenericVoltageLevel(SENSOR_BATTERY_PERCENTAGE_INPUT, BATT_MIN_VOLTAGE_INT, BATT_MAX_VOLTAGE_INT, 0, 100);
 #endif 
@@ -61,8 +71,7 @@ static void updateSensors() {
 #endif
 #ifdef SENSOR_CURRENT_ENABLED
    gSensorCurrent = calcGenericVoltageLevel(SENSOR_CURRENT_INPUT, CURRENT_MIN_VOLTAGE_INT, CURRENT_MAX_VOLTAGE_INT, 0, SENSOR_CURRENT_MAX_AMPS);
-   //Assumes that this is called once a sec!
-   gSensorPowerUsage += ((uint32_t)(gSensorCurrent) * 1000) / 3600;
+   gSensorPowerUsage += ((uint32_t)(gSensorCurrent) * 1000 * 1000) / (3600 / SCREEN_AND_SENSOR_UPDATES_PER_SEC);
 #endif
 }  
 

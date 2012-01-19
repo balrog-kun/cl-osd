@@ -173,8 +173,22 @@ static uint8_t printNumber(char* const str, uint8_t pos, int32_t number) {
 	return pos+length;
 }
 
+static uint8_t printFloatNumber(char* const str, uint8_t pos, int32_t numberLow, int32_t numberHigh) {
+	pos = printNumber(str, pos, numberHigh);
+	str[pos++] = '.';
+	if(numberLow < 10) {
+		str[pos++] = '0';
+	}
+	return printNumber(str, pos, numberLow);
+}
+
 static uint8_t printNumberWithUnit(char* const str, uint8_t pos, int32_t number, const char* unit) {
 	pos = printNumber(str, pos, number);
+	return printText(str, pos, unit);
+}
+
+static uint8_t printFloatNumberWithUnit(char* const str, uint8_t pos, int32_t numberLow, int32_t numberHigh, const char* unit) {
+	pos = printFloatNumber(str, pos, numberLow, numberHigh);
 	return printText(str, pos, unit);
 }
 
@@ -198,12 +212,7 @@ static uint8_t printTime(char* const str, uint8_t pos) {
 static uint8_t printAdc(char* const str, uint8_t pos, const uint8_t adcInput) {
 	uint8_t low = gAnalogInputs[adcInput].low;
 	uint8_t high = gAnalogInputs[adcInput].high;
-	pos = printNumber(str, pos, high);
-	str[pos++] = '.';
-	if(low < 10) {
-		str[pos++] = '0';
-	}
-	return printNumberWithUnit(str, pos, low, "V");		
+	return printFloatNumberWithUnit(str, pos, low, high, "V");		
 }
 
 static uint8_t printRssiLevel(char* const str, uint8_t pos, const uint8_t adcInput) {

@@ -24,6 +24,8 @@ static uint8_t gAlarmBatt1 = 0;
 static uint8_t gAlarmBatt2 = 0;
 #endif
 static uint8_t gAlarmRssi = 0;
+static uint8_t gAlarmCurrent = 0;
+static uint8_t gAlarmPowerUsage = 0;
 #ifdef GPS_ENABLED
 static uint16_t gAlarmSpeed = 0;
 static uint16_t gAlarmDistance = 0;
@@ -50,6 +52,12 @@ static void updateAlarms() {
 #if ANALOG_IN_NUMBER == 2
 #ifdef ALARM_RSSI_LOW
   gAlarmRssi = calcRssiLevel(ANALOG_IN_2) < ALARM_RSSI_LOW;
+#endif
+#ifdef ALARM_CURRENT_HIGH
+  gAlarmCurrent = gSensorCurrent < ALARM_CURRENT_HIGH;
+#endif
+#ifdef ALARM_POWER_USAGE_HIGH
+  gAlarmPowerUsage = (gSensorPowerUsage/1000) < ALARM_POWER_USAGE_HIGH;
 #endif
 #else // ANALOG_IN_NUMBER > 2
 #ifdef ALARM_BATT2_LOW_INT
