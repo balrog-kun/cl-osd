@@ -32,10 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #endif
 
 
-#if (defined(E_OSD) && defined(E_OSD_GPS)) \
- || (defined(E_OSD) && defined(G_OSD)) \
- || (defined(E_OSD_GPS) && defined(G_OSD)) \
- || (defined(E_OSD) && defined(E_OSD_GPS) && defined(G_OSD)) \
+#if (defined(E_OSD) && (defined(E_OSD_GPS) || defined(G_OSD))) \
+ || (defined(G_OSD) && (defined(E_OSD_GPS) || defined(E_OSD))) \
+ || (defined(E_OSD_GPS) && (defined(E_OSD) || defined(G_OSD))) \
  || (!defined(E_OSD) && !defined(E_OSD_GPS) && !defined(G_OSD))
 #error "Select one and only one target!"
 #endif

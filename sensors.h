@@ -53,6 +53,11 @@ static uint8_t calcGenericVoltageLevel(uint8_t adcInput, uint16_t inMin, uint16_
 	return level;
 }
 
+static uint8_t calcGenericVoltageLevelReverse(uint8_t adcInput, uint16_t inMin, uint16_t inMax, uint16_t outMin, uint16_t outMax) {
+	uint16_t value = calcGenericVoltageLevel(adcInput, inMin, inMax, outMin, outMax);
+	return outMax - value + outMin;
+}
+
 static void updateSensors() {
 #ifdef SENSOR_VOLTAGE_1_ENABLED
     gSensorVoltage1 = gAnalogInputs[ANALOG_IN_1];
@@ -64,14 +69,18 @@ static void updateSensors() {
    gSensorBatteryPercentage = calcGenericVoltageLevel(SENSOR_BATTERY_PERCENTAGE_INPUT, BATT_MIN_VOLTAGE_INT, BATT_MAX_VOLTAGE_INT, 0, 100);
 #endif 
 #ifdef SENSOR_RSSI_ENABLED
+#ifdef SENSOR_RSSI_REVERSED
+   gSensorRssi = calcGenericVoltageLevelReverse(SENSOR_RSSI_INPUT, RSSI_MIN_VOLTAGE_INT, RSSI_MAX_VOLTAGE_INT, 0, 100);
+#else
    gSensorRssi = calcGenericVoltageLevel(SENSOR_RSSI_INPUT, RSSI_MIN_VOLTAGE_INT, RSSI_MAX_VOLTAGE_INT, 0, 100);
+#endif
 #endif
 #ifdef SENSOR_COMPASS_ENABLED
    gSensorCompassDirection = calcGenericVoltageLevel(SENSOR_COMPASS_INPUT, COMPASS_MIN_VOLTAGE_INT, COMPASS_MAX_VOLTAGE_INT, 0, 359);
 #endif
 #ifdef SENSOR_CURRENT_ENABLED
    gSensorCurrent = calcGenericVoltageLevel(SENSOR_CURRENT_INPUT, CURRENT_MIN_VOLTAGE_INT, CURRENT_MAX_VOLTAGE_INT, 0, SENSOR_CURRENT_MAX_AMPS);
-   gSensorPowerUsage += ((uint32_t)(gSensorCurrent) * 1000 * 1000) / (3600 / SCREEN_AND_SENSOR_UPDATES_PER_SEC);
+   gSensorPowerUsage += ((uint32_t)(gSensorCurrent) * 1000 * 1000) / (3600 * SCREEN_AND_SENSOR_UPDATES_PER_SEC); // Bug fix by peacefullhill
 #endif
 }  
 

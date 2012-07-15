@@ -83,6 +83,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #endif
 #define SENSOR_RSSI_MAX_VOLTAGE 5.0 //(Max two digits after the dot)
 #define SENSOR_RSSI_MIN_VOLTAGE 1.2
+//#define SENSOR_RSSI_REVERSED // If a low voltage value means high signal strength and vice versa, then enable this. (Thanks BlueAngel2000)
 #endif //SENSOR_RSSI_ENABLED
 
 // Compass sensor
@@ -94,11 +95,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 // Current sensor (Settings for ACS758LCB-100U-PFF-T, might need to tweak a bit.)
 #ifdef SENSOR_CURRENT_ENABLED
+// Peacefullhill says to use analog 2 since RSSI is less stable. Not tested by me.
 #ifdef ANALOG_IN_3
 #define SENSOR_CURRENT_INPUT ANALOG_IN_3
 #else
 #define SENSOR_CURRENT_INPUT ANALOG_IN_2
 #endif
+
+// If your sensor is defined in mV/A and a 0A value us this calculation: (Thanks to kai)
+// Max amp = Amp at max level.
+// Min voltage = 0A voltage.
+// Max voltage = (0A voltage) + (max amp) * ((mV/A) / 1000) = Max voltage
+// For example we have a sensor with 40mV/A and 0.6V at 0A with max 100 Amps:
+// Max amp = 100, Min voltage = 0.60, Max value = 0.6 + 100 * (40 / 1000) = 4.60
 #define SENSOR_CURRENT_MIN_VOLTAGE 0.50 //(Max two digits after the dot)
 #define SENSOR_CURRENT_MAX_VOLTAGE 4.00
 #define SENSOR_CURRENT_MAX_AMPS 100 //AMP
@@ -125,7 +134,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #define HOME_SET_WITH_BUTTON //Home position is set when the little button on OSD is long pressed.
 #define HOME_SET_FIX_COUNT 10 //Config for _SET_AT_FIX: After 10 successfully fixes, home is set.
 #define HOME_FIX_MIN_SPEED 10 //Config for _AUTO_SET: More than 10 km/h sets home.
-#define HOME_SET_MIN_SATS 4 //Config for _SET_AT_FIX: Set home only when more than 4 satellites.
+#define HOME_SET_MIN_SATS 4 //Config for _SET_AT_FIX: Set home only when more than 4 satellites. (Thanks to Yury Smirnov)
 
 //GPS
 //#define GPS_GOOGLE_FORMAT

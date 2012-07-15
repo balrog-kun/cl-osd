@@ -73,7 +73,7 @@ static void finishGpsDecoding() {
 			if (gGpsLastValidData.fix != 0) {
 #ifdef HOME_SET_AT_FIX
         if (gHomeFixCount >= HOME_SET_FIX_COUNT) {
-			    if (gGpsLastValidData.sats >= HOME_SET_MIN_SATS) {
+			    if (gGpsLastValidData.sats >= HOME_SET_MIN_SATS) { // (Improved thanks to Yury Smirnov)
 			      setHomePos();
 				  }				  
 	      }
