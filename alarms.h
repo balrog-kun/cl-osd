@@ -47,11 +47,11 @@ static void updateAlarms() {
 #endif //GPS_ENABLED
 
 #ifdef ALARM_BATT1_LOW_INT
-	gAlarmBatt1 = ((gAnalogInputs[ANALOG_IN_1].high * 100) + gAnalogInputs[ANALOG_IN_1].low) < ALARM_BATT1_LOW_INT;
+	gAlarmBatt1 = ((gSensorVoltage1.high * 100) + gSensorVoltage1.low) < ALARM_BATT1_LOW_INT;
 #endif
 #if ANALOG_IN_NUMBER == 2
 #ifdef ALARM_RSSI_LOW
-  gAlarmRssi = calcRssiLevel(ANALOG_IN_2) < ALARM_RSSI_LOW;
+  gAlarmRssi = gSensorRssi < ALARM_RSSI_LOW;
 #endif
 #ifdef ALARM_CURRENT_HIGH
   gAlarmCurrent = gSensorCurrent < ALARM_CURRENT_HIGH;
@@ -61,10 +61,10 @@ static void updateAlarms() {
 #endif
 #else // ANALOG_IN_NUMBER > 2
 #ifdef ALARM_BATT2_LOW_INT
-	gAlarmBatt2 = ((gAnalogInputs[ANALOG_IN_2].high * 100) + gAnalogInputs[ANALOG_IN_2].low) < ALARM_BATT2_LOW_INT;
+	gAlarmBatt2 = ((gSensorVoltage1.high * 100) + gSensorVoltage1.low) < ALARM_BATT2_LOW_INT;
 #endif
 #ifdef ALARM_RSSI_LOW
-	gAlarmRssi = calcRssiLevel(ANALOG_IN_3) < ALARM_RSSI_LOW;
+	gAlarmRssi = gSensorRssi < ALARM_RSSI_LOW;
 #endif
 #endif //ANALOG_IN_NUMBER == 2
 }
