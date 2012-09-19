@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //(Comment to disable)
 #ifdef HARDWARE_SUPPORT_GPS
 #define GPS_ENABLED
-#endif //HARDWARE_SUPPORT_GPSE
+#endif //HARDWARE_SUPPORT_GPS
 #ifdef GPS_ENABLED
 #define GRAPICSENABLED
 #endif //GPS_ENABLED
@@ -139,6 +139,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //GPS
 //#define GPS_GOOGLE_FORMAT
 //#define GPS_DIYD //Use DIYD/APM binary protocol (Thanks to David Collett)
+#define GPS_CAL_GOOGLE_LAT 7382 //Local calibration of Google GPS Lat (Truglodite)
+#define GPS_CAL_GOOGLE_LON 4728 //Local calibration of Google GPS Long (Truglodite)
+#define GPS_POS_ALWAYS_SHOWN_ENABLED // Always show gps position.
 
 //Pre and post flight info
 #define STATISTICS_MIN_SPEED_SHOW 3 //Under this speed the statistics will show.
@@ -153,7 +156,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 // Color system (Thanks to chatch15117)
 //#define COLORSYSTEM_NTSC
 
-//BUG fix for GOSDII GPS (sends km/h instead of knots)
+//BUG fix for GOSDII GPS (gps unit sends km/h instead of knots)
 //#define GOSDII_GPS_SPEED_BUGFIX
 
 //Screen and sensor refresh rate (Don't set too high!)
@@ -168,6 +171,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 
 #if (defined(SENSOR_VOLTAGE_2_ENABLED) && (ANALOG_IN_NUMBER <= 2) && defined(SENSOR_RSSI_ENABLED))
 #error "Can't use both RSSI and voltage 2 at the same time on this board."
+#endif
+
+#if (defined(GPS_POS_ALWAYS_SHOWN_ENABLED) && defined(TEXT_COMPASS_ENABLED))
+#error "Can't use both TEXT_COMPASS_ENABLED and TEXT_GPS_POS_ALWAYS_SHOWN_ENABLED at the same time without changing the code!"
 #endif
 
 // ----------- TEXT --------------

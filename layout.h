@@ -100,6 +100,10 @@ static void updateText(uint8_t textId) {
 #ifdef TEXT_COMPASS_ENABLED
 		  printCompassArrow(gText[textId], 7, gGpsLastValidData.angle, 19); // Upper compass part
 #endif //TEXT_COMPASS_ENABLED
+#ifdef GPS_POS_ALWAYS_SHOWN_ENABLED 
+      pos = printGpsNumber(gText[textId], pos+4, gGpsLastValidData.pos.latitude, 1); // GPS position in place of text compas (Truglodite)
+      pos = printGpsNumber(gText[textId], pos+2, gGpsLastValidData.pos.longitude, 0);
+#endif //GPS_POS_ALWAYS_SHOWN_ENABLED 
 	  }
 #endif //GPS_ENABLED
   }

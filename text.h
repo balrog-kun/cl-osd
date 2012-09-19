@@ -249,6 +249,13 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
 #ifdef GPS_GOOGLE_FORMAT
   uint32_t min = number - (hour * 1000000);
   min = (min * 100)/60;
+  //Local calibration of Google GPS (Truglodite)
+  if (numberLat) {
+	  min = min + GPS_CAL_GOOGLE_LAT;    //Lat
+  }
+  else {
+	  min = min + GPS_CAL_GOOGLE_LON;    //Long
+  }
 #else
 	uint8_t min = (number - (hour * 1000000)) / 10000; //Get minute part
   uint32_t minDecimal = number % 10000; //Get minute decimal part
