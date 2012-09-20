@@ -135,6 +135,10 @@ static void updateText(uint8_t textId) {
 	// --------------- TEXT LINE 5 (From top) -----------------------
 	else if (textId == 4) {
 #ifdef GPS_ENABLED
+#ifdef VBI_TESTING_ENABLED
+    pos = printVbiData(gText[textId], 0, 0b01010101); // Just a simple test to see if it works. Needs much more love!
+	  return;
+#endif //VBI_TESTING_ENABLED
     if (!gAlarmSpeed || gBlink1Hz) {
 	    pos = printNumber(gText[textId], 0, gGpsLastValidData.speed); // Speed
 	  }		
@@ -160,6 +164,10 @@ static void updateText(uint8_t textId) {
 	// --------------- TEXT LINE 6 (From top) -----------------------
 	else if (textId == 5) {
 #ifdef GPS_ENABLED
+#ifdef VBI_TESTING_ENABLED
+    pos = printVbiString(gText[textId], 0, "hejsan hoppsan"); // Just a simple test to see if it works. Needs much more love!
+	  return;
+#endif //VBI_TESTING_ENABLED
 		pos = printText(gText[textId], 0, "SPD");
 		pos = printText(gText[textId], 5, "LOS");
 		

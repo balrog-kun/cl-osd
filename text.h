@@ -246,10 +246,10 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
   number = absi32(number);
   //Local calibration of Google GPS (Truglodite) (Modified by me)
   if (numberLat) {
-	  number = number + (GPS_CAL_GOOGLE_LAT*60)/100;    //Lat
+	  number = number + ((uint32_t)(GPS_CAL_GOOGLE_LAT)*60)/100;    //Lat
   }
   else {
-	  number = number + (GPS_CAL_GOOGLE_LON*60)/100;    //Long
+	  number = number + ((uint32_t)(GPS_CAL_GOOGLE_LON)*60)/100;    //Long
   }
 	
 	uint8_t hour = number / 1000000;
@@ -267,7 +267,7 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
 	  uint32_t temp = min;
 		while (temp < 10000) {
 			temp *= 10;
-			pos = printNumber(str, pos, "0");
+			pos = printNumber(str, pos, 0);
 		}
   }
   return printNumberWithUnit(str, pos, min, str2);
@@ -278,7 +278,7 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
 	  uint32_t temp = minDecimal;
 		while (temp < 10000) {
 			temp *= 10;
-			pos = printNumber(str, pos, "0");
+			pos = printNumber(str, pos, 0);
 		}
   }
   return printNumberWithUnit(str, pos, minDecimal, str2);
@@ -320,7 +320,41 @@ static uint8_t printCompass(char* const str, uint8_t pos, uint16_t angle, uint8_
     }
   }
   return pos + length;
-}  
+}
+
+#ifdef VBI_TESTING_ENABLED
+static uint8_t printVbiData(char* const str, uint8_t pos, uint8_t data) {
+	uint8_t temp = data;
+	pos = printText(str, pos, "\153");
+	for (uint8_t i = 8; i != 0; i--) {
+		if (temp & 0x80) {
+	    pos = printText(str, pos, "\153");
+		  
+		}
+		else {
+			//pos = printText(str, pos, "0");
+			pos++;
+		}
+		temp <<= 1;
+	}
+	//pos = printText(str, pos, "#");
+	return pos;
+}
+
+static uint8_t printVbiString(char* const str, uint8_t pos, char* string) {
+	uint8_t length = strlen(string);
+	static uint8_t textPos = 0;
+	for (uint8_t i = 3; i != 0; i--) {
+	  pos = printVbiData(str, pos, string[textPos]);
+	  pos++;
+	  textPos++;
+	  if (textPos >= length) {
+		  textPos = 0;
+	  }
+	}	  
+	return pos;
+}
+#endif //VBI_TESTING_ENABLED
 
 static void drawTextLine(uint8_t textId)
 {

@@ -150,6 +150,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 //User data
 #define TEXT_CALL_SIGN "" //Set this to your call sign.
 
+//VBI (Only for evaluation and development, not finished!)
+//#define VBI_TESTING_ENABLED
+
 //Time
 //#define TIME_HOUR_ENABLED //Enable time to show and count hours.
 

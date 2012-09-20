@@ -80,9 +80,9 @@ static void updateLine() {
 		if (gActiveLine == UPDATE_LINE) {
 			gUpdateScreenData = 1;
 		}
-		if (gActiveLine == UPDATE_LINE + 1) {
+		else if (gActiveLine == UPDATE_LINE + 1) {
 			gUpdateScreenData = 2;
-		}			
+		}
 
 #ifdef TEXT_ENABLED	
 		if (gActiveLine >= gActiveTextLine && gActiveLine < gActiveTextLastLine) {
