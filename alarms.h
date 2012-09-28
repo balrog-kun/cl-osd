@@ -61,7 +61,7 @@ static void updateAlarms() {
 #endif
 #else // ANALOG_IN_NUMBER > 2
 #ifdef ALARM_BATT2_LOW_INT
-	gAlarmBatt2 = ((gSensorVoltage1.high * 100) + gSensorVoltage1.low) < ALARM_BATT2_LOW_INT;
+	gAlarmBatt2 = ((gSensorVoltage2.high * 100) + gSensorVoltage2.low) < ALARM_BATT2_LOW_INT; //Bugfix thanks to Benson
 #endif
 #ifdef ALARM_RSSI_LOW
 	gAlarmRssi = gSensorRssi < ALARM_RSSI_LOW;
