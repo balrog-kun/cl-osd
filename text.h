@@ -246,10 +246,10 @@ static uint8_t printGpsNumber(char* const str, uint8_t pos, int32_t number, uint
   number = absi32(number);
   //Local calibration of Google GPS (Truglodite) (Modified by me)
   if (numberLat) {
-	  number = number + ((uint32_t)(GPS_CAL_GOOGLE_LAT)*60)/100;    //Lat
+	  number = number + ((int32_t)(GPS_CAL_GOOGLE_LAT)*60)/100;    //Lat
   }
   else {
-	  number = number + ((uint32_t)(GPS_CAL_GOOGLE_LON)*60)/100;    //Long
+	  number = number + ((int32_t)(GPS_CAL_GOOGLE_LON)*60)/100;    //Long
   }
 	
 	uint8_t hour = number / 1000000;
