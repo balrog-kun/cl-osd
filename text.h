@@ -356,6 +356,13 @@ static uint8_t printVbiString(char* const str, uint8_t pos, char* string) {
 }
 #endif //VBI_TESTING_ENABLED
 
+static uint8_t print1DecNumberWithUnit(char *const str, uint8_t pos, int16_t number, const char *unit) {
+	pos = printNumber(str, pos, number / 10);
+	str[pos++] = '.';
+	pos = printNumber(str, pos, number % 10);
+	return printText(str, pos, unit);
+}
+
 static void drawTextLine(uint8_t textId)
 {
 	_delay_us(3);

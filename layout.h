@@ -106,6 +106,12 @@ static void updateText(uint8_t textId) {
 #endif //GPS_POS_ALWAYS_SHOWN_ENABLED 
 	  }
 #endif //GPS_ENABLED
+#ifdef UART_ENABLED
+		if (baro_alt)
+			pos = print1DecNumberWithUnit(gText[textId],
+					TEXT_LINE_MAX_CHARS - 6,
+					baro_alt, "m");
+#endif //UART_ENABLED
   }
   // --------------- TEXT LINE 4 (From top) -----------------------
   else if (textId == 3) {

@@ -27,14 +27,6 @@ static uint8_t gGpsValidData = 0;
 static TGpsData gGpsLastData = {};
 static TTime gLastFix = {};
 
-static void setupGps() {
-	// USART setup
-	UBRR0H = (uint8_t)(GPS_UBRR>>8); // set baud
-	UBRR0L = (uint8_t)GPS_UBRR;
-	UCSR0C = (3<<UCSZ00); // 8N1
-	UCSR0B = (1<<RXEN0); // Enable RX
-}
-
 static void setHomePos() {
 #ifdef STATISTICS_ENABLED	
 	resetStatistics();

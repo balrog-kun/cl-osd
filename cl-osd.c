@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "time.h"
 #include "adc.h"
 #include "gps.h"
+#include "uart.h"
 #include "layout.h"
 
 #ifdef DEBUG
@@ -53,10 +54,10 @@ static void setup(void)
 	setupAdc();
 #endif //ADCENABLED
 
-#ifdef GPS_ENABLED
-	setupGps();
+#if defined(GPS_ENABLED) || defined(UART_ENABLED)
+	setupUart();
 #endif //GPS_ENABLED
-	
+
 	sei();
 }
 
@@ -147,13 +148,16 @@ void main(void) {
 	setup();
 
 	while(1) {
-    
+		if (UCSR0A & (1<<RXC0)) {
+			uint8_t byte = UDR0;
 #ifdef GPS_ENABLED
-    if(UCSR0A & (1<<RXC0)) {
-      decodeGpsData(UDR0);
-    }
+			decodeGpsData(byte);
 #endif //GPS_ENABLED
-    
+#ifdef UART_ENABLED
+			decodeUartData(byte);
+#endif //UART_ENABLED
+		}
+
 #ifndef DEBUG
 		if((PIND & KEY) != KEY) {
 			gKeyPressed = 1;
